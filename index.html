@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Dev Stack Study Plan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        base: { 900: '#0f1117', 800: '#151722', 700: '#1a1d2e', 600: '#222539', 500: '#2a2e44', 400: '#353a54' },
+                        surface: { 100: '#e2e8f0', 200: '#cbd5e1', 300: '#94a3b8', 400: '#64748b', 500: '#475569' },
+                        purple: { 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9' },
+                        cyan: { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' },
+                        success: { 400: '#34d399', 500: '#10b981', 600: '#059669' },
+                        warn: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+                        tech: {
+                            python: '#3b82f6', fastapi: '#10b981', kafka: '#f59e0b', docker: '#06b6d4',
+                            kubernetes: '#6366f1', helm: '#8b5cf6', github: '#9ca3af', gitlab: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    borderRadius: { '2xl': '1rem', '3xl': '1.25rem', '4xl': '1.5rem' }
+                }
+            }
+        };
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { background: #0f1117; color: #e2e8f0; font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #151722; }
+        ::-webkit-scrollbar-thumb { background: #353a54; border-radius: 3px; }
+        .gradient-text { background: linear-gradient(135deg, #7c3aed, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bar { background: linear-gradient(90deg, #7c3aed, #06b6d4); }
+        .gradient-border { border: 1px solid transparent; background: linear-gradient(#1a1d2e, #1a1d2e) padding-box, linear-gradient(135deg, #7c3aed44, #06b6d444) border-box; }
+        .tab-active { border-bottom: 2px solid #7c3aed; color: #a78bfa; }
+        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
+        .tab-inactive:hover { color: #94a3b8; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+        .accordion-content.open { max-height: 2000px; }
+        .topic-done .topic-text { text-decoration: line-through; opacity: 0.5; }
+        .sidebar-item { transition: all 0.2s ease; }
+        .sidebar-item:hover { background: #222539; }
+        .sidebar-item.active { background: linear-gradient(135deg, #7c3aed22, #06b6d422); border-left: 3px solid #7c3aed; }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124, 58, 237, 0.1); }
+        .progress-track { background: #222539; border-radius: 999px; overflow: hidden; }
+        .progress-fill { border-radius: 999px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .checkbox-custom { appearance: none; width: 20px; height: 20px; border: 2px solid #475569; border-radius: 6px; cursor: pointer; position: relative; transition: all 0.2s; flex-shrink: 0; background: transparent; }
+        .checkbox-custom:checked { background: linear-gradient(135deg, #7c3aed, #06b6d4); border-color: transparent; }
+        .checkbox-custom:checked::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 12px; font-weight: 700; }
+        .checkbox-custom:hover { border-color: #7c3aed; }
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+        .confetti-piece { position: absolute; top: -10px; width: 10px; height: 10px; border-radius: 2px; animation: confetti-fall 3s ease-out forwards; }
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotateZ(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+        }
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.2); } 50% { box-shadow: 0 0 20px 4px rgba(124, 58, 237, 0.15); } }
+        .mastery-badge { animation: masteryPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes masteryPop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @media (max-width: 767px) {
+            .sidebar-desktop { display: none; }
+            .mobile-nav-btn { display: flex; }
+        }
+        @media (min-width: 768px) {
+            .mobile-nav-btn { display: none; }
+            .mobile-overlay { display: none !important; }
+        }
+    </style>
+</head>
+<body data-id="0">
+    <app-icon data-id="1" hidden data-icon="rocket" data-palette="Dark"></app-icon>
+
+    <!-- HEADER -->
+    <header data-id="2" id="header-main" class="sticky top-0 z-40 border-b border-white/5" style="background: rgba(15,17,23,0.85); backdrop-filter: blur(16px);">
+        <div data-id="3" class="max-w-screen-2xl mx-auto px-4 md:px-6 py-4">
+            <div data-id="4" class="flex items-center justify-between mb-3">
+                <div data-id="5" class="flex items-center gap-3">
+                    <button data-id="6" id="mobile-menu-btn" class="mobile-nav-btn md:hidden items-center justify-center w-10 h-10 rounded-xl bg-base-700 text-surface-200">
+                        <i data-id="7" data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div data-id="8">
+                        <h1 data-id="9" class="font-display text-xl md:text-2xl font-bold gradient-text">🚀 Dev Stack Study Plan</h1>
+                        <p data-id="10" class="text-xs md:text-sm text-surface-400 mt-0.5">Your roadmap to mastering the modern backend stack</p>
+                    </div>
+                </div>
+                <div data-id="11" class="flex items-center gap-2">
+                    <span data-id="12" id="greeting-text" class="hidden md:inline text-xs text-surface-400">Hey Brian 👋</span>
+                    <button data-id="13" id="reset-all-btn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-base-700 text-surface-300 hover:bg-base-600 transition-all">
+                        <i data-id="14" data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span data-id="15" class="hidden sm:inline">Reset All</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Overall progress -->
+            <div data-id="16" class="flex items-center gap-3">
+                <div data-id="17" class="flex-1 progress-track h-2.5">
+                    <div data-id="18" id="overall-progress-bar" class="gradient-bar progress-fill h-full" style="width:0%"></div>
+                </div>
+                <span data-id="19" id="overall-progress-text" class="text-xs font-semibold text-surface-200 tabular-nums min-w-[40px] text-right">0%</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATS STRIP -->
+    <div data-id="20" id="stats-strip" class="border-b border-white/5 bg-base-800">
+        <div data-id="21" class="max-w-screen-2xl mx-auto px-4 md:px-6 py-3 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div data-id="22" class="flex items-center gap-2.5 bg-base-700 rounded-2xl px-4 py-3">
+                <i data-id="23" data-lucide="check-circle-2" class="w-5 h-5 text-success-500"></i>
+                <div data-id="24"><p data-id="25" class="text-xs text-surface-400">Topics Done</p><p data-id="26" id="stat-done" class="text-sm font-bold text-surface-100 tabular-nums">0 / 0</p></div>
+            </div>
+            <div data-id="27" class="flex items-center gap-2.5 bg-base-700 rounded-2xl px-4 py-3">
+                <i data-id="28" data-lucide="clock" class="w-5 h-5 text-cyan-400"></i>
+                <div data-id="29"><p data-id="30" class="text-xs text-surface-400">Hours Done</p><p data-id="31" id="stat-hours" class="text-sm font-bold text-surface-100 tabular-nums">0 / 0</p></div>
+            </div>
+            <div data-id="32" class="flex items-center gap-2.5 bg-base-700 rounded-2xl px-4 py-3">
+                <i data-id="33" data-lucide="bar-chart-3" class="w-5 h-5 text-purple-400"></i>
+                <div data-id="34"><p data-id="35" class="text-xs text-surface-400">Overall</p><p data-id="36" id="stat-percent" class="text-sm font-bold text-surface-100 tabular-nums">0%</p></div>
+            </div>
+            <div data-id="37" class="flex items-center gap-2.5 bg-base-700 rounded-2xl px-4 py-3">
+                <i data-id="38" data-lucide="trophy" class="w-5 h-5 text-warn-500"></i>
+                <div data-id="39"><p data-id="40" class="text-xs text-surface-400">Mastered</p><p data-id="41" id="stat-mastered" class="text-sm font-bold text-surface-100 tabular-nums">0 / 8</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE NAV OVERLAY -->
+    <div data-id="42" id="mobile-overlay" class="mobile-overlay fixed inset-0 z-50 hidden" style="background: rgba(0,0,0,0.6);">
+        <nav data-id="43" class="w-72 h-full bg-base-800 border-r border-white/5 overflow-y-auto p-4">
+            <div data-id="44" class="flex items-center justify-between mb-4">
+                <h2 data-id="45" class="font-display text-lg font-semibold gradient-text">Technologies</h2>
+                <button data-id="46" id="mobile-close-btn" class="w-9 h-9 flex items-center justify-center rounded-xl bg-base-700 text-surface-300">
+                    <i data-id="47" data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div data-id="48" id="mobile-tech-list" class="space-y-1"></div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main data-id="49" class="max-w-screen-2xl mx-auto px-4 md:px-6 py-6">
+        <div data-id="50" class="flex gap-6">
+            <!-- SIDEBAR -->
+            <aside data-id="51" id="sidebar-area" class="sidebar-desktop hidden md:block w-64 flex-shrink-0">
+                <div data-id="52" class="sticky top-[130px]">
+                    <h2 data-id="53" class="font-display text-sm font-semibold text-surface-400 uppercase tracking-wider mb-3 px-3">Technologies</h2>
+                    <nav data-id="54" id="sidebar-tech-list" class="space-y-1"></nav>
+                </div>
+            </aside>
+
+            <!-- DETAIL PANEL -->
+            <section data-id="55" id="detail-panel" class="flex-1 min-w-0 fade-in">
+                <!-- Filled by JS -->
+            </section>
+        </div>
+    </main>
+
+    <!-- RESET CONFIRM MODAL -->
+    <div data-id="56" id="reset-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.7);">
+        <div data-id="57" class="bg-base-700 rounded-3xl p-6 max-w-sm w-full border border-white/10">
+            <h3 data-id="58" class="font-display text-lg font-bold text-surface-100 mb-2">Reset All Progress?</h3>
+            <p data-id="59" class="text-sm text-surface-400 mb-5">This will clear all your completed topics across every technology. This action cannot be undone.</p>
+            <div data-id="60" class="flex gap-3 justify-end">
+                <button data-id="61" id="reset-cancel-btn" class="px-4 py-2 rounded-xl text-sm font-medium bg-base-600 text-surface-300 hover:bg-base-500 transition-all">Cancel</button>
+                <button data-id="62" id="reset-confirm-btn" class="px-4 py-2 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition-all">Reset Everything</button>
+            </div>
+        </div>
+    </div>
+
+    <footer data-id="63" class="py-8 mt-auto text-center border-t border-white/5">
+        <p data-id="64" class="text-xs text-surface-500">Made by Copilot</p>
+    </footer>
+
+    <script>
+    // Guard for Lucide
+    if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+        lucide.createIcons();
+    }
+
+    /* ========== DATA ========== */
+    const TECHS = [
+        {
+            id: 'python', name: 'Python', emoji: '🐍', color: '#3b82f6', difficulty: 'Beginner → Intermediate', hours: 40,
+            phases: [
+                { name: 'Phase 1 – Foundations', weeks: 'Week 1-2', hours: 15, topics: [
+                    { id: 'py1', title: 'Python syntax, data types, control flow', hours: 2, diff: 'beginner', desc: 'Variables, strings, numbers, lists, dicts, if/else, for/while loops.' },
+                    { id: 'py2', title: 'Functions, args/kwargs, lambda', hours: 2, diff: 'beginner', desc: 'Defining functions, positional & keyword arguments, *args/**kwargs, anonymous functions.' },
+                    { id: 'py3', title: 'OOP: classes, inheritance, dunder methods', hours: 3, diff: 'intermediate', desc: 'Class definitions, __init__, __repr__, __str__, inheritance, super(), polymorphism.' },
+                    { id: 'py4', title: 'Error handling & exceptions', hours: 2, diff: 'beginner', desc: 'try/except/finally, custom exceptions, raising errors, best practices.' },
+                    { id: 'py5', title: 'File I/O and context managers', hours: 2, diff: 'beginner', desc: 'Reading/writing files, the with statement, creating custom context managers.' },
+                    { id: 'py6', title: 'Modules, packages, virtual environments', hours: 2, diff: 'beginner', desc: 'Import system, pip, venv, requirements.txt, project structure.' },
+                    { id: 'py7', title: 'Type hints and mypy basics', hours: 2, diff: 'intermediate', desc: 'Type annotations, Optional, Union, List/Dict types, running mypy.' }
+                ]},
+                { name: 'Phase 2 – Intermediate', weeks: 'Week 3-4', hours: 15, topics: [
+                    { id: 'py8', title: 'List/dict/set comprehensions & generators', hours: 2, diff: 'intermediate', desc: 'Comprehension syntax, generator expressions, yield, lazy evaluation.' },
+                    { id: 'py9', title: 'Decorators & closures', hours: 3, diff: 'intermediate', desc: 'First-class functions, closures, writing decorators, functools.wraps.' },
+                    { id: 'py10', title: 'Async/await & asyncio fundamentals', hours: 4, diff: 'advanced', desc: 'Event loop, coroutines, asyncio.gather, async context managers, aiohttp.' },
+                    { id: 'py11', title: 'Pydantic models & data validation', hours: 3, diff: 'intermediate', desc: 'BaseModel, field validators, settings management, JSON serialization.' },
+                    { id: 'py12', title: 'Testing with pytest', hours: 3, diff: 'intermediate', desc: 'Writing tests, fixtures, parametrize, mocking, test coverage.' }
+                ]},
+                { name: 'Phase 3 – Ecosystem', weeks: 'Week 5', hours: 10, topics: [
+                    { id: 'py13', title: 'Working with JSON, YAML, env vars', hours: 2, diff: 'beginner', desc: 'json module, PyYAML, os.environ, python-dotenv, config patterns.' },
+                    { id: 'py14', title: 'HTTP clients: httpx, requests', hours: 2, diff: 'intermediate', desc: 'GET/POST requests, headers, auth, async httpx, session management.' },
+                    { id: 'py15', title: 'Logging best practices', hours: 2, diff: 'beginner', desc: 'logging module, log levels, formatters, handlers, structured logging.' },
+                    { id: 'py16', title: 'Python packaging & pyproject.toml', hours: 2, diff: 'intermediate', desc: 'Building packages, setuptools, pyproject.toml, publishing to PyPI.' },
+                    { id: 'py17', title: 'Dataclasses vs Pydantic', hours: 2, diff: 'intermediate', desc: 'When to use each, performance differences, frozen dataclasses, field defaults.' }
+                ]}
+            ],
+            resources: [
+                { title: 'Official Python Docs', desc: 'Comprehensive reference for all Python features and standard library.', icon: 'book-open' },
+                { title: 'Real Python', desc: 'In-depth tutorials, guides, and articles for all skill levels.', icon: 'globe' },
+                { title: 'Corey Schafer YouTube', desc: 'Excellent video tutorials on Python fundamentals and OOP.', icon: 'video' },
+                { title: 'Python Crash Course (book)', desc: 'Hands-on, project-based intro to Python programming.', icon: 'book' },
+                { title: 'Talk Python Podcast', desc: 'Weekly podcast covering Python ecosystem and best practices.', icon: 'headphones' }
+            ],
+            projects: [
+                { title: 'CLI Task Manager', desc: 'Build a command-line task manager with add, list, complete, and delete operations. Store tasks in JSON.', skills: ['File I/O', 'OOP', 'argparse', 'JSON'] },
+                { title: 'Data Processing Pipeline', desc: 'Create a script that reads CSV data, transforms it using generators, and outputs clean reports.', skills: ['Generators', 'Comprehensions', 'File I/O', 'Error Handling'] },
+                { title: 'Async Web Scraper', desc: 'Build an async scraper using httpx and asyncio to fetch and parse multiple pages concurrently.', skills: ['async/await', 'httpx', 'Error Handling', 'Logging'] }
+            ]
+        },
+        {
+            id: 'fastapi', name: 'FastAPI', emoji: '⚡', color: '#10b981', difficulty: 'Intermediate', hours: 30,
+            phases: [
+                { name: 'Phase 1 – Core Concepts', weeks: 'Week 1-2', hours: 12, topics: [
+                    { id: 'fa1', title: 'Intro to FastAPI & ASGI', hours: 2, diff: 'beginner', desc: 'What is FastAPI, ASGI vs WSGI, Uvicorn, first endpoint.' },
+                    { id: 'fa2', title: 'Path & query parameters, request body', hours: 2, diff: 'beginner', desc: 'URL path params, query strings, JSON request bodies, validation.' },
+                    { id: 'fa3', title: 'Pydantic schemas & response models', hours: 3, diff: 'intermediate', desc: 'Request/response models, nested schemas, field validation, response_model.' },
+                    { id: 'fa4', title: 'Dependency injection system', hours: 3, diff: 'intermediate', desc: 'Depends(), sub-dependencies, scoped deps, DB session management.' },
+                    { id: 'fa5', title: 'Async route handlers', hours: 2, diff: 'intermediate', desc: 'async def vs def, when to use async, database async patterns.' }
+                ]},
+                { name: 'Phase 2 – Advanced Features', weeks: 'Week 3', hours: 10, topics: [
+                    { id: 'fa6', title: 'Authentication: OAuth2, JWT tokens', hours: 4, diff: 'advanced', desc: 'OAuth2 with Password flow, JWT creation/validation, protecting routes.' },
+                    { id: 'fa7', title: 'Background tasks & lifespan events', hours: 2, diff: 'intermediate', desc: 'BackgroundTasks, startup/shutdown events, lifespan context manager.' },
+                    { id: 'fa8', title: 'Middleware & CORS', hours: 2, diff: 'intermediate', desc: 'Custom middleware, CORSMiddleware, request/response processing.' },
+                    { id: 'fa9', title: 'WebSockets', hours: 2, diff: 'advanced', desc: 'WebSocket endpoints, connection management, broadcasting patterns.' }
+                ]},
+                { name: 'Phase 3 – Production Patterns', weeks: 'Week 4', hours: 8, topics: [
+                    { id: 'fa10', title: 'Database integration with SQLAlchemy / async', hours: 3, diff: 'advanced', desc: 'SQLAlchemy ORM, async sessions, Alembic migrations, repository pattern.' },
+                    { id: 'fa11', title: 'OpenAPI docs customization', hours: 1, diff: 'beginner', desc: 'Tags, descriptions, examples, custom Swagger UI, ReDoc.' },
+                    { id: 'fa12', title: 'Testing FastAPI with TestClient & pytest', hours: 2, diff: 'intermediate', desc: 'TestClient, async testing, dependency overrides, test fixtures.' },
+                    { id: 'fa13', title: 'Error handling & custom exception handlers', hours: 2, diff: 'intermediate', desc: 'HTTPException, custom handlers, validation error formatting.' }
+                ]}
+            ],
+            resources: [
+                { title: 'FastAPI Official Docs', desc: 'The gold standard — interactive tutorials and comprehensive API reference.', icon: 'book-open' },
+                { title: 'Sebastián Ramírez YouTube', desc: 'Talks and tutorials from the FastAPI creator himself.', icon: 'video' },
+                { title: 'TestDriven.io FastAPI Course', desc: 'Project-driven course covering FastAPI with Docker and testing.', icon: 'graduation-cap' },
+                { title: 'ArjanCodes YouTube', desc: 'Clean code patterns and architecture with FastAPI examples.', icon: 'video' }
+            ],
+            projects: [
+                { title: 'REST API Task Manager', desc: 'Full CRUD REST API with filtering, pagination, and Pydantic validation.', skills: ['Pydantic', 'CRUD', 'Query Params', 'Error Handling'] },
+                { title: 'JWT-Secured Auth Service', desc: 'User registration, login, and protected endpoints with JWT authentication.', skills: ['OAuth2', 'JWT', 'Dependency Injection', 'SQLAlchemy'] },
+                { title: 'Real-time Chat with WebSockets', desc: 'Multi-room chat app using FastAPI WebSocket endpoints.', skills: ['WebSockets', 'Async', 'Connection Management'] }
+            ]
+        },
+        {
+            id: 'kafka', name: 'Apache Kafka', emoji: '📨', color: '#f59e0b', difficulty: 'Intermediate → Advanced', hours: 35,
+            phases: [
+                { name: 'Phase 1 – Fundamentals', weeks: 'Week 1-2', hours: 12, topics: [
+                    { id: 'ka1', title: 'What is Kafka? Use cases & architecture', hours: 2, diff: 'beginner', desc: 'Event streaming, pub/sub model, brokers, ZooKeeper/KRaft.' },
+                    { id: 'ka2', title: 'Topics, partitions, offsets & replication', hours: 3, diff: 'intermediate', desc: 'Topic structure, partition strategy, offset tracking, replication factor.' },
+                    { id: 'ka3', title: 'Producers & consumers in Python', hours: 3, diff: 'intermediate', desc: 'confluent-kafka library, producing messages, consuming, serialization.' },
+                    { id: 'ka4', title: 'Consumer groups & rebalancing', hours: 2, diff: 'intermediate', desc: 'Group coordination, partition assignment, rebalance strategies.' },
+                    { id: 'ka5', title: 'Kafka CLI tools', hours: 2, diff: 'beginner', desc: 'kafka-topics, kafka-console-producer, kafka-console-consumer, kafka-consumer-groups.' }
+                ]},
+                { name: 'Phase 2 – Deep Dive', weeks: 'Week 3', hours: 13, topics: [
+                    { id: 'ka6', title: 'Kafka configuration tuning', hours: 3, diff: 'advanced', desc: 'acks, retries, linger.ms, batch.size, compression, buffer.memory.' },
+                    { id: 'ka7', title: 'Schema Registry & Avro/JSON schemas', hours: 3, diff: 'advanced', desc: 'Confluent Schema Registry, Avro serialization, schema evolution.' },
+                    { id: 'ka8', title: 'Kafka Streams concepts', hours: 2, diff: 'advanced', desc: 'Stream processing, KTable, windowing, joins, state stores.' },
+                    { id: 'ka9', title: 'Exactly-once semantics & idempotency', hours: 3, diff: 'advanced', desc: 'Idempotent producers, transactional APIs, EOS guarantees.' },
+                    { id: 'ka10', title: 'Dead letter queues & error handling', hours: 2, diff: 'intermediate', desc: 'DLQ patterns, poison pill handling, retry topics, error reporting.' }
+                ]},
+                { name: 'Phase 3 – Operations', weeks: 'Week 4', hours: 10, topics: [
+                    { id: 'ka11', title: 'Running Kafka with Docker Compose', hours: 2, diff: 'intermediate', desc: 'Multi-broker setup, Compose file structure, networking, volumes.' },
+                    { id: 'ka12', title: 'Monitoring with Kafka UI / Conduktor', hours: 2, diff: 'intermediate', desc: 'Kafka UI setup, topic inspection, consumer lag monitoring.' },
+                    { id: 'ka13', title: 'Kafka Connect basics', hours: 3, diff: 'advanced', desc: 'Source/sink connectors, configuration, common connectors, SMTs.' },
+                    { id: 'ka14', title: 'Security: SASL, SSL, ACLs', hours: 3, diff: 'advanced', desc: 'Authentication mechanisms, encryption in transit, authorization rules.' }
+                ]}
+            ],
+            resources: [
+                { title: 'Confluent Official Docs', desc: 'Complete reference for Kafka and the Confluent platform.', icon: 'book-open' },
+                { title: 'Stephane Maarek Udemy Course', desc: 'Highly-rated hands-on Kafka course with real-world examples.', icon: 'graduation-cap' },
+                { title: 'confluent-kafka Python GitHub', desc: 'Official Python client library with examples and documentation.', icon: 'github' },
+                { title: 'Confluent YouTube Channel', desc: 'Talks, tutorials, and deep dives on Kafka internals.', icon: 'video' }
+            ],
+            projects: [
+                { title: 'Event-Driven Order System', desc: 'Build an order processing pipeline with producers, consumers, and event sourcing.', skills: ['Producers', 'Consumers', 'Consumer Groups', 'Serialization'] },
+                { title: 'Real-time Log Aggregation', desc: 'Aggregate logs from multiple services into Kafka for centralized processing.', skills: ['Topics', 'Partitions', 'Docker Compose', 'Monitoring'] },
+                { title: 'Microservice Message Pair', desc: 'Two FastAPI services communicating asynchronously through Kafka topics.', skills: ['Producer/Consumer', 'Schema Registry', 'Error Handling'] }
+            ]
+        },
+        {
+            id: 'docker', name: 'Docker', emoji: '🐳', color: '#06b6d4', difficulty: 'Beginner → Intermediate', hours: 25,
+            phases: [
+                { name: 'Phase 1 – Basics', weeks: 'Week 1', hours: 10, topics: [
+                    { id: 'do1', title: 'Containers vs VMs, Docker architecture', hours: 2, diff: 'beginner', desc: 'Container concepts, Docker Engine, images vs containers, Docker daemon.' },
+                    { id: 'do2', title: 'Docker CLI: run, build, push, pull', hours: 2, diff: 'beginner', desc: 'Essential commands, flags, inspecting containers, cleaning up.' },
+                    { id: 'do3', title: 'Writing Dockerfiles: layers, cache, best practices', hours: 3, diff: 'intermediate', desc: 'FROM, COPY, RUN, CMD, ENTRYPOINT, layer caching, .dockerignore.' },
+                    { id: 'do4', title: 'Docker volumes & bind mounts', hours: 2, diff: 'beginner', desc: 'Persistent data, named volumes, bind mounts, tmpfs mounts.' },
+                    { id: 'do5', title: 'Docker networking fundamentals', hours: 1, diff: 'beginner', desc: 'Bridge networks, host networking, container DNS, port mapping.' }
+                ]},
+                { name: 'Phase 2 – Compose & Multi-container', weeks: 'Week 2', hours: 8, topics: [
+                    { id: 'do6', title: 'Docker Compose: services, networks, volumes', hours: 3, diff: 'intermediate', desc: 'docker-compose.yml structure, service definitions, depends_on.' },
+                    { id: 'do7', title: 'Multi-stage builds for production images', hours: 2, diff: 'intermediate', desc: 'Builder pattern, reducing image size, separating build and runtime.' },
+                    { id: 'do8', title: 'Environment variables & secrets', hours: 2, diff: 'intermediate', desc: '.env files, Docker secrets, build args vs runtime env vars.' },
+                    { id: 'do9', title: 'Docker Compose override files', hours: 1, diff: 'intermediate', desc: 'docker-compose.override.yml, per-environment configs, extending services.' }
+                ]},
+                { name: 'Phase 3 – Production & Optimization', weeks: 'Week 3', hours: 7, topics: [
+                    { id: 'do10', title: 'Image optimization & .dockerignore', hours: 2, diff: 'intermediate', desc: 'Minimizing image size, Alpine vs Debian, layer optimization.' },
+                    { id: 'do11', title: 'Health checks & restart policies', hours: 1, diff: 'beginner', desc: 'HEALTHCHECK instruction, restart policies, container lifecycle.' },
+                    { id: 'do12', title: 'Docker Registry: push to Docker Hub / GHCR', hours: 2, diff: 'intermediate', desc: 'Tagging images, pushing to registries, automated builds.' },
+                    { id: 'do13', title: 'Security scanning with Trivy', hours: 2, diff: 'intermediate', desc: 'Vulnerability scanning, fixing CVEs, security best practices.' }
+                ]}
+            ],
+            resources: [
+                { title: 'Docker Official Docs', desc: 'Comprehensive guides, references, and best practices.', icon: 'book-open' },
+                { title: 'TechWorld with Nana YouTube', desc: 'Beginner-friendly Docker tutorials with clear explanations.', icon: 'video' },
+                { title: 'Play with Docker', desc: 'Free online Docker playground for hands-on practice.', icon: 'play' },
+                { title: 'Docker Deep Dive by Nigel Poulton', desc: 'In-depth book covering Docker from basics to advanced topics.', icon: 'book' }
+            ],
+            projects: [
+                { title: 'Dockerize a FastAPI App', desc: 'Create a production Dockerfile for a FastAPI app with Postgres, multi-stage build.', skills: ['Dockerfile', 'Multi-stage', 'Compose', 'Networking'] },
+                { title: 'Multi-container Microservices', desc: 'Run multiple services with Compose: API, database, Redis cache, worker.', skills: ['Compose', 'Networks', 'Volumes', 'Environment Variables'] },
+                { title: 'Automated Image Build Pipeline', desc: 'Set up automated builds with tagging, scanning, and pushing to GHCR.', skills: ['Registry', 'Trivy', 'Tagging', 'Optimization'] }
+            ]
+        },
+        {
+            id: 'kubernetes', name: 'Kubernetes', emoji: '☸️', color: '#6366f1', difficulty: 'Intermediate → Advanced', hours: 50,
+            phases: [
+                { name: 'Phase 1 – Core Concepts', weeks: 'Week 1-2', hours: 18, topics: [
+                    { id: 'k8s1', title: 'Kubernetes architecture: control plane & nodes', hours: 3, diff: 'intermediate', desc: 'API server, etcd, scheduler, controller manager, kubelet, kube-proxy.' },
+                    { id: 'k8s2', title: 'Pods, ReplicaSets, Deployments', hours: 4, diff: 'intermediate', desc: 'Pod lifecycle, multi-container pods, ReplicaSet scaling, Deployment strategies.' },
+                    { id: 'k8s3', title: 'Services: ClusterIP, NodePort, LoadBalancer', hours: 3, diff: 'intermediate', desc: 'Service types, selectors, endpoints, service discovery, DNS.' },
+                    { id: 'k8s4', title: 'ConfigMaps & Secrets', hours: 2, diff: 'beginner', desc: 'Externalizing config, mounting as volumes or env vars, secret management.' },
+                    { id: 'k8s5', title: 'Namespaces & resource quotas', hours: 2, diff: 'beginner', desc: 'Namespace isolation, ResourceQuota, LimitRange, multi-tenancy.' },
+                    { id: 'k8s6', title: 'kubectl CLI fundamentals', hours: 4, diff: 'beginner', desc: 'get, describe, apply, delete, logs, exec, port-forward, context switching.' }
+                ]},
+                { name: 'Phase 2 – Workloads & Networking', weeks: 'Week 3-4', hours: 18, topics: [
+                    { id: 'k8s7', title: 'StatefulSets & persistent volumes', hours: 4, diff: 'advanced', desc: 'StatefulSet ordering, PV/PVC, StorageClasses, dynamic provisioning.' },
+                    { id: 'k8s8', title: 'Ingress controllers & rules', hours: 3, diff: 'intermediate', desc: 'Ingress resource, NGINX ingress controller, path routing, TLS.' },
+                    { id: 'k8s9', title: 'DaemonSets & Jobs/CronJobs', hours: 3, diff: 'intermediate', desc: 'Node-level workloads, batch jobs, scheduled tasks, job completions.' },
+                    { id: 'k8s10', title: 'Liveness, readiness & startup probes', hours: 2, diff: 'intermediate', desc: 'HTTP, TCP, exec probes, timing configuration, failure thresholds.' },
+                    { id: 'k8s11', title: 'HorizontalPodAutoscaler', hours: 2, diff: 'intermediate', desc: 'CPU/memory-based scaling, custom metrics, scaling behavior.' },
+                    { id: 'k8s12', title: 'NetworkPolicies', hours: 2, diff: 'advanced', desc: 'Ingress/egress rules, pod selectors, namespace selectors, CNI plugins.' },
+                    { id: 'k8s13', title: 'RBAC: Roles, ClusterRoles, Bindings', hours: 2, diff: 'advanced', desc: 'Role-based access, ServiceAccounts, least-privilege principle.' }
+                ]},
+                { name: 'Phase 3 – Advanced Operations', weeks: 'Week 5-6', hours: 14, topics: [
+                    { id: 'k8s14', title: 'Local dev with Minikube / kind', hours: 2, diff: 'beginner', desc: 'Setting up local clusters, testing deployments, development workflow.' },
+                    { id: 'k8s15', title: 'Resource requests & limits, QoS', hours: 3, diff: 'advanced', desc: 'CPU/memory requests, limits, QoS classes, eviction policies.' },
+                    { id: 'k8s16', title: 'Node affinity & taints/tolerations', hours: 2, diff: 'advanced', desc: 'Scheduling constraints, node selection, pod placement strategies.' },
+                    { id: 'k8s17', title: 'Kubernetes logging & monitoring basics', hours: 3, diff: 'intermediate', desc: 'kubectl logs, log aggregation, Prometheus basics, Grafana dashboards.' },
+                    { id: 'k8s18', title: 'Troubleshooting: describe, logs, exec', hours: 2, diff: 'intermediate', desc: 'Debugging pods, events, CrashLoopBackOff, OOMKilled, networking issues.' },
+                    { id: 'k8s19', title: 'Upgrade strategies: rolling, blue-green, canary', hours: 2, diff: 'advanced', desc: 'Deployment strategies, rollbacks, progressive delivery concepts.' }
+                ]}
+            ],
+            resources: [
+                { title: 'Kubernetes Official Docs', desc: 'The definitive reference with concepts, tasks, and tutorials.', icon: 'book-open' },
+                { title: 'TechWorld with Nana YouTube', desc: 'Clear K8s tutorials from absolute basics to advanced topics.', icon: 'video' },
+                { title: 'KodeKloud Kubernetes Course', desc: 'Hands-on labs and practice environments for K8s certification prep.', icon: 'graduation-cap' },
+                { title: '"Kubernetes in Action" Book', desc: 'Comprehensive book covering K8s internals and real-world patterns.', icon: 'book' },
+                { title: 'CKAD Practice Labs', desc: 'Practice exams and labs for the Certified Kubernetes Application Developer exam.', icon: 'file-text' }
+            ],
+            projects: [
+                { title: 'Deploy Full Stack on K8s', desc: 'Deploy FastAPI + Kafka + Postgres on Kubernetes with proper service discovery.', skills: ['Deployments', 'Services', 'ConfigMaps', 'PVCs'] },
+                { title: 'Configure Autoscaling', desc: 'Set up HPA for a microservice with load testing and monitoring.', skills: ['HPA', 'Resource Limits', 'Metrics', 'Probes'] },
+                { title: 'Ingress with TLS', desc: 'Configure NGINX Ingress with TLS termination and path-based routing.', skills: ['Ingress', 'TLS/Secrets', 'DNS', 'Cert-Manager'] }
+            ]
+        },
+        {
+            id: 'helm', name: 'Helm', emoji: '⛵', color: '#8b5cf6', difficulty: 'Intermediate', hours: 20,
+            phases: [
+                { name: 'Phase 1 – Helm Basics', weeks: 'Week 1', hours: 8, topics: [
+                    { id: 'he1', title: 'What is Helm? Charts, releases, repos', hours: 2, diff: 'beginner', desc: 'Package manager for K8s, chart structure, Helm concepts, ArtifactHub.' },
+                    { id: 'he2', title: 'Installing & using existing charts', hours: 2, diff: 'beginner', desc: 'helm repo add, helm search, helm install, inspecting chart values.' },
+                    { id: 'he3', title: 'Helm CLI: install, upgrade, rollback, uninstall', hours: 2, diff: 'beginner', desc: 'Release management, upgrade strategies, rollback, release history.' },
+                    { id: 'he4', title: 'values.yaml & overriding defaults', hours: 2, diff: 'intermediate', desc: 'Default values, --set flags, -f custom-values.yaml, value precedence.' }
+                ]},
+                { name: 'Phase 2 – Chart Development', weeks: 'Week 2', hours: 8, topics: [
+                    { id: 'he5', title: 'Chart structure: templates, helpers, NOTES.txt', hours: 3, diff: 'intermediate', desc: 'Chart.yaml, templates directory, _helpers.tpl, NOTES.txt output.' },
+                    { id: 'he6', title: 'Go templating: variables, conditionals, loops', hours: 3, diff: 'intermediate', desc: '{{ .Values }}, if/else, range, with, template functions, pipelines.' },
+                    { id: 'he7', title: 'Named templates & _helpers.tpl', hours: 2, diff: 'intermediate', desc: 'define/template, reusable snippets, labels, selectors, common patterns.' }
+                ]},
+                { name: 'Phase 3 – Advanced Helm', weeks: 'Week 3', hours: 4, topics: [
+                    { id: 'he8', title: 'Chart dependencies & subcharts', hours: 2, diff: 'advanced', desc: 'Chart.yaml dependencies, condition/tags, global values, overriding subchart values.' },
+                    { id: 'he9', title: 'Helm hooks & tests', hours: 1, diff: 'advanced', desc: 'pre-install, post-install hooks, helm test, hook deletion policies.' },
+                    { id: 'he10', title: 'Publishing to a Helm registry', hours: 1, diff: 'intermediate', desc: 'OCI registries, helm package, helm push, GitHub Pages as chart repo.' }
+                ]}
+            ],
+            resources: [
+                { title: 'Helm Official Docs', desc: 'Complete reference for chart development and best practices.', icon: 'book-open' },
+                { title: 'TechWorld with Nana Helm Tutorial', desc: 'Practical Helm walkthrough with real-world examples.', icon: 'video' },
+                { title: 'ArtifactHub.io', desc: 'Discover and explore Helm charts from the community.', icon: 'globe' },
+                { title: 'Helm by Example GitHub', desc: 'Hands-on examples covering Go templating and chart patterns.', icon: 'github' }
+            ],
+            projects: [
+                { title: 'Helm Chart for FastAPI', desc: 'Create a production Helm chart for your FastAPI application with configurable replicas, resources, and env.', skills: ['Chart Structure', 'Go Templates', 'Values', 'NOTES.txt'] },
+                { title: 'Multi-Service Chart', desc: 'Package a multi-service application with dependencies (API + DB + cache).', skills: ['Subcharts', 'Dependencies', 'Global Values'] },
+                { title: 'Chart with Ingress & HPA', desc: 'Build a configurable chart with optional Ingress and autoscaling support.', skills: ['Conditionals', 'Named Templates', 'values.yaml'] }
+            ]
+        },
+        {
+            id: 'github-actions', name: 'GitHub Actions', emoji: '⚙️', color: '#9ca3af', difficulty: 'Beginner → Intermediate', hours: 20,
+            phases: [
+                { name: 'Phase 1 – CI/CD Basics', weeks: 'Week 1', hours: 8, topics: [
+                    { id: 'ga1', title: 'GitHub Actions concepts: workflows, jobs, steps', hours: 2, diff: 'beginner', desc: 'Workflow files, job runners, step execution, action marketplace.' },
+                    { id: 'ga2', title: 'YAML syntax for workflows', hours: 2, diff: 'beginner', desc: '.github/workflows/*.yml structure, indentation, anchors, multiline strings.' },
+                    { id: 'ga3', title: 'Triggers: push, pull_request, schedule, workflow_dispatch', hours: 2, diff: 'beginner', desc: 'Event triggers, branch filters, path filters, cron schedules, manual triggers.' },
+                    { id: 'ga4', title: 'Actions marketplace & reusable actions', hours: 2, diff: 'beginner', desc: 'Using actions/checkout, actions/setup-python, community actions, pinning versions.' }
+                ]},
+                { name: 'Phase 2 – Real Pipelines', weeks: 'Week 2', hours: 8, topics: [
+                    { id: 'ga5', title: 'Linting & testing in CI (Python, pytest)', hours: 2, diff: 'intermediate', desc: 'Running flake8, black, pytest in CI, caching pip dependencies.' },
+                    { id: 'ga6', title: 'Building & pushing Docker images to GHCR', hours: 2, diff: 'intermediate', desc: 'docker/build-push-action, GHCR authentication, image tagging strategies.' },
+                    { id: 'ga7', title: 'Secrets & environment variables', hours: 2, diff: 'intermediate', desc: 'Repository secrets, environment secrets, accessing in workflows.' },
+                    { id: 'ga8', title: 'Matrix builds & parallel jobs', hours: 2, diff: 'intermediate', desc: 'Strategy matrix, Python version matrix, OS matrix, fail-fast.' }
+                ]},
+                { name: 'Phase 3 – Advanced', weeks: 'Week 3', hours: 4, topics: [
+                    { id: 'ga9', title: 'Reusable workflows & composite actions', hours: 2, diff: 'advanced', desc: 'workflow_call, composite actions, sharing across repos, inputs/outputs.' },
+                    { id: 'ga10', title: 'Deploying to Kubernetes via GitHub Actions', hours: 2, diff: 'advanced', desc: 'Kubectl in CI, Helm deploy actions, environment protection rules, approvals.' }
+                ]}
+            ],
+            resources: [
+                { title: 'GitHub Actions Official Docs', desc: 'Complete reference for workflows, syntax, and contexts.', icon: 'book-open' },
+                { title: 'TechWorld with Nana YouTube', desc: 'Practical CI/CD tutorials with GitHub Actions.', icon: 'video' },
+                { title: 'GitHub Skills Learning Labs', desc: 'Interactive courses to learn GitHub Actions hands-on.', icon: 'graduation-cap' },
+                { title: 'DevOps Toolkit YouTube', desc: 'Advanced CI/CD patterns and GitOps workflows.', icon: 'video' }
+            ],
+            projects: [
+                { title: 'Full CI Pipeline for FastAPI', desc: 'Lint → Test → Build → Push pipeline with caching and matrix builds.', skills: ['Workflows', 'pytest', 'Docker Build', 'GHCR'] },
+                { title: 'Automated Helm Deployment', desc: 'Deploy Helm charts to K8s on push to main with environment gates.', skills: ['Helm', 'kubectl', 'Secrets', 'Environments'] },
+                { title: 'Scheduled Data Pipeline', desc: 'Cron-triggered workflow that runs a Python data processing script.', skills: ['Schedule Trigger', 'Python Setup', 'Artifacts', 'Notifications'] }
+            ]
+        },
+        {
+            id: 'gitlab-cicd', name: 'GitLab CI/CD', emoji: '🦊', color: '#ef4444', difficulty: 'Intermediate', hours: 20,
+            phases: [
+                { name: 'Phase 1 – GitLab Fundamentals', weeks: 'Week 1', hours: 8, topics: [
+                    { id: 'gl1', title: '.gitlab-ci.yml structure: stages, jobs, scripts', hours: 2, diff: 'beginner', desc: 'Pipeline file structure, stage ordering, job definitions, script arrays.' },
+                    { id: 'gl2', title: 'GitLab Runners: shared vs specific, Docker executor', hours: 2, diff: 'intermediate', desc: 'Runner types, registration, Docker executor, shell executor, tags.' },
+                    { id: 'gl3', title: 'Variables, environments & protection rules', hours: 2, diff: 'intermediate', desc: 'CI/CD variables, protected variables, environment scoping, masking.' },
+                    { id: 'gl4', title: 'Artifacts & caching strategies', hours: 2, diff: 'intermediate', desc: 'Job artifacts, cache keys, cache vs artifacts, expiration policies.' }
+                ]},
+                { name: 'Phase 2 – Pipelines in Practice', weeks: 'Week 2', hours: 8, topics: [
+                    { id: 'gl5', title: 'Build & test stages with Python/pytest', hours: 2, diff: 'intermediate', desc: 'Python image, pip install, running pytest, coverage reports.' },
+                    { id: 'gl6', title: 'Docker build & push to GitLab Registry', hours: 2, diff: 'intermediate', desc: 'Docker-in-Docker, kaniko, GitLab Container Registry, tagging.' },
+                    { id: 'gl7', title: 'Multi-environment deployments (staging/prod)', hours: 2, diff: 'intermediate', desc: 'Environment definitions, manual gates, deploy jobs, environment URLs.' },
+                    { id: 'gl8', title: 'Merge request pipelines & rules', hours: 2, diff: 'intermediate', desc: 'MR pipelines, rules:if, only/except vs rules, pipeline sources.' }
+                ]},
+                { name: 'Phase 3 – Advanced GitLab', weeks: 'Week 3', hours: 4, topics: [
+                    { id: 'gl9', title: 'DAG pipelines & needs keyword', hours: 2, diff: 'advanced', desc: 'Directed acyclic graph, parallel execution, needs dependency, artifacts passing.' },
+                    { id: 'gl10', title: 'Deploy to Kubernetes with GitLab Agent', hours: 2, diff: 'advanced', desc: 'GitLab Agent for K8s, CI/CD tunnel, manifest-based deployments.' }
+                ]}
+            ],
+            resources: [
+                { title: 'GitLab CI/CD Official Docs', desc: 'Complete reference for .gitlab-ci.yml syntax and features.', icon: 'book-open' },
+                { title: 'GitLab YouTube Channel', desc: 'Official tutorials and feature walkthroughs.', icon: 'video' },
+                { title: 'TechWorld with Nana GitLab Tutorial', desc: 'Hands-on GitLab CI/CD from basics to deployment.', icon: 'video' },
+                { title: 'GitLab University', desc: 'Free structured learning paths for GitLab features.', icon: 'graduation-cap' }
+            ],
+            projects: [
+                { title: 'Python CI/CD with Docker', desc: 'Full pipeline: lint, test, build Docker image, push to GitLab Registry.', skills: ['.gitlab-ci.yml', 'Stages', 'Docker Build', 'Registry'] },
+                { title: 'Environment Promotion Pipeline', desc: 'Deploy to dev → staging → prod with manual approval gates.', skills: ['Environments', 'Manual Gates', 'Variables', 'Rules'] },
+                { title: 'Auto-Deploy Helm to K8s', desc: 'Automatically deploy Helm charts to K8s on merge to main.', skills: ['GitLab Agent', 'Helm', 'DAG Pipelines', 'needs'] }
+            ]
+        }
+    ];
+
+    /* ========== STATE ========== */
+    const STORAGE_KEY = 'devstack_brian_progress';
+    let state = { completed: {}, activeTech: 'python', activeTab: 'topics' };
+
+    function loadState() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                state.completed = parsed.completed || {};
+                state.activeTech = parsed.activeTech || 'python';
+                state.activeTab = parsed.activeTab || 'topics';
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    function saveState() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) { /* ignore */ }
+    }
+
+    function resetAll() {
+        state.completed = {};
+        saveState();
+        renderAll();
+    }
+
+    /* ========== CALCULATIONS ========== */
+    function getAllTopics(tech) {
+        return tech.phases.flatMap(p => p.topics);
+    }
+
+    function getTechProgress(tech) {
+        const topics = getAllTopics(tech);
+        const done = topics.filter(t => state.completed[t.id]).length;
+        return { done, total: topics.length, pct: topics.length ? Math.round((done / topics.length) * 100) : 0 };
+    }
+
+    function getTechHoursProgress(tech) {
+        const topics = getAllTopics(tech);
+        const totalHours = topics.reduce((s, t) => s + t.hours, 0);
+        const doneHours = topics.filter(t => state.completed[t.id]).reduce((s, t) => s + t.hours, 0);
+        return { doneHours, totalHours };
+    }
+
+    function getOverallStats() {
+        let totalTopics = 0, doneTopics = 0, totalHours = 0, doneHours = 0, mastered = 0;
+        TECHS.forEach(tech => {
+            const topics = getAllTopics(tech);
+            const doneTech = topics.filter(t => state.completed[t.id]).length;
+            totalTopics += topics.length;
+            doneTopics += doneTech;
+            totalHours += topics.reduce((s, t) => s + t.hours, 0);
+            doneHours += topics.filter(t => state.completed[t.id]).reduce((s, t) => s + t.hours, 0);
+            if (topics.length > 0 && doneTech === topics.length) mastered++;
+        });
+        const pct = totalTopics ? Math.round((doneTopics / totalTopics) * 100) : 0;
+        return { totalTopics, doneTopics, totalHours, doneHours, pct, mastered };
+    }
+
+    /* ========== CONFETTI ========== */
+    function launchConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-container';
+        document.body.appendChild(container);
+        const colors = ['#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6', '#ec4899'];
+        for (let i = 0; i < 80; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = Math.random() * 100 + '%';
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.animationDelay = Math.random() * 1 + 's';
+            piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+            piece.style.width = (6 + Math.random() * 8) + 'px';
+            piece.style.height = (6 + Math.random() * 8) + 'px';
+            piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            container.appendChild(piece);
+        }
+        setTimeout(() => container.remove(), 4000);
+    }
+
+    /* ========== DIFFICULTY BADGE ========== */
+    function diffBadge(diff) {
+        const map = {
+            beginner: { text: 'Beginner', cls: 'bg-green-500/15 text-green-400' },
+            intermediate: { text: 'Intermediate', cls: 'bg-yellow-500/15 text-yellow-400' },
+            advanced: { text: 'Advanced', cls: 'bg-red-500/15 text-red-400' }
+        };
+        const d = map[diff] || map.beginner;
+        return `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${d.cls}">${d.text}</span>`;
+    }
+
+    function techDiffBadge(diff) {
+        return `<span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white/5 text-surface-300">${diff}</span>`;
+    }
+
+    /* ========== RENDER SIDEBAR ========== */
+    function renderSidebar() {
+        const containers = [document.getElementById('sidebar-tech-list'), document.getElementById('mobile-tech-list')];
+        containers.forEach(container => {
+            if (!container) return;
+            container.innerHTML = '';
+            TECHS.forEach(tech => {
+                const prog = getTechProgress(tech);
+                const isActive = state.activeTech === tech.id;
+                const item = document.createElement('button');
+                item.className = `sidebar-item w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-3 ${isActive ? 'active' : ''}`;
+                item.dataset.tech = tech.id;
+                item.innerHTML = `
+                    <span class="text-lg flex-shrink-0">${tech.emoji}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium ${isActive ? 'text-white' : 'text-surface-200'} truncate">${tech.name}</span>
+                            <span class="text-[10px] font-bold tabular-nums ${prog.pct === 100 ? 'text-green-400' : 'text-surface-400'}">${prog.pct}%</span>
+                        </div>
+                        <div class="progress-track h-1.5 mt-1.5">
+                            <div class="progress-fill h-full" style="width:${prog.pct}%; background:${tech.color}"></div>
+                        </div>
+                    </div>
+                    ${prog.pct === 100 ? '<span class="mastery-badge text-xs">🏆</span>' : ''}
+                `;
+                item.addEventListener('click', () => {
+                    state.activeTech = tech.id;
+                    state.activeTab = 'topics';
+                    saveState();
+                    renderAll();
+                    closeMobileMenu();
+                });
+                container.appendChild(item);
+            });
+        });
+    }
+
+    /* ========== RENDER DETAIL ========== */
+    function renderDetail() {
+        const panel = document.getElementById('detail-panel');
+        const tech = TECHS.find(t => t.id === state.activeTech);
+        if (!tech) return;
+        const prog = getTechProgress(tech);
+        const hoursProg = getTechHoursProgress(tech);
+
+        panel.innerHTML = `
+            <div class="fade-in">
+                <!-- Tech Header -->
+                <div class="rounded-3xl p-5 md:p-6 mb-5 gradient-border" style="background: #1a1d2e;">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="text-3xl">${tech.emoji}</span>
+                            <div>
+                                <h2 class="font-display text-xl md:text-2xl font-bold text-white">${tech.name}</h2>
+                                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                    ${techDiffBadge(tech.difficulty)}
+                                    <span class="text-xs text-surface-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${tech.hours} hours</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-2xl font-bold tabular-nums" style="color:${tech.color}">${prog.pct}%</p>
+                            <p class="text-xs text-surface-400">${prog.done}/${prog.total} topics</p>
+                        </div>
+                    </div>
+                    <div class="progress-track h-2.5">
+                        <div class="progress-fill h-full" style="width:${prog.pct}%; background:${tech.color}"></div>
+                    </div>
+                    ${prog.pct === 100 ? '<div class="mt-3 text-center text-sm font-semibold text-green-400">🎉 Mastered! You\'ve completed all topics!</div>' : ''}
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex gap-1 mb-5 border-b border-white/5">
+                    <button class="tab-btn px-4 py-2.5 text-sm font-medium transition-all ${state.activeTab === 'topics' ? 'tab-active' : 'tab-inactive'}" data-tab="topics">
+                        <span class="flex items-center gap-1.5"><i data-lucide="list-checks" class="w-4 h-4"></i> Topics</span>
+                    </button>
+                    <button class="tab-btn px-4 py-2.5 text-sm font-medium transition-all ${state.activeTab === 'resources' ? 'tab-active' : 'tab-inactive'}" data-tab="resources">
+                        <span class="flex items-center gap-1.5"><i data-lucide="bookmark" class="w-4 h-4"></i> Resources</span>
+                    </button>
+                    <button class="tab-btn px-4 py-2.5 text-sm font-medium transition-all ${state.activeTab === 'projects' ? 'tab-active' : 'tab-inactive'}" data-tab="projects">
+                        <span class="flex items-center gap-1.5"><i data-lucide="hammer" class="w-4 h-4"></i> Projects</span>
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="tab-content-area"></div>
+            </div>
+        `;
+
+        // Re-init lucide for new icons
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            lucide.createIcons();
+        }
+
+        // Tab button listeners
+        panel.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.activeTab = btn.dataset.tab;
+                saveState();
+                renderTabContent(tech);
+                // Update tab styles
+                panel.querySelectorAll('.tab-btn').forEach(b => {
+                    b.className = b.className.replace('tab-active', 'tab-inactive');
+                });
+                btn.className = btn.className.replace('tab-inactive', 'tab-active');
+            });
+        });
+
+        renderTabContent(tech);
+    }
+
+    function renderTabContent(tech) {
+        const area = document.getElementById('tab-content-area');
+        if (!area) return;
+
+        if (state.activeTab === 'topics') {
+            renderTopicsTab(area, tech);
+        } else if (state.activeTab === 'resources') {
+            renderResourcesTab(area, tech);
+        } else {
+            renderProjectsTab(area, tech);
+        }
+
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            lucide.createIcons();
+        }
+    }
+
+    function renderTopicsTab(area, tech) {
+        let html = '<div class="space-y-3 fade-in">';
+        tech.phases.forEach((phase, pi) => {
+            const phaseTopics = phase.topics;
+            const phaseDone = phaseTopics.filter(t => state.completed[t.id]).length;
+            const phasePct = phaseTopics.length ? Math.round((phaseDone / phaseTopics.length) * 100) : 0;
+            const isOpen = true; // All open by default
+
+            html += `
+                <div class="rounded-2xl overflow-hidden" style="background: #1a1d2e; border: 1px solid rgba(255,255,255,0.05);">
+                    <button class="accordion-header w-full text-left px-4 md:px-5 py-4 flex items-center gap-3 hover:bg-white/[0.02] transition-colors" data-phase="${pi}">
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-surface-400 transition-transform accordion-chevron ${isOpen ? '' : '-rotate-90'}"></i>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                                <h3 class="text-sm font-semibold text-surface-100">${phase.name}</h3>
+                                <span class="text-xs text-surface-400">${phase.weeks} · ${phase.hours} hrs</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <div class="progress-track h-1.5 w-16 hidden sm:block">
+                                <div class="progress-fill h-full" style="width:${phasePct}%; background:${tech.color}"></div>
+                            </div>
+                            <span class="text-[11px] font-bold tabular-nums ${phasePct === 100 ? 'text-green-400' : 'text-surface-400'}">${phaseDone}/${phaseTopics.length}</span>
+                        </div>
+                    </button>
+                    <div class="accordion-content ${isOpen ? 'open' : ''}" data-phase-content="${pi}">
+                        <div class="px-3 md:px-4 pb-3 space-y-1.5">`;
+
+            phaseTopics.forEach(topic => {
+                const isDone = state.completed[topic.id];
+                html += `
+                    <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-white/[0.02] transition-colors ${isDone ? 'topic-done' : ''}" data-topic-row="${topic.id}">
+                        <input type="checkbox" class="checkbox-custom mt-0.5" data-topic-id="${topic.id}" ${isDone ? 'checked' : ''} />
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                <span class="topic-text text-sm ${isDone ? 'text-surface-500' : 'text-surface-200'}">${topic.title}</span>
+                                <div class="flex items-center gap-1.5">
+                                    ${diffBadge(topic.diff)}
+                                    <span class="text-[10px] text-surface-500">${topic.hours}h</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-surface-500 mt-1 leading-relaxed">${topic.desc}</p>
+                        </div>
+                        ${isDone ? '<i data-lucide="check-circle-2" class="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5"></i>' : ''}
+                    </div>`;
+            });
+
+            html += `</div></div></div>`;
+        });
+        html += '</div>';
+        area.innerHTML = html;
+
+        // Accordion toggling
+        area.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const pi = header.dataset.phase;
+                const content = area.querySelector(`[data-phase-content="${pi}"]`);
+                const chevron = header.querySelector('.accordion-chevron');
+                if (content) {
+                    content.classList.toggle('open');
+                    if (chevron) chevron.classList.toggle('-rotate-90');
+                }
+            });
+        });
+
+        // Checkbox toggling
+        area.querySelectorAll('.checkbox-custom').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const id = cb.dataset.topicId;
+                const tech = TECHS.find(t => t.id === state.activeTech);
+                const wasMastered = tech ? getTechProgress(tech).pct === 100 : false;
+
+                if (cb.checked) {
+                    state.completed[id] = true;
+                } else {
+                    delete state.completed[id];
+                }
+                saveState();
+
+                const nowMastered = tech ? getTechProgress(tech).pct === 100 : false;
+                if (!wasMastered && nowMastered) {
+                    launchConfetti();
+                }
+
+                renderAll();
+            });
+        });
+
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            lucide.createIcons();
+        }
+    }
+
+    function renderResourcesTab(area, tech) {
+        let html = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 fade-in">';
+        tech.resources.forEach(res => {
+            html += `
+                <div class="card-hover rounded-2xl p-4 md:p-5" style="background: #1a1d2e; border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background: ${tech.color}22;">
+                            <i data-lucide="${res.icon}" class="w-4 h-4" style="color: ${tech.color};"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-surface-100">${res.title}</h4>
+                            <p class="text-xs text-surface-400 mt-1 leading-relaxed">${res.desc}</p>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        html += '</div>';
+        area.innerHTML = html;
+    }
+
+    function renderProjectsTab(area, tech) {
+        let html = '<div class="space-y-3 fade-in">';
+        tech.projects.forEach((proj, i) => {
+            html += `
+                <div class="card-hover rounded-2xl p-4 md:p-5" style="background: #1a1d2e; border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background: ${tech.color}22;">
+                            <span class="text-sm font-bold" style="color: ${tech.color};">${i + 1}</span>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-semibold text-surface-100">${proj.title}</h4>
+                            <p class="text-xs text-surface-400 mt-1 leading-relaxed">${proj.desc}</p>
+                            <div class="flex flex-wrap gap-1.5 mt-3">
+                                ${proj.skills.map(s => `<span class="text-[10px] font-medium px-2 py-0.5 rounded-md" style="background: ${tech.color}15; color: ${tech.color};">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        html += '</div>';
+        area.innerHTML = html;
+    }
+
+    /* ========== RENDER STATS ========== */
+    function renderStats() {
+        const stats = getOverallStats();
+        document.getElementById('overall-progress-bar').style.width = stats.pct + '%';
+        document.getElementById('overall-progress-text').textContent = stats.pct + '%';
+        document.getElementById('stat-done').textContent = `${stats.doneTopics} / ${stats.totalTopics}`;
+        document.getElementById('stat-hours').textContent = `${stats.doneHours} / ${stats.totalHours}`;
+        document.getElementById('stat-percent').textContent = stats.pct + '%';
+        document.getElementById('stat-mastered').textContent = `${stats.mastered} / 8`;
+    }
+
+    /* ========== RENDER ALL ========== */
+    function renderAll() {
+        renderSidebar();
+        renderDetail();
+        renderStats();
+    }
+
+    /* ========== MOBILE MENU ========== */
+    function closeMobileMenu() {
+        const overlay = document.getElementById('mobile-overlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+
+    document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+        const overlay = document.getElementById('mobile-overlay');
+        if (overlay) overlay.style.display = 'block';
+    });
+
+    document.getElementById('mobile-close-btn').addEventListener('click', closeMobileMenu);
+
+    document.getElementById('mobile-overlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeMobileMenu();
+    });
+
+    /* ========== RESET MODAL ========== */
+    const resetModal = document.getElementById('reset-modal');
+
+    document.getElementById('reset-all-btn').addEventListener('click', () => {
+        resetModal.style.display = 'flex';
+    });
+
+    document.getElementById('reset-cancel-btn').addEventListener('click', () => {
+        resetModal.style.display = 'none';
+    });
+
+    document.getElementById('reset-confirm-btn').addEventListener('click', () => {
+        resetModal.style.display = 'none';
+        resetAll();
+    });
+
+    resetModal.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) resetModal.style.display = 'none';
+    });
+
+    /* ========== INIT ========== */
+    loadState();
+    renderAll();
+    </script>
+</body>
+</html>
