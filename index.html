@@ -195,6 +195,663 @@
 
     /* ========== DATA ========== */
     const TECHS = [
+{
+  "id": "linux",
+  "name": "Linux Administration",
+  "emoji": "🐧",
+  "color": "#22c55e",
+  "difficulty": "Intermediate → Senior",
+  "hours": 55,
+  "phases": [
+    {
+      "name": "Phase 1 – Architecture and internals",
+      "weeks": "Deep study",
+      "hours": 20,
+      "topics": [
+        {
+          "id": "linux-a0",
+          "title": "systemd service lifecycle",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "linux-a1",
+          "title": "CPU memory and I/O performance",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "linux-a2",
+          "title": "Storage LVM ZFS and backups",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 – Production operations",
+      "weeks": "Hands-on",
+      "hours": 35,
+      "topics": [
+        {
+          "id": "linux-b0",
+          "title": "SSH permissions and journald",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "title": "Official documentation",
+      "desc": "Read upstream documentation and architecture reference for Linux Administration",
+      "icon": "book-open"
+    },
+    {
+      "title": "Senior engineering knowledge notes",
+      "desc": "Deep dive in the on-site Senior Notes and Commands tab.",
+      "icon": "terminal"
+    }
+  ],
+  "projects": [
+    {
+      "title": "Linux Administration production lab",
+      "desc": "Create a design review, implement in isolated lab after approval, observe metrics, perform rollback and document outcomes.",
+      "skills": [
+        "Architecture",
+        "Diagnostics",
+        "Automation",
+        "SRE"
+      ]
+    }
+  ]
+},
+{
+  "id": "aws",
+  "name": "AWS Cloud Architecture",
+  "emoji": "☁️",
+  "color": "#f59e0b",
+  "difficulty": "Intermediate → Senior",
+  "hours": 55,
+  "phases": [
+    {
+      "name": "Phase 1 – Architecture and internals",
+      "weeks": "Deep study",
+      "hours": 20,
+      "topics": [
+        {
+          "id": "aws-a0",
+          "title": "VPC private public subnets and routing",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "aws-a1",
+          "title": "IAM roles OIDC and least privilege",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "aws-a2",
+          "title": "EC2 ECS EKS and workload tradeoffs",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 – Production operations",
+      "weeks": "Hands-on",
+      "hours": 35,
+      "topics": [
+        {
+          "id": "aws-b0",
+          "title": "S3 EBS EFS RDS and durability",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        },
+        {
+          "id": "aws-b1",
+          "title": "Multi-AZ high availability and cost",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "title": "Official documentation",
+      "desc": "Read upstream documentation and architecture reference for AWS Cloud Architecture",
+      "icon": "book-open"
+    },
+    {
+      "title": "Senior engineering knowledge notes",
+      "desc": "Deep dive in the on-site Senior Notes and Commands tab.",
+      "icon": "terminal"
+    }
+  ],
+  "projects": [
+    {
+      "title": "AWS Cloud Architecture production lab",
+      "desc": "Create a design review, implement in isolated lab after approval, observe metrics, perform rollback and document outcomes.",
+      "skills": [
+        "Architecture",
+        "Diagnostics",
+        "Automation",
+        "SRE"
+      ]
+    }
+  ]
+},
+{
+  "id": "terraform",
+  "name": "Terraform & OpenTofu",
+  "emoji": "🏗️",
+  "color": "#8b5cf6",
+  "difficulty": "Intermediate → Senior",
+  "hours": 55,
+  "phases": [
+    {
+      "name": "Phase 1 – Architecture and internals",
+      "weeks": "Deep study",
+      "hours": 20,
+      "topics": [
+        {
+          "id": "terraform-a0",
+          "title": "Providers state and dependency graph",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "terraform-a1",
+          "title": "Modules and environment composition",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "terraform-a2",
+          "title": "Remote state locking and security",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 – Production operations",
+      "weeks": "Hands-on",
+      "hours": 35,
+      "topics": [
+        {
+          "id": "terraform-b0",
+          "title": "Plan review drift and lifecycle",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        },
+        {
+          "id": "terraform-b1",
+          "title": "AWS networking infrastructure as code",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "title": "Official documentation",
+      "desc": "Read upstream documentation and architecture reference for Terraform & OpenTofu",
+      "icon": "book-open"
+    },
+    {
+      "title": "Senior engineering knowledge notes",
+      "desc": "Deep dive in the on-site Senior Notes and Commands tab.",
+      "icon": "terminal"
+    }
+  ],
+  "projects": [
+    {
+      "title": "Terraform & OpenTofu production lab",
+      "desc": "Create a design review, implement in isolated lab after approval, observe metrics, perform rollback and document outcomes.",
+      "skills": [
+        "Architecture",
+        "Diagnostics",
+        "Automation",
+        "SRE"
+      ]
+    }
+  ]
+},
+{
+  "id": "ansible",
+  "name": "Ansible Automation",
+  "emoji": "⚙️",
+  "color": "#10b981",
+  "difficulty": "Intermediate → Senior",
+  "hours": 55,
+  "phases": [
+    {
+      "name": "Phase 1 – Architecture and internals",
+      "weeks": "Deep study",
+      "hours": 20,
+      "topics": [
+        {
+          "id": "ansible-a0",
+          "title": "Inventories and facts",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "ansible-a1",
+          "title": "Idempotent playbooks and roles",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "ansible-a2",
+          "title": "Templates handlers and conditionals",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 – Production operations",
+      "weeks": "Hands-on",
+      "hours": 35,
+      "topics": [
+        {
+          "id": "ansible-b0",
+          "title": "Check mode and secrets management",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        },
+        {
+          "id": "ansible-b1",
+          "title": "Linux provisioning and patching",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "title": "Official documentation",
+      "desc": "Read upstream documentation and architecture reference for Ansible Automation",
+      "icon": "book-open"
+    },
+    {
+      "title": "Senior engineering knowledge notes",
+      "desc": "Deep dive in the on-site Senior Notes and Commands tab.",
+      "icon": "terminal"
+    }
+  ],
+  "projects": [
+    {
+      "title": "Ansible Automation production lab",
+      "desc": "Create a design review, implement in isolated lab after approval, observe metrics, perform rollback and document outcomes.",
+      "skills": [
+        "Architecture",
+        "Diagnostics",
+        "Automation",
+        "SRE"
+      ]
+    }
+  ]
+},
+{
+  "id": "argocd",
+  "name": "GitOps & Argo CD",
+  "emoji": "🔁",
+  "color": "#06b6d4",
+  "difficulty": "Intermediate → Senior",
+  "hours": 55,
+  "phases": [
+    {
+      "name": "Phase 1 – Architecture and internals",
+      "weeks": "Deep study",
+      "hours": 20,
+      "topics": [
+        {
+          "id": "argocd-a0",
+          "title": "Desired state and reconciliation",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "argocd-a1",
+          "title": "Helm versus Kustomize",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "argocd-a2",
+          "title": "Argo CD applications and sync policy",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 – Production operations",
+      "weeks": "Hands-on",
+      "hours": 35,
+      "topics": [
+        {
+          "id": "argocd-b0",
+          "title": "Progressive delivery and rollback",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        },
+        {
+          "id": "argocd-b1",
+          "title": "Multi-cluster GitOps architecture",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "title": "Official documentation",
+      "desc": "Read upstream documentation and architecture reference for GitOps & Argo CD",
+      "icon": "book-open"
+    },
+    {
+      "title": "Senior engineering knowledge notes",
+      "desc": "Deep dive in the on-site Senior Notes and Commands tab.",
+      "icon": "terminal"
+    }
+  ],
+  "projects": [
+    {
+      "title": "GitOps & Argo CD production lab",
+      "desc": "Create a design review, implement in isolated lab after approval, observe metrics, perform rollback and document outcomes.",
+      "skills": [
+        "Architecture",
+        "Diagnostics",
+        "Automation",
+        "SRE"
+      ]
+    }
+  ]
+},
+{
+  "id": "observability",
+  "name": "Monitoring & SRE",
+  "emoji": "📈",
+  "color": "#e879f9",
+  "difficulty": "Intermediate → Senior",
+  "hours": 55,
+  "phases": [
+    {
+      "name": "Phase 1 – Architecture and internals",
+      "weeks": "Deep study",
+      "hours": 20,
+      "topics": [
+        {
+          "id": "observability-a0",
+          "title": "Prometheus and exporters",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "observability-a1",
+          "title": "Prometheus Operator ServiceMonitor and CRDs",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "observability-a2",
+          "title": "Alertmanager grouping routing and silences",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 – Production operations",
+      "weeks": "Hands-on",
+      "hours": 35,
+      "topics": [
+        {
+          "id": "observability-b0",
+          "title": "Grafana dashboards and PromQL",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        },
+        {
+          "id": "observability-b1",
+          "title": "SLIs SLOs error budgets and incidents",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "title": "Official documentation",
+      "desc": "Read upstream documentation and architecture reference for Monitoring & SRE",
+      "icon": "book-open"
+    },
+    {
+      "title": "Senior engineering knowledge notes",
+      "desc": "Deep dive in the on-site Senior Notes and Commands tab.",
+      "icon": "terminal"
+    }
+  ],
+  "projects": [
+    {
+      "title": "Monitoring & SRE production lab",
+      "desc": "Create a design review, implement in isolated lab after approval, observe metrics, perform rollback and document outcomes.",
+      "skills": [
+        "Architecture",
+        "Diagnostics",
+        "Automation",
+        "SRE"
+      ]
+    }
+  ]
+},
+{
+  "id": "platform",
+  "name": "Platform Engineering",
+  "emoji": "🧩",
+  "color": "#38bdf8",
+  "difficulty": "Intermediate → Senior",
+  "hours": 55,
+  "phases": [
+    {
+      "name": "Phase 1 – Architecture and internals",
+      "weeks": "Deep study",
+      "hours": 20,
+      "topics": [
+        {
+          "id": "platform-a0",
+          "title": "Self-service golden paths",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "platform-a1",
+          "title": "Tenant isolation and namespaces",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "platform-a2",
+          "title": "Reusable CI pipeline and IaC modules",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 – Production operations",
+      "weeks": "Hands-on",
+      "hours": 35,
+      "topics": [
+        {
+          "id": "platform-b0",
+          "title": "Production architecture decision records",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        },
+        {
+          "id": "platform-b1",
+          "title": "HA disaster recovery and cost management",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "title": "Official documentation",
+      "desc": "Read upstream documentation and architecture reference for Platform Engineering",
+      "icon": "book-open"
+    },
+    {
+      "title": "Senior engineering knowledge notes",
+      "desc": "Deep dive in the on-site Senior Notes and Commands tab.",
+      "icon": "terminal"
+    }
+  ],
+  "projects": [
+    {
+      "title": "Platform Engineering production lab",
+      "desc": "Create a design review, implement in isolated lab after approval, observe metrics, perform rollback and document outcomes.",
+      "skills": [
+        "Architecture",
+        "Diagnostics",
+        "Automation",
+        "SRE"
+      ]
+    }
+  ]
+},
+{
+  "id": "windows",
+  "name": "Windows DevOps Administration",
+  "emoji": "🪟",
+  "color": "#60a5fa",
+  "difficulty": "Intermediate → Senior",
+  "hours": 55,
+  "phases": [
+    {
+      "name": "Phase 1 – Architecture and internals",
+      "weeks": "Deep study",
+      "hours": 20,
+      "topics": [
+        {
+          "id": "windows-a0",
+          "title": "PowerShell automation",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "windows-a1",
+          "title": "Windows services and event logs",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        },
+        {
+          "id": "windows-a2",
+          "title": "Windows containers and runners",
+          "hours": 6,
+          "diff": "advanced",
+          "desc": "Study internals, dependencies, tradeoffs, failure conditions and operational verification."
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 – Production operations",
+      "weeks": "Hands-on",
+      "hours": 35,
+      "topics": [
+        {
+          "id": "windows-b0",
+          "title": "Configuration drift and patching",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        },
+        {
+          "id": "windows-b1",
+          "title": "Windows build and release pipelines",
+          "hours": 9,
+          "diff": "advanced",
+          "desc": "Design production architecture, verify implementation, troubleshoot failures and document recovery."
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "title": "Official documentation",
+      "desc": "Read upstream documentation and architecture reference for Windows DevOps Administration",
+      "icon": "book-open"
+    },
+    {
+      "title": "Senior engineering knowledge notes",
+      "desc": "Deep dive in the on-site Senior Notes and Commands tab.",
+      "icon": "terminal"
+    }
+  ],
+  "projects": [
+    {
+      "title": "Windows DevOps Administration production lab",
+      "desc": "Create a design review, implement in isolated lab after approval, observe metrics, perform rollback and document outcomes.",
+      "skills": [
+        "Architecture",
+        "Diagnostics",
+        "Automation",
+        "SRE"
+      ]
+    }
+  ]
+},
         {
             id: 'python', name: 'Python', emoji: '🐍', color: '#3b82f6', difficulty: 'Beginner → Intermediate', hours: 40,
             phases: [
@@ -615,6 +1272,17 @@
         });
     }
 
+
+    /* Senior study material is displayed inside the original dashboard layout. */
+    const SENIOR_NOTES = {"linux":{"summary":"Senior focus: Linux Administration. Understand architecture, components, data flow, capacity, failure boundaries, high availability and operational tradeoffs.","commands":["systemctl --failed","journalctl -p err -b --no-pager","free -h","vmstat 1 5","df -hT","ss -lntup"],"checks":["Describe the request or control flow from input to infrastructure.","Explain at least three failure modes and how to diagnose each.","Produce a design with rollback, monitoring, cost and security implications.","Demonstrate read-only checks first and request human approval for modifications."]},"aws":{"summary":"Senior focus: AWS Cloud Architecture. Understand architecture, components, data flow, capacity, failure boundaries, high availability and operational tradeoffs.","commands":["aws sts get-caller-identity","aws ec2 describe-vpcs","aws eks list-clusters","aws ec2 describe-subnets"],"checks":["Describe the request or control flow from input to infrastructure.","Explain at least three failure modes and how to diagnose each.","Produce a design with rollback, monitoring, cost and security implications.","Demonstrate read-only checks first and request human approval for modifications."]},"terraform":{"summary":"Senior focus: Terraform & OpenTofu. Understand architecture, components, data flow, capacity, failure boundaries, high availability and operational tradeoffs.","commands":["terraform fmt -check","terraform init -backend=false","terraform validate","terraform plan"],"checks":["Describe the request or control flow from input to infrastructure.","Explain at least three failure modes and how to diagnose each.","Produce a design with rollback, monitoring, cost and security implications.","Demonstrate read-only checks first and request human approval for modifications."]},"ansible":{"summary":"Senior focus: Ansible Automation. Understand architecture, components, data flow, capacity, failure boundaries, high availability and operational tradeoffs.","commands":["ansible-inventory -i inventory.ini --list","ansible-playbook --syntax-check -i inventory.ini site.yml","ansible-playbook --check --diff -i inventory.ini site.yml"],"checks":["Describe the request or control flow from input to infrastructure.","Explain at least three failure modes and how to diagnose each.","Produce a design with rollback, monitoring, cost and security implications.","Demonstrate read-only checks first and request human approval for modifications."]},"argocd":{"summary":"Senior focus: GitOps & Argo CD. Understand architecture, components, data flow, capacity, failure boundaries, high availability and operational tradeoffs.","commands":["kubectl get applications.argoproj.io -A","helm list -A","kubectl get deployments -A"],"checks":["Describe the request or control flow from input to infrastructure.","Explain at least three failure modes and how to diagnose each.","Produce a design with rollback, monitoring, cost and security implications.","Demonstrate read-only checks first and request human approval for modifications."]},"observability":{"summary":"Senior focus: Monitoring & SRE. Understand architecture, components, data flow, capacity, failure boundaries, high availability and operational tradeoffs.","commands":["kubectl get pods -A","kubectl get crd","kubectl get svc -A","kubectl get events -A --sort-by=.lastTimestamp"],"checks":["Describe the request or control flow from input to infrastructure.","Explain at least three failure modes and how to diagnose each.","Produce a design with rollback, monitoring, cost and security implications.","Demonstrate read-only checks first and request human approval for modifications."]},"platform":{"summary":"Senior focus: Platform Engineering. Understand architecture, components, data flow, capacity, failure boundaries, high availability and operational tradeoffs.","commands":["kubectl get nodes -o wide","kubectl get resourcequota -A","kubectl get poddisruptionbudget -A"],"checks":["Describe the request or control flow from input to infrastructure.","Explain at least three failure modes and how to diagnose each.","Produce a design with rollback, monitoring, cost and security implications.","Demonstrate read-only checks first and request human approval for modifications."]},"windows":{"summary":"Senior focus: Windows DevOps Administration. Understand architecture, components, data flow, capacity, failure boundaries, high availability and operational tradeoffs.","commands":["Get-Service","Get-ComputerInfo","Get-WinEvent -LogName System -MaxEvents 20"],"checks":["Describe the request or control flow from input to infrastructure.","Explain at least three failure modes and how to diagnose each.","Produce a design with rollback, monitoring, cost and security implications.","Demonstrate read-only checks first and request human approval for modifications."]},"docker":{"summary":"Senior-level docker engineering: study the internal architecture, performance and operational failure domains. Compare deployment options and explain how you would run and recover this in production.","commands":["docker version","docker ps -a","docker inspect <container>","docker logs --tail=100 <container>","docker system df"],"checks":["Describe the architecture and tradeoffs.","Investigate a failure using read-only diagnostics.","Write a monitored and rollback-capable deployment plan.","Require human approval before making infrastructure changes."]},"kubernetes":{"summary":"Senior-level kubernetes engineering: study the internal architecture, performance and operational failure domains. Compare deployment options and explain how you would run and recover this in production.","commands":["kubectl config current-context","kubectl get nodes -o wide","kubectl get pods -A","kubectl get events -A --sort-by=.lastTimestamp","kubectl get svc,endpointslices -A"],"checks":["Describe the architecture and tradeoffs.","Investigate a failure using read-only diagnostics.","Write a monitored and rollback-capable deployment plan.","Require human approval before making infrastructure changes."]},"helm":{"summary":"Senior-level helm engineering: study the internal architecture, performance and operational failure domains. Compare deployment options and explain how you would run and recover this in production.","commands":["helm list -A","helm lint ./chart","helm template demo ./chart"],"checks":["Describe the architecture and tradeoffs.","Investigate a failure using read-only diagnostics.","Write a monitored and rollback-capable deployment plan.","Require human approval before making infrastructure changes."]},"github-actions":{"summary":"Senior-level github-actions engineering: study the internal architecture, performance and operational failure domains. Compare deployment options and explain how you would run and recover this in production.","commands":["git status","git diff --check","git log --oneline -10"],"checks":["Describe the architecture and tradeoffs.","Investigate a failure using read-only diagnostics.","Write a monitored and rollback-capable deployment plan.","Require human approval before making infrastructure changes."]},"gitlab-cicd":{"summary":"Senior-level gitlab-cicd engineering: study the internal architecture, performance and operational failure domains. Compare deployment options and explain how you would run and recover this in production.","commands":["git status","git diff --check","git log --oneline -10"],"checks":["Describe the architecture and tradeoffs.","Investigate a failure using read-only diagnostics.","Write a monitored and rollback-capable deployment plan.","Require human approval before making infrastructure changes."]},"python":{"summary":"Senior-level python engineering: study the internal architecture, performance and operational failure domains. Compare deployment options and explain how you would run and recover this in production.","commands":["python3 --version","python3 -m pip list","python3 -m unittest discover"],"checks":["Describe the architecture and tradeoffs.","Investigate a failure using read-only diagnostics.","Write a monitored and rollback-capable deployment plan.","Require human approval before making infrastructure changes."]},"fastapi":{"summary":"Senior-level fastapi engineering: study the internal architecture, performance and operational failure domains. Compare deployment options and explain how you would run and recover this in production.","commands":["curl -I http://localhost:8000/health","ss -lntup"],"checks":["Describe the architecture and tradeoffs.","Investigate a failure using read-only diagnostics.","Write a monitored and rollback-capable deployment plan.","Require human approval before making infrastructure changes."]},"kafka":{"summary":"Senior-level kafka engineering: study the internal architecture, performance and operational failure domains. Compare deployment options and explain how you would run and recover this in production.","commands":["docker ps -a","docker logs --tail=100 <broker>"],"checks":["Describe the architecture and tradeoffs.","Investigate a failure using read-only diagnostics.","Write a monitored and rollback-capable deployment plan.","Require human approval before making infrastructure changes."]}};
+    function renderSeniorNotes(area, tech) {
+        const note = SENIOR_NOTES[tech.id];
+        const esc = s => String(s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
+        const commands = (note?.commands || []).map(c => '<div class="flex items-start justify-between gap-2 rounded-lg px-3 py-2 bg-base-900 border border-white/5"><code class="text-xs text-cyan-400 break-all">'+esc(c)+'</code><button type="button" class="copy-senior text-xs text-surface-300 hover:text-white" data-command="'+esc(c)+'">Copy</button></div>').join('');
+        area.innerHTML = '<div class="space-y-4 fade-in"><div class="rounded-2xl bg-base-700 p-5 border border-white/5"><h3 class="font-bold text-white mb-2">Architecture & senior-level notes</h3><p class="text-sm text-surface-300 leading-relaxed">'+esc(note?.summary || '')+'</p></div><div class="rounded-2xl bg-base-700 p-5 border border-white/5"><h3 class="font-bold text-white mb-3">Command cheat sheet (inspect before executing)</h3><div class="space-y-2">'+commands+'</div></div><div class="rounded-2xl bg-base-700 p-5 border border-white/5"><h3 class="font-bold text-white mb-3">Senior engineer assessment</h3><ol class="list-decimal pl-5 text-sm text-surface-300 space-y-2">'+(note?.checks || []).map(c=>'<li>'+esc(c)+'</li>').join('')+'</ol></div><div class="rounded-2xl bg-base-700 p-5 border border-white/5"><h3 class="font-bold text-white mb-2">Deep reference material</h3><p class="text-sm text-surface-300 mb-3">Full architecture explanations, failure runbooks and labs are in the project knowledge base.</p><a class="text-cyan-400 underline text-sm" href="knowledge/index.html">Browse detailed senior engineering chapters →</a></div></div>';
+        area.querySelectorAll('.copy-senior').forEach(btn=>btn.addEventListener('click',()=>{if(navigator.clipboard)navigator.clipboard.writeText(btn.dataset.command)}));
+    }
+
     /* ========== RENDER DETAIL ========== */
     function renderDetail() {
         const panel = document.getElementById('detail-panel');
@@ -657,6 +1325,7 @@
                     <button class="tab-btn px-4 py-2.5 text-sm font-medium transition-all ${state.activeTab === 'resources' ? 'tab-active' : 'tab-inactive'}" data-tab="resources">
                         <span class="flex items-center gap-1.5"><i data-lucide="bookmark" class="w-4 h-4"></i> Resources</span>
                     </button>
+                    <button class="tab-btn px-4 py-2.5 text-sm font-medium transition-all ${state.activeTab === 'senior' ? 'tab-active' : 'tab-inactive'}" data-tab="senior"><span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-4 h-4"></i> Senior Notes & Commands</span></button>
                     <button class="tab-btn px-4 py-2.5 text-sm font-medium transition-all ${state.activeTab === 'projects' ? 'tab-active' : 'tab-inactive'}" data-tab="projects">
                         <span class="flex items-center gap-1.5"><i data-lucide="hammer" class="w-4 h-4"></i> Projects</span>
                     </button>
@@ -697,6 +1366,8 @@
             renderTopicsTab(area, tech);
         } else if (state.activeTab === 'resources') {
             renderResourcesTab(area, tech);
+        } else if (state.activeTab === 'senior') {
+            renderSeniorNotes(area, tech);
         } else {
             renderProjectsTab(area, tech);
         }
