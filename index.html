@@ -1,641 +1,1170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="dark" />
-    <title>Senior DevOps Engineering Platform</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest" defer></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        base: { 900: '#0f1117', 800: '#151722', 700: '#1a1d2e', 600: '#222539', 500: '#2a2e44', 400: '#353a54' },
-                        surface: { 100: '#e2e8f0', 200: '#cbd5e1', 300: '#94a3b8', 400: '#64748b', 500: '#475569' }
-                    },
-                    fontFamily: {
-                        display: ['"Space Grotesk"', 'sans-serif'],
-                        sans: ['Inter', 'sans-serif']
-                    }
-                }
-            }
-        };
-    </script>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; }
-        body { background: #0f1117; color: #e2e8f0; font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #151722; }
-        ::-webkit-scrollbar-thumb { background: #353a54; border-radius: 3px; }
-        .gradient-text { background: linear-gradient(135deg, #7c3aed, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .gradient-bar { background: linear-gradient(90deg, #7c3aed, #06b6d4); }
-        .gradient-border { border: 1px solid transparent; background: linear-gradient(#1a1d2e, #1a1d2e) padding-box, linear-gradient(135deg, #7c3aed44, #06b6d444) border-box; }
-        .tab-active { border-bottom: 2px solid #7c3aed; color: #a78bfa; }
-        .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; cursor: pointer; }
-        .tab-inactive:hover { color: #94a3b8; }
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
-        .accordion-content.open { max-height: 8000px; }
-        .topic-done .topic-text { text-decoration: line-through; opacity: 0.5; }
-        .sidebar-item { transition: all 0.2s ease; }
-        .sidebar-item:hover { background: #222539; }
-        .sidebar-item.active { background: linear-gradient(135deg, #7c3aed22, #06b6d422); border-left: 3px solid #7c3aed; }
-        .card-hover { transition: all 0.2s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124, 58, 237, 0.1); }
-        .progress-track { background: #222539; border-radius: 999px; overflow: hidden; }
-        .progress-fill { border-radius: 999px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .checkbox-custom { appearance: none; width: 20px; height: 20px; border: 2px solid #475569; border-radius: 6px; cursor: pointer; position: relative; transition: all 0.2s; flex-shrink: 0; background: transparent; }
-        .checkbox-custom:checked { background: linear-gradient(135deg, #7c3aed, #06b6d4); border-color: transparent; }
-        .checkbox-custom:checked::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 12px; font-weight: 700; }
-        .checkbox-custom:hover { border-color: #7c3aed; }
-        .code-block { background: #0d1117; border-radius: 12px; overflow: hidden; position: relative; font-size: 13px; line-height: 1.6; }
-        .code-block pre { margin: 0; padding: 16px; overflow-x: auto; white-space: pre; }
-        .code-block code { font-family: 'Consolas','Monaco','Courier New',monospace; color: #c9d1d9; }
-        .code-block .copy-btn { position: absolute; top: 8px; right: 8px; background: #1a1d2e; border: 1px solid #353a54; color: #94a3b8; padding: 4px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; transition: all 0.2s; z-index: 2; }
-        .code-block .copy-btn:hover { background: #222539; color: #e2e8f0; }
-        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
-        .confetti-piece { position: absolute; top: -10px; width: 10px; height: 10px; border-radius: 2px; animation: confetti-fall 3s ease-out forwards; }
-        @keyframes confetti-fall { 0% { transform: translateY(0) rotateZ(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; } }
-        .fade-in { animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .tab-scroll { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
-        .tab-scroll::-webkit-scrollbar { display: none; }
-        .kb-eng-note { background: #0f2a33; border-left: 3px solid #06b6d4; padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 8px; }
-        .kb-eng-note p { color: #67e8f9; font-size: 12px; font-style: italic; line-height: 1.6; margin: 0; }
-        .kb-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
-        .kb-table thead th { background: #222539; color: #94a3b8; padding: 8px 12px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
-        .kb-table thead th:first-child { border-radius: 8px 0 0 0; }
-        .kb-table thead th:last-child { border-radius: 0 8px 0 0; }
-        .kb-table tbody td { padding: 8px 12px; border-bottom: 1px solid #353a54; color: #e2e8f0; vertical-align: top; }
-        .kb-table tbody tr:nth-child(odd) td { background: #1a1d2e; }
-        .kb-table tbody tr:nth-child(even) td { background: #151722; }
-        .kb-table tbody td:first-child { color: #a78bfa; font-weight: 600; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 11px; white-space: nowrap; }
-        .kb-table tbody tr:last-child td:first-child { border-radius: 0 0 0 8px; }
-        .kb-table tbody tr:last-child td:last-child { border-radius: 0 0 8px 0; }
-        .kb-search-input { background: #222539; border: 1px solid #353a54; color: #e2e8f0; border-radius: 12px; padding: 10px 14px 10px 40px; width: 100%; font-size: 13px; outline: none; transition: border-color 0.2s; }
-        .kb-search-input:focus { border-color: #7c3aed; }
-        .kb-search-input::placeholder { color: #64748b; }
-        .severity-critical { background: #dc262622; color: #f87171; border: 1px solid #dc262633; }
-        .severity-high { background: #f9731622; color: #fb923c; border: 1px solid #f9731633; }
-        .severity-medium { background: #f59e0b22; color: #fbbf24; border: 1px solid #f59e0b33; }
-        .kb-badge-new { background: linear-gradient(135deg, #10b981, #06b6d4); color: #fff; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 6px; letter-spacing: 0.05em; }
-        .brian-note-card { background: #1e1f2e; border: 1px solid rgba(255,255,255,0.06); }
-        .kb-chapter-card { background: #1a1d2e; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; }
-        .kb-chapter-card:hover { box-shadow: 0 4px 20px rgba(124,58,237,0.08); }
-        .cmd-card-create { background: linear-gradient(135deg, #7c3aed15, #7c3aed08); border: 1px solid #7c3aed33; }
-        .cmd-card-run { background: linear-gradient(135deg, #06b6d415, #06b6d408); border: 1px solid #06b6d433; }
-        .cmd-card-apply { background: linear-gradient(135deg, #10b98115, #10b98108); border: 1px solid #10b98133; }
-        @media (max-width: 767px) {
-            .sidebar-desktop { display: none; }
-            .mobile-nav-btn { display: flex !important; }
-        }
-        @media (min-width: 768px) {
-            .mobile-nav-btn { display: none !important; }
-            .mobile-overlay { display: none !important; }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Senior DevOps Engineering Platform</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ios: {
+          bg: '#f2f2f7',
+          card: 'rgba(255,255,255,0.85)',
+          elevated: 'rgba(255,255,255,0.95)',
+          section: 'rgba(118,118,128,0.08)',
+        },
+        accent: {
+          DEFAULT: '#007AFF',
+          light: 'rgba(0,122,255,0.12)',
+          green: '#34C759',
+          orange: '#FF9500',
+          red: '#FF3B30',
+          purple: '#AF52DE',
+          teal: '#5AC8FA',
+          yellow: '#FFD60A',
+        },
+        txt: {
+          primary: '#1c1c1e',
+          secondary: '#3a3a3c',
+          muted: '#8e8e93',
+          placeholder: '#c7c7cc',
+        },
+      },
+      fontFamily: {
+        sans: ['-apple-system', 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        mono: ['SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', 'monospace'],
+      },
+    }
+  }
+};
+</script>
+<script src="https://unpkg.com/lucide@latest" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg-base:#f2f2f7; --bg-card:rgba(255,255,255,0.9); --bg-elevated:#ffffff;
+  --bg-sidebar:rgba(249,249,251,0.97); --bg-code:#f6f8fa;
+  --bg-section:rgba(118,118,128,0.1);
+  --accent:#007AFF; --accent-light:rgba(0,122,255,0.1);
+  --accent-green:#34C759; --accent-red:#FF3B30; --accent-orange:#FF9500;
+  --txt-primary:#1c1c1e; --txt-secondary:#3a3a3c; --txt-muted:#8e8e93;
+  --txt-placeholder:#c7c7cc;
+  --border:rgba(60,60,67,0.12); --border-strong:rgba(60,60,67,0.22);
+  --shadow-sm:0 1px 4px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 20px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
+  --shadow-card:0 2px 14px rgba(0,0,0,0.06);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:50px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg-base);color:var(--txt-primary);font-family:-apple-system,'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-0.01em;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.25);}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:264px;background:var(--bg-sidebar);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-right:1px solid var(--border);overflow-y:auto;z-index:40;display:flex;flex-direction:column;}
+.main-panel{margin-left:264px;min-height:100vh;display:flex;flex-direction:column;background:var(--bg-base);}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:2px 10px;border-radius:var(--r-md);cursor:pointer;transition:all 0.18s ease;border-left:none;position:relative;}
+.sidebar-item:hover{background:rgba(0,122,255,0.07);}
+.sidebar-item.active{background:var(--accent-light);}
+.sidebar-item.active .item-name{color:var(--accent);font-weight:700;}
+.sidebar-item.active .pct{color:var(--accent);}
+.sidebar-item .icon-bubble{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:var(--shadow-sm);}
+.sidebar-item .item-info{flex:1;min-width:0;}
+.sidebar-item .item-name{font-size:13px;font-weight:600;color:var(--txt-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sidebar-item .mini-bar{height:3px;background:rgba(0,0,0,0.08);border-radius:2px;margin-top:4px;overflow:hidden;}
+.sidebar-item .mini-bar-fill{height:100%;border-radius:2px;background:var(--accent);transition:width 0.5s ease;}
+.sidebar-item .pct{font-size:11px;font-weight:700;color:var(--txt-muted);min-width:30px;text-align:right;}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 24px;background:var(--bg-elevated);border-bottom:1px solid var(--border);}
+.stat-card{text-align:center;padding:12px 6px;border-radius:var(--r-md);background:rgba(0,122,255,0.05);border:1px solid var(--border);}
+.stat-card .stat-value{font-size:22px;font-weight:800;color:var(--accent);letter-spacing:-0.03em;}
+.stat-card .stat-label{font-size:11px;color:var(--txt-muted);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.top-header{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--border);padding:20px 26px 16px;position:sticky;top:0;z-index:30;}
+.top-header h1{font-size:26px;font-weight:800;color:var(--txt-primary);letter-spacing:-0.03em;}
+.top-header .subtitle{font-size:13px;color:var(--txt-muted);margin-top:3px;}
+.tab-bar{display:flex;gap:2px;background:rgba(118,118,128,0.12);border-radius:var(--r-md);padding:3px;margin-bottom:20px;width:fit-content;}
+.tab-btn{padding:7px 16px;border-radius:9px;font-size:13px;font-weight:600;color:var(--txt-muted);cursor:pointer;border:none;background:transparent;transition:all 0.2s ease;white-space:nowrap;font-family:inherit;}
+.tab-btn.active{background:white;color:var(--txt-primary);box-shadow:var(--shadow-sm);}
+.tab-btn:hover:not(.active){color:var(--txt-secondary);}
+.tab-active{background:white!important;color:var(--txt-primary)!important;box-shadow:var(--shadow-sm);}
+.tab-inactive{color:var(--txt-muted);cursor:pointer;}
+.tab-inactive:hover{color:var(--txt-secondary);}
+.content-area,.content-panel{flex:1;padding:22px 26px 48px;overflow-y:auto;}
+.tech-header,.tech-title-row{display:flex;align-items:flex-start;gap:16px;padding:20px;background:var(--bg-elevated);border-radius:var(--r-xl);border:1px solid var(--border);box-shadow:var(--shadow-card);margin-bottom:20px;}
+.tech-hero-icon{width:58px;height:58px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;box-shadow:var(--shadow-md);}
+.tech-header h2,.tech-title-row h2{font-size:22px;font-weight:800;color:var(--txt-primary);letter-spacing:-0.03em;}
+.meta-row,.tech-header .meta{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.meta-badge{background:rgba(0,0,0,0.05);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:500;color:var(--txt-muted);}
+.tech-progress-wrap{margin-top:12px;}
+.tech-progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--txt-muted);font-weight:500;margin-bottom:5px;}
+.tech-progress-track{height:6px;background:rgba(0,0,0,0.08);border-radius:var(--r-full);overflow:hidden;}
+.tech-progress-fill{height:100%;border-radius:var(--r-full);background:linear-gradient(90deg,var(--accent),#5AC8FA);transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+.phase-card,.accordion{background:var(--bg-elevated);border-radius:var(--r-lg);margin-bottom:12px;box-shadow:var(--shadow-card);border:1px solid var(--border);overflow:hidden;}
+.phase-header,.accordion-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;background:var(--bg-elevated);transition:background 0.15s;font-size:14px;font-weight:700;color:var(--txt-primary);}
+.phase-header:hover,.accordion-header:hover{background:rgba(0,122,255,0.04);}
+.phase-title{font-size:14px;font-weight:700;color:var(--txt-primary);}
+.phase-meta,.phase-hours{font-size:12px;color:var(--txt-muted);font-weight:500;}
+.phase-chevron,.acc-arrow{color:var(--txt-muted);transition:transform 0.25s ease;font-size:13px;}
+.phase-chevron.open,.acc-arrow.open{transform:rotate(90deg);}
+.phase-topics,.accordion-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+.phase-topics.open,.accordion-body.open{max-height:8000px;}
+.accordion-content{max-height:0;overflow:hidden;transition:max-height 0.35s ease;}
+.accordion-content.open{max-height:8000px;}
+.phase-topics-inner,.accordion-body-inner{padding:4px 12px 14px;border-top:1px solid var(--border);}
+.topic-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r-sm);transition:background 0.15s;cursor:pointer;}
+.topic-row:hover{background:rgba(0,0,0,0.03);}
+.topic-row.done .topic-text,.topic-row.done label{text-decoration:line-through;color:var(--txt-muted);}
+.topic-row input[type="checkbox"]{width:20px;height:20px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.topic-text,.topic-row label{flex:1;font-size:14px;color:var(--txt-secondary);font-weight:500;line-height:1.4;cursor:pointer;}
+.hours-badge{background:rgba(0,122,255,0.1);color:var(--accent);border-radius:var(--r-full);padding:2px 9px;font-size:11px;font-weight:600;white-space:nowrap;}
+.code-block,.code-block-wrap{position:relative;background:var(--bg-code);border:1px solid var(--border);border-radius:var(--r-lg);margin:12px 0;overflow:hidden;box-shadow:var(--shadow-sm);}
+.code-block pre,.code-block-wrap pre{padding:16px 54px 16px 16px;overflow-x:auto;font-family:'SF Mono','Fira Code','JetBrains Mono',Consolas,monospace;font-size:13px;line-height:1.65;color:#1c1c1e;white-space:pre;background:transparent;}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--accent);border:none;color:white;padding:5px 12px;border-radius:var(--r-full);cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;transition:all 0.2s;font-family:inherit;white-space:nowrap;}
+.copy-btn:hover{background:#0066DC;transform:scale(1.03);}
+.copy-btn:active{transform:scale(0.97);}
+.copy-btn.copied{background:var(--accent-green);}
+.resource-card{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--bg-elevated);border-radius:var(--r-md);margin:6px 0;border:1px solid var(--border);text-decoration:none;transition:all 0.2s;box-shadow:var(--shadow-sm);cursor:pointer;}
+.resource-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);border-color:rgba(0,122,255,0.3);}
+.resource-icon{width:36px;height:36px;background:var(--accent-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.resource-name,.r-title{font-size:14px;font-weight:600;color:var(--accent);}
+.resource-url,.r-url{font-size:11px;color:var(--txt-muted);margin-top:2px;}
+.resource-chevron{color:var(--txt-muted);margin-left:auto;}
+.project-card{padding:18px;background:var(--bg-elevated);border-radius:var(--r-lg);margin:8px 0;border:1px solid var(--border);box-shadow:var(--shadow-sm);transition:all 0.2s;}
+.project-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.project-num,.p-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--accent);color:white;font-size:12px;font-weight:700;margin-bottom:8px;}
+.project-name,.p-title{font-size:15px;font-weight:700;color:var(--txt-primary);margin-bottom:6px;letter-spacing:-0.01em;}
+.project-desc,.p-desc{font-size:13px;color:var(--txt-muted);line-height:1.55;}
+.kb-search,.search-box{width:100%;padding:11px 16px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--bg-elevated);font-size:15px;color:var(--txt-primary);outline:none;font-family:inherit;box-shadow:var(--shadow-sm);transition:all 0.2s;margin-bottom:16px;}
+.kb-search:focus,.search-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,122,255,0.12);}
+.kb-search::placeholder,.search-box::placeholder{color:var(--txt-placeholder);}
+.kb-chapter-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;box-shadow:var(--shadow-sm);overflow:hidden;transition:box-shadow 0.2s;}
+.kb-chapter-card:hover{box-shadow:var(--shadow-md);}
+.kb-chapter-header{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;cursor:pointer;user-select:none;}
+.kb-chapter-title{font-size:14px;font-weight:700;color:var(--txt-primary);}
+.kb-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--r-full);background:var(--accent-light);color:var(--accent);}
+.kb-chapter-content{max-height:0;overflow:hidden;transition:max-height 0.35s ease;border-top:1px solid transparent;}
+.kb-chapter-content.open{max-height:6000px;border-top-color:var(--border);}
+.kb-table{width:100%;border-collapse:collapse;font-size:13px;}
+.kb-table th{background:rgba(0,122,255,0.06);padding:9px 14px;text-align:left;font-weight:600;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;}
+.kb-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;color:var(--txt-secondary);}
+.kb-table td:first-child{font-weight:600;color:var(--txt-primary);}
+.kb-table tr:last-child td{border-bottom:none;}
+.kb-note{background:rgba(0,122,255,0.06);border-left:3px solid var(--accent);padding:12px 16px;font-size:13px;color:var(--txt-secondary);line-height:1.55;margin:8px 0;}
+.runbook-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.runbook-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;}
+.severity-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.arch-diagram,.lab-card{background:var(--bg-code);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;margin-bottom:14px;box-shadow:var(--shadow-sm);overflow-x:auto;}
+.arch-diagram pre{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--txt-secondary);line-height:1.7;padding:0;}
+.lab-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--accent-green);color:white;font-size:13px;font-weight:700;margin-bottom:8px;}
+.lab-title{font-size:15px;font-weight:700;color:var(--txt-primary);margin-bottom:8px;}
+.gradient-text{background:linear-gradient(135deg,var(--accent),#5AC8FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.gradient-bar{background:linear-gradient(90deg,var(--accent),#5AC8FA);}
+.gradient-border{border:1px solid var(--border);background:var(--bg-elevated);}
+.section-label{font-size:11px;font-weight:700;color:var(--txt-muted);letter-spacing:0.07em;text-transform:uppercase;padding:14px 18px 5px;display:block;}
+.new-badge{background:var(--accent);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:var(--r-full);letter-spacing:0.05em;}
+.divider{height:1px;background:var(--border);margin:14px 0;}
+canvas{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.content-area>*,.content-panel>*{animation:fadeSlideIn 0.22s ease both;}
+@media(max-width:768px){.sidebar{width:220px;}.main-panel{margin-left:220px;}.stats-bar{grid-template-columns:repeat(2,1fr);}}
+</style>
 </head>
 <body data-id="0">
-    <app-icon data-id="1" hidden data-icon="rocket" data-palette="Dark"></app-icon>
+<app-icon data-id="1" hidden data-icon="rocket" data-palette="Blue"></app-icon>
 
-    <header data-id="2" id="header-main" class="sticky top-0 z-40 border-b border-white/5" style="background: rgba(15,17,23,0.9); backdrop-filter: blur(16px);">
-        <div data-id="3" class="max-w-screen-2xl mx-auto px-4 md:px-6 py-3">
-            <div data-id="4" class="flex items-center justify-between mb-2">
-                <div data-id="5" class="flex items-center gap-3">
-                    <button data-id="6" id="mobile-menu-btn" class="mobile-nav-btn items-center justify-center w-10 h-10 rounded-xl bg-base-700 text-surface-200" style="display:none;">
-                        <i data-id="7" data-lucide="menu" class="w-5 h-5"></i>
-                    </button>
-                    <div data-id="8">
-                        <h1 data-id="9" class="font-display text-lg md:text-2xl font-bold gradient-text">🚀 Senior DevOps Engineering Platform</h1>
-                        <p data-id="10" class="text-[11px] md:text-xs text-surface-400 mt-0.5">Your roadmap to DevOps mastery — Hey Brian 👋</p>
-                    </div>
-                </div>
-                <div data-id="11" class="flex items-center gap-2">
-                    <button data-id="12" id="reset-all-btn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-base-700 text-surface-300 hover:bg-base-600 transition-all">
-                        <i data-id="13" data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                        <span data-id="14" class="hidden sm:inline">Reset</span>
-                    </button>
-                </div>
-            </div>
-            <div data-id="15" class="flex items-center gap-3">
-                <div data-id="16" class="flex-1 progress-track h-2">
-                    <div data-id="17" id="overall-progress-bar" class="gradient-bar progress-fill h-full" style="width:0%"></div>
-                </div>
-                <span data-id="18" id="overall-progress-text" class="text-xs font-semibold text-surface-200 tabular-nums min-w-[36px] text-right">0%</span>
-            </div>
-        </div>
-    </header>
+<!-- MOBILE TOGGLE -->
+<button data-id="2" id="mobile-toggle-btn" class="mobile-toggle fixed top-4 left-4 z-50 p-2 rounded-xl border bg-white/90 backdrop-blur-lg border-black/10 shadow-sm hidden items-center justify-center" style="display:none;">
+  <i data-id="3" data-lucide="menu" class="w-6 h-6 text-txt-primary"></i>
+</button>
 
-    <div data-id="19" id="stats-strip" class="border-b border-white/5 bg-base-800">
-        <div data-id="20" class="max-w-screen-2xl mx-auto px-4 md:px-6 py-2.5 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-            <div data-id="21" class="flex items-center gap-2 bg-base-700 rounded-xl px-3 py-2">
-                <i data-id="22" data-lucide="check-circle-2" class="w-4 h-4 text-green-400"></i>
-                <div data-id="23"><p data-id="24" class="text-[10px] text-surface-400">Topics Done</p><p data-id="25" id="stat-done" class="text-xs font-bold text-surface-100 tabular-nums">0/0</p></div>
-            </div>
-            <div data-id="26" class="flex items-center gap-2 bg-base-700 rounded-xl px-3 py-2">
-                <i data-id="27" data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
-                <div data-id="28"><p data-id="29" class="text-[10px] text-surface-400">Hours Done</p><p data-id="30" id="stat-hours" class="text-xs font-bold text-surface-100 tabular-nums">0/0</p></div>
-            </div>
-            <div data-id="31" class="flex items-center gap-2 bg-base-700 rounded-xl px-3 py-2">
-                <i data-id="32" data-lucide="bar-chart-3" class="w-4 h-4 text-purple-400"></i>
-                <div data-id="33"><p data-id="34" class="text-[10px] text-surface-400">Overall</p><p data-id="35" id="stat-percent" class="text-xs font-bold text-surface-100 tabular-nums">0%</p></div>
-            </div>
-            <div data-id="36" class="flex items-center gap-2 bg-base-700 rounded-xl px-3 py-2">
-                <i data-id="37" data-lucide="trophy" class="w-4 h-4 text-yellow-400"></i>
-                <div data-id="38"><p data-id="39" class="text-[10px] text-surface-400">Mastered</p><p data-id="40" id="stat-mastered" class="text-xs font-bold text-surface-100 tabular-nums">0/8</p></div>
-            </div>
-        </div>
+<!-- SIDEBAR -->
+<aside data-id="4" id="sidebar" class="sidebar">
+  <div data-id="5" class="p-5 pb-3 border-b" style="border-color:var(--border);">
+    <div data-id="6" class="text-[17px] font-bold" style="color:var(--txt-primary);">🚀 Senior DevOps Platform</div>
+    <div data-id="7" class="text-xs mt-0.5" style="color:var(--txt-muted);">16 Technologies · $250K Goal</div>
+  </div>
+  <nav data-id="8" id="sidebar-nav" class="flex-1 py-2 overflow-y-auto"></nav>
+  <div data-id="9" class="p-3 border-t" style="border-color:var(--border);">
+    <div data-id="10" class="text-[10px] text-center" style="color:var(--txt-muted);">Brian's Study Plan · 2026</div>
+  </div>
+</aside>
+
+<!-- MAIN PANEL -->
+<div data-id="11" class="main-panel">
+  <!-- HEADER -->
+  <header data-id="12" class="px-7 py-5 sticky top-0 z-30" style="background:var(--bg-header);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--border);">
+    <div data-id="13" class="flex items-center justify-between top-header-inner">
+      <div data-id="14">
+        <h1 data-id="15" class="text-2xl font-extrabold" style="color:var(--txt-primary);letter-spacing:-0.03em;">🚀 Senior DevOps Engineering Platform</h1>
+        <p data-id="16" class="text-sm mt-1" style="color:var(--txt-muted);">Your roadmap to $250K/year DevOps mastery</p>
+      </div>
+      <div data-id="17" class="text-xs" style="color:var(--txt-muted);">Welcome back, Brian 👋</div>
     </div>
+  </header>
 
-    <div data-id="41" id="mobile-overlay" class="mobile-overlay fixed inset-0 z-50 hidden" style="background: rgba(0,0,0,0.6);">
-        <nav data-id="42" class="w-72 h-full bg-base-800 border-r border-white/5 overflow-y-auto p-4">
-            <div data-id="43" class="flex items-center justify-between mb-4">
-                <h2 data-id="44" class="font-display text-base font-semibold gradient-text">Navigation</h2>
-                <button data-id="45" id="mobile-close-btn" class="w-9 h-9 flex items-center justify-center rounded-xl bg-base-700 text-surface-300">
-                    <i data-id="46" data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div data-id="47" id="mobile-tech-list" class="space-y-0.5"></div>
-        </nav>
-    </div>
+  <!-- STATS BAR -->
+  <div data-id="18" class="stats-bar" id="stats-bar">
+    <div data-id="19" class="stat-pill"><span data-id="20" class="stat-label">Topics</span> <span data-id="21" class="stat-val" id="stat-topics">0 / 0</span></div>
+    <div data-id="22" class="stat-pill"><span data-id="23" class="stat-label">Hours</span> <span data-id="24" class="stat-val" id="stat-hours">0 / 0</span></div>
+    <div data-id="25" class="stat-pill"><span data-id="26" class="stat-label">Overall</span> <span data-id="27" class="stat-val" id="stat-pct">0%</span></div>
+    <div data-id="28" class="stat-pill"><span data-id="29" class="stat-label">Mastered</span> <span data-id="30" class="stat-val" id="stat-mastered">0</span></div>
+  </div>
 
-    <main data-id="48" class="max-w-screen-2xl mx-auto px-4 md:px-6 py-4">
-        <div data-id="49" class="flex gap-5">
-            <aside data-id="50" id="sidebar-area" class="sidebar-desktop hidden md:block w-56 lg:w-60 flex-shrink-0">
-                <div data-id="51" class="sticky top-[120px] max-h-[calc(100vh-140px)] overflow-y-auto pr-1">
-                    <h2 data-id="52" class="font-display text-[11px] font-semibold text-surface-400 uppercase tracking-wider mb-2 px-3">Technologies</h2>
-                    <nav data-id="53" id="sidebar-tech-list" class="space-y-0.5"></nav>
-                </div>
-            </aside>
-            <section data-id="54" id="detail-panel" class="flex-1 min-w-0 fade-in"></section>
-        </div>
-    </main>
+  <!-- CONTENT -->
+  <main data-id="31" id="content-area" class="flex-1 p-5 md:p-7 overflow-y-auto"></main>
 
-    <div data-id="55" id="reset-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.7);">
-        <div data-id="56" class="bg-base-700 rounded-3xl p-6 max-w-sm w-full border border-white/10">
-            <h3 data-id="57" class="font-display text-lg font-bold text-surface-100 mb-2">Reset All Progress?</h3>
-            <p data-id="58" class="text-sm text-surface-400 mb-5">This will clear all completed topics. Cannot be undone.</p>
-            <div data-id="59" class="flex gap-3 justify-end">
-                <button data-id="60" id="reset-cancel-btn" class="px-4 py-2 rounded-xl text-sm font-medium bg-base-600 text-surface-300 hover:bg-base-500 transition-all">Cancel</button>
-                <button data-id="61" id="reset-confirm-btn" class="px-4 py-2 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition-all">Reset Everything</button>
-            </div>
-        </div>
-    </div>
-
-    <footer data-id="62" class="py-6 mt-auto text-center border-t border-white/5">
-        <p data-id="63" class="text-[11px] text-surface-500">Made by Copilot</p>
-    </footer>
+  <!-- FOOTER -->
+  <footer data-id="32" class="py-6 text-center" style="border-top:1px solid var(--border);">
+    <p data-id="33" class="text-xs" style="color:var(--txt-muted);">Made by Copilot</p>
+  </footer>
+</div>
 
 <script>
-if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") { lucide.createIcons(); }
-
-/* ═══════════════════ TECH DATA ═══════════════════ */
-const techData = [
+// ─── DATA ───
+const TECHS = [
   {
-    id: 'python', name: 'Python', icon: '🐍', color: '#3b82f6', hours: 40, difficulty: 'Beginner → Intermediate',
-    phases: [
-      { title: 'Phase 1 – Foundations (Week 1-2)', topics: [
-        { id: 'py1', text: 'Python syntax, data types, control flow', hours: 2 },
-        { id: 'py2', text: 'Functions, args/kwargs, lambda', hours: 2 },
-        { id: 'py3', text: 'OOP: classes, inheritance, dunder methods', hours: 3 },
-        { id: 'py4', text: 'Error handling & exceptions', hours: 2 },
-        { id: 'py5', text: 'File I/O and context managers', hours: 2 },
-        { id: 'py6', text: 'Modules, packages, virtual environments', hours: 2 },
-        { id: 'py7', text: 'Type hints and mypy basics', hours: 2 },
+    id:'linux', name:'Linux Administration', emoji:'🐧', color:'#f97316', hours:60, level:'Beginner→Advanced',
+    phases:[
+      { title:'Phase 1 – Kernel & Boot', meta:'Week 1-2, 15hrs', topics:[
+        {id:'lx1',label:'Linux architecture & kernel overview',hrs:3},
+        {id:'lx2',label:'systemd boot process & targets',hrs:3},
+        {id:'lx3',label:'Process management ps/top/htop/kill',hrs:2},
+        {id:'lx4',label:'User & group management',hrs:2},
+        {id:'lx5',label:'File permissions & ACLs',hrs:2},
+        {id:'lx6',label:'SSH hardening & key-based auth',hrs:2},
+        {id:'lx7',label:'Cron & at job scheduling',hrs:1},
       ]},
-      { title: 'Phase 2 – Intermediate (Week 3-4)', topics: [
-        { id: 'py8', text: 'List/dict/set comprehensions & generators', hours: 2 },
-        { id: 'py9', text: 'Decorators & closures', hours: 3 },
-        { id: 'py10', text: 'Async/await & asyncio fundamentals', hours: 4 },
-        { id: 'py11', text: 'Pydantic models & data validation', hours: 3 },
-        { id: 'py12', text: 'Testing with pytest', hours: 3 },
+      { title:'Phase 2 – Storage & Networking', meta:'Week 3-4, 20hrs', topics:[
+        {id:'lx8',label:'LVM PV/VG/LV creation & resizing',hrs:4},
+        {id:'lx9',label:'Filesystems ext4/xfs/btrfs',hrs:3},
+        {id:'lx10',label:'fstab & mount management',hrs:2},
+        {id:'lx11',label:'Disk partitioning fdisk/parted/gdisk',hrs:2},
+        {id:'lx12',label:'Linux networking ip/ss/netstat/nmcli',hrs:3},
+        {id:'lx13',label:'iptables/nftables firewall rules',hrs:3},
+        {id:'lx14',label:'NFS/Samba file sharing',hrs:2},
+        {id:'lx15',label:'DNS resolution & /etc/hosts',hrs:1},
       ]},
-      { title: 'Phase 3 – Ecosystem (Week 5)', topics: [
-        { id: 'py13', text: 'Working with JSON, YAML, env vars', hours: 2 },
-        { id: 'py14', text: 'HTTP clients: httpx, requests', hours: 2 },
-        { id: 'py15', text: 'Logging best practices', hours: 2 },
-        { id: 'py16', text: 'Python packaging & pyproject.toml', hours: 2 },
-        { id: 'py17', text: 'Dataclasses vs Pydantic', hours: 2 },
-      ]}
+      { title:'Phase 3 – Performance & Logs', meta:'Week 5-6, 15hrs', topics:[
+        {id:'lx16',label:'System performance tuning sysctl',hrs:3},
+        {id:'lx17',label:'Log management journalctl/logrotate',hrs:2},
+        {id:'lx18',label:'/proc & /sys virtual filesystems',hrs:2},
+        {id:'lx19',label:'Memory management & OOM killer',hrs:2},
+        {id:'lx20',label:'strace/lsof/perf troubleshooting',hrs:3},
+        {id:'lx21',label:'Disk I/O monitoring iostat/iotop',hrs:2},
+        {id:'lx22',label:'Network performance iperf/tcpdump',hrs:1},
+      ]},
+      { title:'Phase 4 – Bash & Automation', meta:'Week 7, 10hrs', topics:[
+        {id:'lx23',label:'Bash scripting variables loops conditionals',hrs:3},
+        {id:'lx24',label:'regex sed/awk/grep',hrs:2},
+        {id:'lx25',label:'Error handling set -euo pipefail',hrs:2},
+        {id:'lx26',label:'systemd service unit files',hrs:2},
+        {id:'lx27',label:'Security hardening & CIS benchmarks',hrs:1},
+      ]},
     ],
-    commands: `# Python Virtual Environment
+    commands:`# === PROCESS MANAGEMENT ===
+ps aux | grep nginx
+top -bn1 | head -20
+htop -d 10
+kill -9 $(pgrep nginx)
+pkill -f "python app.py"
+nice -n 10 ./myscript.sh
+renice -n -5 -p 1234
+strace -p 1234 -e trace=file
+
+# === DISK & LVM ===
+lsblk -f
+df -hT
+du -sh /var/log/*
+pvcreate /dev/sdb /dev/sdc
+vgcreate datavg /dev/sdb /dev/sdc
+lvcreate -L 50G -n datalv datavg
+mkfs.xfs /dev/datavg/datalv
+lvextend -L +20G /dev/datavg/datalv
+xfs_growfs /mnt/data
+lvdisplay && vgdisplay
+
+# === NETWORKING ===
+ip addr show
+ip route show
+ss -tlnp
+tcpdump -ni eth0 port 80
+netstat -rn
+ip link set eth0 up
+
+# === LOGS ===
+journalctl -u kubelet -n 100 --no-pager
+journalctl --since "2h ago" -p err
+journalctl -f -u nginx
+grep -i "oom" /var/log/kern.log
+logrotate -d /etc/logrotate.conf
+
+# === PERFORMANCE ===
+vmstat 1 5
+iostat -xz 1 3
+sar -u 1 5
+free -h
+sysctl vm.swappiness=10
+echo 'vm.swappiness=10' >> /etc/sysctl.conf
+
+# === SSH HARDENING (/etc/ssh/sshd_config) ===
+# PermitRootLogin no
+# PasswordAuthentication no
+# PubkeyAuthentication yes
+# AllowUsers brian devops
+# Port 2222
+ssh-keygen -t ed25519 -C "brian@homelab"
+ssh-copy-id -i ~/.ssh/id_ed25519.pub user@host
+
+# === BASH SCRIPT TEMPLATE ===
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\\n\\t'
+readonly LOG="/var/log/myapp.log"
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG"; }
+log "Script started"`,
+    resources:[
+      {title:'Linux man pages',url:'https://man7.org/linux/man-pages/'},
+      {title:'The Linux Command Line Book',url:'https://linuxcommand.org/tlcl.php'},
+      {title:'linuxcommand.org',url:'https://linuxcommand.org'},
+      {title:'Red Hat Sysadmin Blog',url:'https://www.redhat.com/sysadmin/'},
+      {title:'TechWorld with Nana Linux',url:'https://youtube.com/@TechWorldwithNana'},
+    ],
+    projects:[
+      {title:'Harden 4 K8s Nodes',desc:'Apply CIS benchmark hardening script to all Proxmox VMs, disable root SSH, configure auditd'},
+      {title:'LVM Storage Lab',desc:'Create PV/VG/LV, format with XFS, extend online, snapshot and restore'},
+      {title:'Bash Health Check Bot',desc:'Script monitors CPU/disk/memory and emails alerts via mailutils or webhook'},
+    ]
+  },
+  {
+    id:'aws', name:'AWS Cloud Architecture', emoji:'☁️', color:'#ff9900', hours:55, level:'Intermediate→Advanced',
+    phases:[
+      { title:'Phase 1 – IAM & Networking', meta:'Week 1-2, 15hrs', topics:[
+        {id:'aw1',label:'AWS Organizations & multi-account',hrs:3},
+        {id:'aw2',label:'IAM users/roles/policies/SCP',hrs:4},
+        {id:'aw3',label:'VPC subnets/IGW/NAT/SG/NACLs',hrs:4},
+        {id:'aw4',label:'Route53 DNS & hosted zones',hrs:2},
+        {id:'aw5',label:'ALB/NLB load balancers',hrs:2},
+      ]},
+      { title:'Phase 2 – Compute & Containers', meta:'Week 3-4, 20hrs', topics:[
+        {id:'aw6',label:'EC2 AMI/ASG/Launch Templates',hrs:4},
+        {id:'aw7',label:'ECS Fargate & EC2 mode',hrs:4},
+        {id:'aw8',label:'EKS managed K8s & node groups',hrs:5},
+        {id:'aw9',label:'ECR image registry',hrs:2},
+        {id:'aw10',label:'Lambda serverless basics',hrs:3},
+        {id:'aw11',label:'S3 versioning/lifecycle/replication',hrs:2},
+      ]},
+      { title:'Phase 3 – Data & Ops', meta:'Week 5-6, 20hrs', topics:[
+        {id:'aw12',label:'RDS Multi-AZ & Read Replicas',hrs:3},
+        {id:'aw13',label:'ElastiCache Redis/Memcached',hrs:2},
+        {id:'aw14',label:'CloudWatch metrics/alarms/logs',hrs:3},
+        {id:'aw15',label:'CloudTrail audit logging',hrs:2},
+        {id:'aw16',label:'AWS Backup strategies',hrs:2},
+        {id:'aw17',label:'Well-Architected Framework',hrs:3},
+        {id:'aw18',label:'Cost optimization & Savings Plans',hrs:3},
+        {id:'aw19',label:'AWS CLI & boto3 automation',hrs:2},
+      ]},
+    ],
+    commands:`# === IAM ===
+aws sts get-caller-identity
+aws iam create-role --role-name EKSNodeRole \\
+  --assume-role-policy-document file://trust-policy.json
+aws iam attach-role-policy --role-name EKSNodeRole \\
+  --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+aws sts assume-role --role-arn arn:aws:iam::123456789:role/DevOps \\
+  --role-session-name devops-session
+
+# === VPC ===
+aws ec2 describe-vpcs --filters "Name=isDefault,Values=false"
+aws ec2 describe-subnets --filters "Name=vpc-id,Values=vpc-xxx"
+aws ec2 authorize-security-group-ingress --group-id sg-xxx \\
+  --protocol tcp --port 443 --cidr 0.0.0.0/0
+
+# === EKS ===
+aws eks update-kubeconfig --name prod-cluster --region us-east-1
+eksctl create cluster --name prod-cluster --region us-east-1 \\
+  --nodegroup-name workers --node-type t3.medium --nodes 3 \\
+  --nodes-min 2 --nodes-max 5 --managed
+eksctl get cluster --region us-east-1
+
+# === ECR ===
+aws ecr create-repository --repository-name myapp --region us-east-1
+aws ecr get-login-password --region us-east-1 | \\
+  docker login --username AWS --password-stdin \\
+  123456789.dkr.ecr.us-east-1.amazonaws.com
+
+# === S3 ===
+aws s3 mb s3://brian-devops-state-2026
+aws s3 cp ./backup.tar.gz s3://brian-devops-state-2026/backups/
+aws s3 sync ./configs s3://brian-devops-state-2026/configs/
+
+# === CLOUDWATCH ===
+aws cloudwatch put-metric-alarm --alarm-name high-cpu \\
+  --metric-name CPUUtilization --namespace AWS/EC2 \\
+  --statistic Average --period 300 --threshold 80 \\
+  --comparison-operator GreaterThanThreshold --evaluation-periods 2
+
+# === COST ===
+aws ce get-cost-and-usage \\
+  --time-period Start=2026-10-01,End=2026-10-31 \\
+  --granularity MONTHLY --metrics BlendedCost`,
+    resources:[
+      {title:'AWS Docs',url:'https://docs.aws.amazon.com'},
+      {title:'AWS Skill Builder',url:'https://skillbuilder.aws'},
+      {title:'Adrian Cantrill Courses',url:'https://learn.cantrill.io'},
+      {title:'TechWorld with Nana AWS',url:'https://youtube.com/@TechWorldwithNana'},
+      {title:'AWS Well-Architected Framework',url:'https://aws.amazon.com/architecture/well-architected/'},
+    ],
+    projects:[
+      {title:'Multi-Account AWS Setup',desc:'Organizations, SCPs, IAM roles, cross-account assume-role with least privilege'},
+      {title:'EKS Production Cluster',desc:'eksctl, node groups, IRSA, ALB controller, ECR image lifecycle policies'},
+      {title:'Serverless Pipeline',desc:'Lambda + S3 + SQS event-driven data processing with CloudWatch monitoring'},
+    ]
+  },
+  {
+    id:'terraform', name:'Terraform & OpenTofu', emoji:'🏗️', color:'#7c3aed', hours:40, level:'Intermediate→Advanced',
+    phases:[
+      { title:'Phase 1 – Foundations', meta:'Week 1-2, 12hrs', topics:[
+        {id:'tf1',label:'Terraform CLI init/plan/apply/destroy',hrs:3},
+        {id:'tf2',label:'HCL syntax providers resources data sources',hrs:3},
+        {id:'tf3',label:'Variables outputs locals',hrs:3},
+        {id:'tf4',label:'State management local/S3 backend',hrs:3},
+      ]},
+      { title:'Phase 2 – Modules & Patterns', meta:'Week 3-4, 15hrs', topics:[
+        {id:'tf5',label:'Modules local and registry',hrs:4},
+        {id:'tf6',label:'State locking with DynamoDB',hrs:2},
+        {id:'tf7',label:'Workspaces & environments',hrs:2},
+        {id:'tf8',label:'terraform import & drift detection',hrs:3},
+        {id:'tf9',label:'Validation testing checkov/tflint',hrs:2},
+        {id:'tf10',label:'OpenTofu open-source fork',hrs:2},
+      ]},
+      { title:'Phase 3 – AWS Provisioning', meta:'Week 5-6, 13hrs', topics:[
+        {id:'tf11',label:'VPC module patterns',hrs:3},
+        {id:'tf12',label:'EKS with terraform-aws-modules',hrs:4},
+        {id:'tf13',label:'RDS Aurora provisioning',hrs:3},
+        {id:'tf14',label:'Terraform Cloud & CI/CD integration',hrs:3},
+      ]},
+    ],
+    commands:`# === CLI COMMANDS ===
+terraform init
+terraform validate
+terraform plan -out=tfplan
+terraform apply tfplan
+terraform destroy -auto-approve
+terraform state list
+terraform state show aws_instance.web
+terraform import aws_s3_bucket.mybucket my-bucket-name
+terraform output cluster_endpoint
+
+# Lint & Security
+tflint --init && tflint
+checkov -d . --framework terraform
+
+# Workspace commands
+terraform workspace new dev
+terraform workspace select prod
+terraform workspace list`,
+    resources:[
+      {title:'Terraform Registry',url:'https://registry.terraform.io'},
+      {title:'KodeKloud Terraform',url:'https://kodekloud.com'},
+      {title:'FreeCodeCamp Terraform',url:'https://freecodecamp.org'},
+      {title:'HashiCorp Learn',url:'https://developer.hashicorp.com/terraform/tutorials'},
+    ],
+    projects:[
+      {title:'AWS VPC + EKS',desc:'Full Terraform: VPC, subnets, EKS cluster, node groups, IRSA — all modular'},
+      {title:'Multi-environment Setup',desc:'Workspaces + S3 backend + DynamoDB lock for dev/staging/prod'},
+      {title:'Terraform CI/CD',desc:'GitHub Actions pipeline: validate → plan → apply on merge to main'},
+    ]
+  },
+  {
+    id:'ansible', name:'Ansible Automation', emoji:'🤖', color:'#cc0001', hours:30, level:'Intermediate',
+    phases:[
+      { title:'Phase 1 – Basics', meta:'Week 1-2, 10hrs', topics:[
+        {id:'an1',label:'Ansible architecture inventory/playbooks/modules',hrs:3},
+        {id:'an2',label:'Ad-hoc commands',hrs:2},
+        {id:'an3',label:'Playbooks tasks handlers variables',hrs:3},
+        {id:'an4',label:'Ansible Vault for secrets',hrs:2},
+      ]},
+      { title:'Phase 2 – Roles & Collections', meta:'Week 3, 10hrs', topics:[
+        {id:'an5',label:'Roles structure defaults/tasks/templates',hrs:3},
+        {id:'an6',label:'Jinja2 templates',hrs:2},
+        {id:'an7',label:'Ansible Galaxy & collections',hrs:2},
+        {id:'an8',label:'Loops conditionals when',hrs:3},
+      ]},
+      { title:'Phase 3 – K8s & CI/CD Integration', meta:'Week 4, 10hrs', topics:[
+        {id:'an9',label:'Ansible for K8s node provisioning',hrs:3},
+        {id:'an10',label:'AWX/Automation Controller basics',hrs:2},
+        {id:'an11',label:'Ansible in CI/CD pipelines',hrs:2},
+        {id:'an12',label:'Idempotency & best practices',hrs:3},
+      ]},
+    ],
+    commands:`# === AD-HOC COMMANDS ===
+ansible all -i hosts.ini -m ping
+ansible workers -i hosts.ini -m command -a "uptime"
+ansible all -i hosts.ini -m shell -a "df -h"
+ansible all -i hosts.ini -m apt -a "name=curl state=present" --become
+
+# === PLAYBOOK ===
+ansible-playbook -i hosts.ini playbook.yml
+ansible-playbook -i hosts.ini playbook.yml --check
+ansible-playbook -i hosts.ini playbook.yml --diff
+ansible-playbook -i hosts.ini playbook.yml -v
+
+# === VAULT ===
+ansible-vault create secrets.yml
+ansible-vault encrypt secrets.yml
+ansible-vault decrypt secrets.yml
+ansible-vault view secrets.yml
+ansible-playbook playbook.yml --ask-vault-pass`,
+    resources:[
+      {title:'Ansible Docs',url:'https://docs.ansible.com'},
+      {title:'Jeff Geerling YouTube',url:'https://youtube.com/@JeffGeerling'},
+      {title:'Ansible for DevOps Book',url:'https://ansiblefordevops.com'},
+      {title:'Red Hat Ansible',url:'https://www.redhat.com/en/technologies/management/ansible'},
+    ],
+    projects:[
+      {title:'K8s Node Provisioner',desc:'Ansible playbook to configure all 4 Proxmox nodes for K8s — swap, containerd, kubeadm'},
+      {title:'Application Deployer',desc:'Role-based playbook: install/configure/start app on all workers with handlers'},
+      {title:'Hardening Playbook',desc:'CIS-benchmark hardening across all Linux nodes with Ansible Vault secrets'},
+    ]
+  },
+  {
+    id:'gitops', name:'GitOps & Argo CD', emoji:'🔄', color:'#ff6b6b', hours:25, level:'Intermediate→Advanced',
+    phases:[
+      { title:'Phase 1 – GitOps Principles', meta:'Week 1, 8hrs', topics:[
+        {id:'go1',label:'GitOps principles & Git as source of truth',hrs:2},
+        {id:'go2',label:'Flux CD basics',hrs:2},
+        {id:'go3',label:'Argo CD architecture & installation',hrs:2},
+        {id:'go4',label:'App of Apps pattern',hrs:2},
+      ]},
+      { title:'Phase 2 – Argo CD Deep Dive', meta:'Week 2-3, 10hrs', topics:[
+        {id:'go5',label:'Argo CD Applications & Projects',hrs:3},
+        {id:'go6',label:'Sync policies & automated sync',hrs:2},
+        {id:'go7',label:'ApplicationSet for multi-cluster',hrs:2},
+        {id:'go8',label:'Argo CD RBAC & SSO',hrs:2},
+        {id:'go9',label:'Health checks & custom resources',hrs:1},
+      ]},
+      { title:'Phase 3 – Progressive Delivery', meta:'Week 4, 7hrs', topics:[
+        {id:'go10',label:'Argo Rollouts: canary & blue-green',hrs:3},
+        {id:'go11',label:'Analysis templates & metrics',hrs:2},
+        {id:'go12',label:'GitOps with Helm charts',hrs:2},
+      ]},
+    ],
+    commands:`# === INSTALL ARGO CD ===
+kubectl create namespace argocd
+kubectl apply -n argocd \\
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl wait --for=condition=available --timeout=300s \\
+  deployment/argocd-server -n argocd
+kubectl -n argocd get secret argocd-initial-admin-secret \\
+  -o jsonpath="{.data.password}" | base64 -d
+
+# === ARGO CD CLI ===
+argocd login localhost:8080 --username admin --insecure
+argocd app list
+argocd app get myapp
+argocd app sync myapp
+argocd app history myapp
+argocd app rollback myapp 2
+
+# === ARGO ROLLOUTS ===
+kubectl argo rollouts get rollout myapp --watch
+kubectl argo rollouts promote myapp
+kubectl argo rollouts abort myapp
+kubectl argo rollouts undo myapp`,
+    resources:[
+      {title:'Argo CD Docs',url:'https://argo-cd.readthedocs.io'},
+      {title:'Flux CD Docs',url:'https://fluxcd.io/docs/'},
+      {title:'GitOps Tech Blog',url:'https://www.gitops.tech'},
+      {title:'TechWorld with Nana GitOps',url:'https://youtube.com/@TechWorldwithNana'},
+    ],
+    projects:[
+      {title:'Argo CD Homelab Setup',desc:'Install Argo CD on 4-node cluster, sync DevOps-Study-Plan repo automatically'},
+      {title:'App of Apps Pattern',desc:'Manage all cluster services via Argo CD app-of-apps with Helm values'},
+      {title:'Canary Deployment',desc:'Argo Rollouts canary with Prometheus analysis templates and auto-rollback'},
+    ]
+  },
+  {
+    id:'monitoring', name:'Monitoring & SRE', emoji:'📊', color:'#10b981', hours:35, level:'Intermediate→Advanced',
+    phases:[
+      { title:'Phase 1 – Metrics & Alerting', meta:'Week 1-2, 12hrs', topics:[
+        {id:'mo1',label:'Prometheus architecture scraping & PromQL',hrs:4},
+        {id:'mo2',label:'Grafana dashboards & exploration',hrs:3},
+        {id:'mo3',label:'Alertmanager routing & silences',hrs:2},
+        {id:'mo4',label:'kube-state-metrics & node-exporter',hrs:3},
+      ]},
+      { title:'Phase 2 – Logging & Tracing', meta:'Week 3-4, 12hrs', topics:[
+        {id:'mo5',label:'Loki log aggregation & LogQL',hrs:3},
+        {id:'mo6',label:'Fluent Bit log pipeline',hrs:2},
+        {id:'mo7',label:'OpenTelemetry traces metrics logs',hrs:4},
+        {id:'mo8',label:'Tempo/Jaeger distributed tracing',hrs:3},
+      ]},
+      { title:'Phase 3 – SRE Practices', meta:'Week 5, 11hrs', topics:[
+        {id:'mo9',label:'SLIs SLOs SLAs & error budgets',hrs:3},
+        {id:'mo10',label:'Incident management & runbooks',hrs:3},
+        {id:'mo11',label:'Chaos engineering basics',hrs:2},
+        {id:'mo12',label:'Kube Prometheus Stack Helm install',hrs:3},
+      ]},
+    ],
+    commands:`# === INSTALL KUBE PROMETHEUS STACK ===
+helm repo add prometheus-community \\
+  https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install kube-prometheus-stack \\
+  prometheus-community/kube-prometheus-stack \\
+  -n monitoring --create-namespace \\
+  -f values-monitoring.yaml
+
+# === PROMETHEUS ===
+kubectl get pods -n monitoring
+kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090
+
+# === GRAFANA ===
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
+
+# === LOKI ===
+helm install loki grafana/loki-stack \\
+  -n monitoring --set grafana.enabled=false
+
+# === KUBECTL METRICS ===
+kubectl top node
+kubectl top pod -A --sort-by=memory
+watch kubectl top node`,
+    resources:[
+      {title:'Prometheus Docs',url:'https://prometheus.io/docs/'},
+      {title:'Grafana Docs',url:'https://grafana.com/docs/'},
+      {title:'Robust Perception Blog',url:'https://www.robustperception.io/blog'},
+      {title:'Google SRE Book',url:'https://sre.google/books/'},
+    ],
+    projects:[
+      {title:'Kube Prometheus Stack',desc:'Full monitoring: Prometheus + Grafana + Alertmanager + Loki on homelab cluster'},
+      {title:'Custom SLO Dashboard',desc:'Grafana dashboard tracking SLI/SLO for a FastAPI service with error budgets'},
+      {title:'Alerting Runbook System',desc:'PagerDuty/Alertmanager integration with documented runbooks for every alert'},
+    ]
+  },
+  {
+    id:'platform', name:'Platform Engineering', emoji:'🏛️', color:'#6366f1', hours:30, level:'Advanced',
+    phases:[
+      { title:'Phase 1 – IDP Concepts', meta:'Week 1-2, 10hrs', topics:[
+        {id:'pl1',label:'Platform Engineering vs DevOps',hrs:2},
+        {id:'pl2',label:'Internal Developer Platforms concepts',hrs:3},
+        {id:'pl3',label:'Backstage developer portal setup',hrs:3},
+        {id:'pl4',label:'Golden paths & paved roads',hrs:2},
+      ]},
+      { title:'Phase 2 – Platform Tools', meta:'Week 3-4, 12hrs', topics:[
+        {id:'pl5',label:'Crossplane for infrastructure',hrs:3},
+        {id:'pl6',label:'Port.io or Backstage catalog',hrs:2},
+        {id:'pl7',label:'Policy as code Kyverno/OPA Gatekeeper',hrs:3},
+        {id:'pl8',label:'Developer self-service workflows',hrs:2},
+        {id:'pl9',label:'Platform metrics & DORA metrics',hrs:2},
+      ]},
+      { title:'Phase 3 – Advanced Platform', meta:'Week 5, 8hrs', topics:[
+        {id:'pl10',label:'Multi-tenancy Kubernetes patterns',hrs:3},
+        {id:'pl11',label:'Cluster API declarative lifecycle',hrs:2},
+        {id:'pl12',label:'Cost allocation & chargeback',hrs:3},
+      ]},
+    ],
+    commands:`# === KYVERNO POLICY ===
+helm repo add kyverno https://kyverno.github.io/kyverno/
+helm install kyverno kyverno/kyverno -n kyverno --create-namespace
+kubectl get clusterpolicy
+kubectl apply -f policy.yaml
+kubectl get policyreport -A
+
+# === OPA GATEKEEPER ===
+helm repo add gatekeeper https://open-policy-agent.github.io/gatekeeper/charts
+helm install gatekeeper gatekeeper/gatekeeper \\
+  -n gatekeeper-system --create-namespace
+
+# === CROSSPLANE ===
+helm install crossplane crossplane-stable/crossplane \\
+  --namespace crossplane-system --create-namespace
+kubectl get providers
+
+# === BACKSTAGE (local dev) ===
+npx @backstage/create-app@latest
+cd my-backstage-app
+yarn dev
+
+# === DORA METRICS ===
+# Deployment Frequency
+# Lead Time for Changes
+# Change Failure Rate
+# MTTR`,
+    resources:[
+      {title:'Platform Engineering Blog',url:'https://platformengineering.org'},
+      {title:'Backstage Docs',url:'https://backstage.io'},
+      {title:'Kyverno Docs',url:'https://kyverno.io/docs/'},
+      {title:'DORA Research',url:'https://dora.dev'},
+    ],
+    projects:[
+      {title:'Kyverno Policy Suite',desc:'Enforce team labels, resource limits, non-root containers cluster-wide'},
+      {title:'Backstage Catalog',desc:'Set up internal developer portal with service catalog & TechDocs integration'},
+      {title:'Multi-tenant Cluster',desc:'Namespaces, ResourceQuotas, NetworkPolicies, RBAC per team with cost tagging'},
+    ]
+  },
+  {
+    id:'windows', name:'Windows DevOps Admin', emoji:'🪟', color:'#0078d4', hours:25, level:'Beginner→Intermediate',
+    phases:[
+      { title:'Phase 1 – PowerShell & WinServer', meta:'Week 1-2, 10hrs', topics:[
+        {id:'wd1',label:'PowerShell scripting & remoting',hrs:3},
+        {id:'wd2',label:'Windows Server roles & IIS',hrs:2},
+        {id:'wd3',label:'Active Directory basics for DevOps',hrs:2},
+        {id:'wd4',label:'WMI/CIM queries & Event Viewer',hrs:2},
+        {id:'wd5',label:'Windows networking netsh/ipconfig',hrs:1},
+      ]},
+      { title:'Phase 2 – Containers & CI/CD', meta:'Week 3, 10hrs', topics:[
+        {id:'wd6',label:'Windows containers & Docker Desktop',hrs:3},
+        {id:'wd7',label:'GitHub Actions & GitLab runners on Windows',hrs:3},
+        {id:'wd8',label:'Windows Subsystem for Linux WSL2',hrs:2},
+        {id:'wd9',label:'Hyper-V virtual machines',hrs:2},
+      ]},
+      { title:'Phase 3 – Automation', meta:'Week 4, 5hrs', topics:[
+        {id:'wd10',label:'Group Policy for DevOps automation',hrs:2},
+        {id:'wd11',label:'Windows Task Scheduler automation',hrs:1},
+        {id:'wd12',label:'PowerShell DSC basics',hrs:2},
+      ]},
+    ],
+    commands:`# === SYSTEM INFO ===
+Get-ComputerInfo | Select-Object *Version*, *Memory*
+Get-Service | Where-Object { $_.Status -eq 'Running' }
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10
+Get-EventLog -LogName System -EntryType Error -Newest 20
+
+# === WINDOWS CONTAINERS ===
+docker pull mcr.microsoft.com/windows/servercore:ltsc2022
+docker run -it mcr.microsoft.com/windows/servercore:ltsc2022 cmd
+
+# === POWERSHELL REMOTING ===
+Enable-PSRemoting -Force
+Enter-PSSession -ComputerName WIN-NODE01 -Credential (Get-Credential)
+
+# === WSL2 ===
+wsl --install
+wsl --list --verbose
+wsl --set-default-version 2
+
+# === NETWORKING ===
+Test-NetConnection -ComputerName 8.8.8.8 -Port 443
+Get-NetAdapter | Select-Object Name, Status, LinkSpeed
+ipconfig /all`,
+    resources:[
+      {title:'Microsoft PowerShell Docs',url:'https://learn.microsoft.com/powershell/'},
+      {title:'Windows Server Docs',url:'https://learn.microsoft.com/windows-server/'},
+      {title:'WSL Docs',url:'https://learn.microsoft.com/windows/wsl/'},
+      {title:'PowerShell Gallery',url:'https://www.powershellgallery.com'},
+    ],
+    projects:[
+      {title:'PowerShell Automation Suite',desc:'Scripts: user provisioning, disk cleanup, service health checks with email alerts'},
+      {title:'Windows CI/CD Runner',desc:'GitHub Actions self-hosted runner on Windows Server 2022 with Docker support'},
+      {title:'Hybrid Cluster',desc:'Windows + Linux node K8s cluster with mixed workloads and node selectors'},
+    ]
+  },
+  {
+    id:'python', name:'Python', emoji:'🐍', color:'#3b82f6', hours:40, level:'Beginner→Intermediate',
+    phases:[
+      { title:'Phase 1 – Foundations', meta:'Week 1-2, 15hrs', topics:[
+        {id:'py1',label:'Python syntax, data types, control flow',hrs:2},
+        {id:'py2',label:'Functions, args/kwargs, lambda',hrs:2},
+        {id:'py3',label:'OOP: classes, inheritance, dunder methods',hrs:3},
+        {id:'py4',label:'Error handling & exceptions',hrs:2},
+        {id:'py5',label:'File I/O and context managers',hrs:2},
+        {id:'py6',label:'Modules, packages, virtual environments',hrs:2},
+        {id:'py7',label:'Type hints and mypy basics',hrs:2},
+      ]},
+      { title:'Phase 2 – Intermediate', meta:'Week 3-4, 15hrs', topics:[
+        {id:'py8',label:'List/dict/set comprehensions & generators',hrs:2},
+        {id:'py9',label:'Decorators & closures',hrs:3},
+        {id:'py10',label:'Async/await & asyncio fundamentals',hrs:4},
+        {id:'py11',label:'Pydantic models & data validation',hrs:3},
+        {id:'py12',label:'Testing with pytest',hrs:3},
+      ]},
+      { title:'Phase 3 – Ecosystem', meta:'Week 5, 10hrs', topics:[
+        {id:'py13',label:'Working with JSON, YAML, env vars',hrs:2},
+        {id:'py14',label:'HTTP clients: httpx, requests',hrs:2},
+        {id:'py15',label:'Logging best practices',hrs:2},
+        {id:'py16',label:'Python packaging & pyproject.toml',hrs:2},
+        {id:'py17',label:'Dataclasses vs Pydantic',hrs:2},
+      ]},
+    ],
+    commands:`# Virtual Environment
 python3 -m venv venv
-source venv/bin/activate          # Linux/Mac
-venv\\Scripts\\activate            # Windows
+source venv/bin/activate
 pip install -r requirements.txt
 pip freeze > requirements.txt
 
 # Run & Test
 python app.py
 pytest tests/ -v --cov=.
-mypy app.py
+mypy app.py --ignore-missing-imports
 
-# Async example
+# Async / Await
 import asyncio
-async def fetch(url): ...
-asyncio.run(fetch("http://example.com"))
+async def fetch_data(url: str) -> dict: ...
+asyncio.run(fetch_data("http://api.example.com"))
 
-# Type hints
-def greet(name: str) -> str:
-    return f"Hello {name}"
+# Pydantic Model
+from pydantic import BaseModel, Field
+class User(BaseModel):
+    name: str
+    email: str
+    age: int = Field(gt=0, lt=150)
 
-# Decorator
-def timer(func):
-    def wrapper(*args, **kwargs):
-        import time
-        t = time.time()
-        result = func(*args, **kwargs)
-        print(f"{func.__name__}: {time.time()-t:.2f}s")
-        return result
-    return wrapper`,
-    resources: [
-      { name: 'Official Python Docs', url: 'https://docs.python.org/3/' },
-      { name: 'Real Python', url: 'https://realpython.com' },
-      { name: 'Corey Schafer YouTube', url: 'https://youtube.com/@coreyms' },
-      { name: 'Talk Python Podcast', url: 'https://talkpython.fm' },
+# Generator
+def read_large_file(path: str):
+    with open(path) as f:
+        for line in f:
+            yield line.strip()`,
+    resources:[
+      {title:'Official Python Docs',url:'https://docs.python.org/3/'},
+      {title:'Real Python',url:'https://realpython.com'},
+      {title:'Corey Schafer YouTube',url:'https://youtube.com/@coreyms'},
+      {title:'Talk Python Podcast',url:'https://talkpython.fm'},
+      {title:'Python Crash Course Book',url:'https://nostarch.com/python-crash-course-3rd-edition'},
     ],
-    projects: [
-      { name: 'CLI Task Manager', desc: 'Build a command-line task tracker with file persistence, filtering, and color output using rich library.' },
-      { name: 'Async Web Scraper', desc: 'Scrape multiple sites concurrently with asyncio + httpx + pydantic data models.' },
-      { name: 'Data Pipeline Script', desc: 'ETL pipeline reading CSV, validating with Pydantic, transforming, and writing to JSON/DB.' },
+    projects:[
+      {title:'CLI Task Manager',desc:'Command-line task tracker with file persistence, filtering, color output using rich library'},
+      {title:'Async Web Scraper',desc:'Scrape multiple sites concurrently with asyncio + httpx + Pydantic data models'},
+      {title:'Data Pipeline Script',desc:'ETL pipeline: read CSV → validate with Pydantic → transform → write JSON/DB'},
     ]
   },
   {
-    id: 'fastapi', name: 'FastAPI', icon: '⚡', color: '#10b981', hours: 30, difficulty: 'Intermediate',
-    phases: [
-      { title: 'Phase 1 – Core Concepts (Week 1-2)', topics: [
-        { id: 'fa1', text: 'Intro to FastAPI & ASGI', hours: 2 },
-        { id: 'fa2', text: 'Path & query parameters, request body', hours: 2 },
-        { id: 'fa3', text: 'Pydantic schemas & response models', hours: 3 },
-        { id: 'fa4', text: 'Dependency injection system', hours: 3 },
-        { id: 'fa5', text: 'Async route handlers', hours: 2 },
+    id:'fastapi', name:'FastAPI', emoji:'⚡', color:'#10b981', hours:30, level:'Intermediate',
+    phases:[
+      { title:'Phase 1 – Core Concepts', meta:'Week 1-2, 12hrs', topics:[
+        {id:'fa1',label:'Intro to FastAPI & ASGI',hrs:2},
+        {id:'fa2',label:'Path & query parameters, request body',hrs:2},
+        {id:'fa3',label:'Pydantic schemas & response models',hrs:3},
+        {id:'fa4',label:'Dependency injection system',hrs:3},
+        {id:'fa5',label:'Async route handlers',hrs:2},
       ]},
-      { title: 'Phase 2 – Advanced Features (Week 3)', topics: [
-        { id: 'fa6', text: 'Authentication: OAuth2, JWT tokens', hours: 4 },
-        { id: 'fa7', text: 'Background tasks & lifespan events', hours: 2 },
-        { id: 'fa8', text: 'Middleware & CORS', hours: 2 },
-        { id: 'fa9', text: 'WebSockets', hours: 2 },
+      { title:'Phase 2 – Advanced Features', meta:'Week 3, 10hrs', topics:[
+        {id:'fa6',label:'Authentication: OAuth2, JWT tokens',hrs:4},
+        {id:'fa7',label:'Background tasks & lifespan events',hrs:2},
+        {id:'fa8',label:'Middleware & CORS',hrs:2},
+        {id:'fa9',label:'WebSockets',hrs:2},
       ]},
-      { title: 'Phase 3 – Production Patterns (Week 4)', topics: [
-        { id: 'fa10', text: 'Database integration with SQLAlchemy (async)', hours: 3 },
-        { id: 'fa11', text: 'OpenAPI docs customization', hours: 1 },
-        { id: 'fa12', text: 'Testing FastAPI with TestClient & pytest', hours: 2 },
-        { id: 'fa13', text: 'Error handling & custom exception handlers', hours: 2 },
-      ]}
+      { title:'Phase 3 – Production Patterns', meta:'Week 4, 8hrs', topics:[
+        {id:'fa10',label:'Database integration with SQLAlchemy async',hrs:3},
+        {id:'fa11',label:'OpenAPI docs customization',hrs:1},
+        {id:'fa12',label:'Testing FastAPI with TestClient & pytest',hrs:2},
+        {id:'fa13',label:'Error handling & custom exception handlers',hrs:2},
+      ]},
     ],
-    commands: `# Install & run
-pip install fastapi uvicorn[standard] pydantic
-uvicorn main:app --reload --port 8000
+    commands:`# Install & Run
+pip install fastapi uvicorn[standard] pydantic python-jose
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
-# Minimal app
-from fastapi import FastAPI, Depends, HTTPException
+# Basic App
+from fastapi import FastAPI, Depends, HTTPException, status
 from pydantic import BaseModel
 
-app = FastAPI()
+app = FastAPI(title="DevOps API", version="1.0.0")
 
 class Item(BaseModel):
     name: str
     price: float
+    in_stock: bool = True
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
-
-@app.post("/items/", response_model=Item)
-async def create_item(item: Item):
-    return item
-
-# JWT Auth
-from jose import JWTError, jwt
-SECRET_KEY = "secret"
-ALGORITHM = "HS256"
+@app.get("/items/{item_id}", response_model=Item)
+async def get_item(item_id: int, q: str | None = None):
+    if item_id not in db:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return db[item_id]
 
 # Test
 from fastapi.testclient import TestClient
 client = TestClient(app)
-response = client.get("/items/1")
-assert response.status_code == 200`,
-    resources: [
-      { name: 'FastAPI Official Docs', url: 'https://fastapi.tiangolo.com' },
-      { name: 'TestDriven.io FastAPI', url: 'https://testdriven.io/courses/tdd-fastapi/' },
-      { name: 'ArjanCodes YouTube', url: 'https://youtube.com/@ArjanCodes' },
+def test_read_item():
+    response = client.get("/items/1")
+    assert response.status_code == 200`,
+    resources:[
+      {title:'FastAPI Official Docs',url:'https://fastapi.tiangolo.com'},
+      {title:'TestDriven.io',url:'https://testdriven.io'},
+      {title:'ArjanCodes YouTube',url:'https://youtube.com/@ArjanCodes'},
+      {title:'Sebastián Ramírez GitHub',url:'https://github.com/tiangolo'},
     ],
-    projects: [
-      { name: 'REST Task Manager API', desc: 'Full CRUD REST API with PostgreSQL, JWT auth, async SQLAlchemy, and pytest coverage.' },
-      { name: 'JWT Auth Service', desc: 'Standalone auth microservice with OAuth2 password flow, token refresh, and role-based access.' },
-      { name: 'Real-Time Chat', desc: 'WebSocket-based chat API with rooms, broadcast, and connection management.' },
+    projects:[
+      {title:'REST Task Manager API',desc:'Full CRUD with PostgreSQL, JWT auth, async SQLAlchemy, pytest coverage'},
+      {title:'JWT Auth Microservice',desc:'OAuth2 password flow, token refresh, role-based access control'},
+      {title:'Real-Time Chat',desc:'WebSocket rooms, broadcast, connection manager pattern'},
     ]
   },
   {
-    id: 'kafka', name: 'Apache Kafka', icon: '📨', color: '#f59e0b', hours: 35, difficulty: 'Intermediate → Advanced',
-    phases: [
-      { title: 'Phase 1 – Fundamentals (Week 1-2)', topics: [
-        { id: 'kf1', text: 'What is Kafka? Use cases & architecture', hours: 2 },
-        { id: 'kf2', text: 'Topics, partitions, offsets & replication', hours: 3 },
-        { id: 'kf3', text: 'Producers & consumers in Python (confluent-kafka)', hours: 3 },
-        { id: 'kf4', text: 'Consumer groups & rebalancing', hours: 2 },
-        { id: 'kf5', text: 'Kafka CLI tools', hours: 2 },
+    id:'kafka', name:'Apache Kafka', emoji:'📨', color:'#f59e0b', hours:35, level:'Intermediate→Advanced',
+    phases:[
+      { title:'Phase 1 – Fundamentals', meta:'Week 1-2, 12hrs', topics:[
+        {id:'kf1',label:'What is Kafka? Use cases & architecture',hrs:2},
+        {id:'kf2',label:'Topics, partitions, offsets & replication',hrs:3},
+        {id:'kf3',label:'Producers & consumers in Python confluent-kafka',hrs:3},
+        {id:'kf4',label:'Consumer groups & rebalancing',hrs:2},
+        {id:'kf5',label:'Kafka CLI tools',hrs:2},
       ]},
-      { title: 'Phase 2 – Deep Dive (Week 3)', topics: [
-        { id: 'kf6', text: 'Kafka configuration tuning (acks, retries, linger)', hours: 3 },
-        { id: 'kf7', text: 'Schema Registry & Avro/JSON schemas', hours: 3 },
-        { id: 'kf8', text: 'Kafka Streams concepts', hours: 2 },
-        { id: 'kf9', text: 'Exactly-once semantics & idempotency', hours: 3 },
-        { id: 'kf10', text: 'Dead letter queues & error handling', hours: 2 },
+      { title:'Phase 2 – Deep Dive', meta:'Week 3, 13hrs', topics:[
+        {id:'kf6',label:'Kafka configuration tuning acks retries linger',hrs:3},
+        {id:'kf7',label:'Schema Registry & Avro/JSON schemas',hrs:3},
+        {id:'kf8',label:'Kafka Streams concepts',hrs:2},
+        {id:'kf9',label:'Exactly-once semantics & idempotency',hrs:3},
+        {id:'kf10',label:'Dead letter queues & error handling',hrs:2},
       ]},
-      { title: 'Phase 3 – Operations (Week 4)', topics: [
-        { id: 'kf11', text: 'Running Kafka with Docker Compose', hours: 2 },
-        { id: 'kf12', text: 'Monitoring with Kafka UI / Conduktor', hours: 2 },
-        { id: 'kf13', text: 'Kafka Connect basics', hours: 3 },
-        { id: 'kf14', text: 'Security: SASL, SSL, ACLs', hours: 3 },
-      ]}
+      { title:'Phase 3 – Operations', meta:'Week 4, 10hrs', topics:[
+        {id:'kf11',label:'Running Kafka with Docker Compose',hrs:2},
+        {id:'kf12',label:'Monitoring with Kafka UI / Conduktor',hrs:2},
+        {id:'kf13',label:'Kafka Connect basics',hrs:3},
+        {id:'kf14',label:'Security: SASL, SSL, ACLs',hrs:3},
+      ]},
     ],
-    commands: `# Docker Compose for Kafka
-# docker-compose.yml
-services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    ports: ["9092:9092"]
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+    commands:`# Kafka CLI
+kafka-topics.sh --create --topic orders \\
+  --partitions 3 --replication-factor 1 \\
+  --bootstrap-server localhost:9092
 
-# CLI commands
-kafka-topics.sh --create --topic orders --partitions 3 --replication-factor 1 --bootstrap-server localhost:9092
 kafka-topics.sh --list --bootstrap-server localhost:9092
+kafka-topics.sh --describe --topic orders --bootstrap-server localhost:9092
+
 kafka-console-producer.sh --topic orders --bootstrap-server localhost:9092
 kafka-console-consumer.sh --topic orders --from-beginning --bootstrap-server localhost:9092
 
-# Python Producer
-from confluent_kafka import Producer
-p = Producer({'bootstrap.servers': 'localhost:9092'})
-p.produce('orders', key='order-1', value='{"id":1,"item":"widget"}')
-p.flush()
-
-# Python Consumer
-from confluent_kafka import Consumer
-c = Consumer({'bootstrap.servers': 'localhost:9092', 'group.id': 'mygroup', 'auto.offset.reset': 'earliest'})
-c.subscribe(['orders'])
-msg = c.poll(1.0)`,
-    resources: [
-      { name: 'Confluent Official Docs', url: 'https://docs.confluent.io' },
-      { name: 'Stephane Maarek Udemy', url: 'https://www.udemy.com/user/stephane-maarek/' },
-      { name: 'Confluent YouTube', url: 'https://youtube.com/@confluentinc' },
+# Consumer group lag
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \\
+  --group my-group --describe`,
+    resources:[
+      {title:'Confluent Docs',url:'https://docs.confluent.io'},
+      {title:'Stephane Maarek Udemy',url:'https://udemy.com/user/stephane-maarek/'},
+      {title:'Confluent YouTube',url:'https://youtube.com/@Confluent'},
+      {title:'kafka-python GitHub',url:'https://github.com/dpkp/kafka-python'},
     ],
-    projects: [
-      { name: 'Order Processing System', desc: 'Event-driven order pipeline: producer API → Kafka topic → consumer microservice → DB.' },
-      { name: 'Real-Time Log Aggregation', desc: 'Collect app logs via Kafka Connect, process with Streams, sink to Elasticsearch.' },
-      { name: 'Producer/Consumer Pair', desc: 'Two FastAPI microservices communicating via Kafka with schema validation.' },
+    projects:[
+      {title:'Order Processing System',desc:'Event-driven order pipeline via Kafka with FastAPI producer and consumer service'},
+      {title:'Real-Time Log Aggregation',desc:'Collect logs via Kafka Connect, process with Streams, sink to Elasticsearch'},
+      {title:'Producer/Consumer Microservice Pair',desc:'Two FastAPI services communicating via Kafka + Schema Registry'},
     ]
   },
   {
-    id: 'docker', name: 'Docker', icon: '🐳', color: '#06b6d4', hours: 25, difficulty: 'Beginner → Intermediate',
-    phases: [
-      { title: 'Phase 1 – Basics (Week 1)', topics: [
-        { id: 'dk1', text: 'Containers vs VMs, Docker architecture', hours: 2 },
-        { id: 'dk2', text: 'Docker CLI: run, build, push, pull', hours: 2 },
-        { id: 'dk3', text: 'Writing Dockerfiles: layers, cache, best practices', hours: 3 },
-        { id: 'dk4', text: 'Docker volumes & bind mounts', hours: 2 },
-        { id: 'dk5', text: 'Docker networking fundamentals', hours: 1 },
+    id:'docker', name:'Docker', emoji:'🐳', color:'#06b6d4', hours:25, level:'Beginner→Intermediate',
+    phases:[
+      { title:'Phase 1 – Basics', meta:'Week 1, 10hrs', topics:[
+        {id:'dk1',label:'Containers vs VMs, Docker architecture',hrs:2},
+        {id:'dk2',label:'Docker CLI: run, build, push, pull',hrs:2},
+        {id:'dk3',label:'Writing Dockerfiles: layers, cache, best practices',hrs:3},
+        {id:'dk4',label:'Docker volumes & bind mounts',hrs:2},
+        {id:'dk5',label:'Docker networking fundamentals',hrs:1},
       ]},
-      { title: 'Phase 2 – Compose & Multi-container (Week 2)', topics: [
-        { id: 'dk6', text: 'Docker Compose: services, networks, volumes', hours: 3 },
-        { id: 'dk7', text: 'Multi-stage builds for production images', hours: 2 },
-        { id: 'dk8', text: 'Environment variables & secrets', hours: 2 },
-        { id: 'dk9', text: 'Docker Compose override files', hours: 1 },
+      { title:'Phase 2 – Compose & Multi-container', meta:'Week 2, 8hrs', topics:[
+        {id:'dk6',label:'Docker Compose: services, networks, volumes',hrs:3},
+        {id:'dk7',label:'Multi-stage builds for production images',hrs:2},
+        {id:'dk8',label:'Environment variables & secrets',hrs:2},
+        {id:'dk9',label:'Docker Compose override files',hrs:1},
       ]},
-      { title: 'Phase 3 – Production & Optimization (Week 3)', topics: [
-        { id: 'dk10', text: 'Image optimization & .dockerignore', hours: 2 },
-        { id: 'dk11', text: 'Health checks & restart policies', hours: 1 },
-        { id: 'dk12', text: 'Docker Registry: push to Docker Hub / GHCR', hours: 2 },
-        { id: 'dk13', text: 'Security scanning with Trivy', hours: 2 },
-      ]}
+      { title:'Phase 3 – Production & Optimization', meta:'Week 3, 7hrs', topics:[
+        {id:'dk10',label:'Image optimization & .dockerignore',hrs:2},
+        {id:'dk11',label:'Health checks & restart policies',hrs:1},
+        {id:'dk12',label:'Docker Registry: Docker Hub / GHCR',hrs:2},
+        {id:'dk13',label:'Security scanning with Trivy',hrs:2},
+      ]},
     ],
-    commands: `# Build & Run
+    commands:`# Build & Run
 docker build -t myapp:1.0 .
 docker run -d -p 8080:80 --name myapp myapp:1.0
 docker ps -a
-docker logs myapp -f
+docker logs myapp -f --tail=100
 docker exec -it myapp bash
 docker stats --no-stream
 
-# Multi-stage Dockerfile
-FROM python:3.11-slim AS builder
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --user -r requirements.txt
-
-FROM python:3.11-slim
-WORKDIR /app
-COPY --from=builder /root/.local /root/.local
-COPY . .
-USER 1000:1000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]
-
-# Compose
+# Docker Compose v2
 docker compose up -d --build
 docker compose logs -f api
-docker compose down --volumes
+docker compose exec db psql -U postgres
+docker compose down --volumes --remove-orphans
 
-# GHCR Push
-echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+# GHCR Registry
+echo $GITHUB_TOKEN | docker login ghcr.io -u Austin-Texas --password-stdin
 docker tag myapp:1.0 ghcr.io/austin-texas/myapp:1.0
 docker push ghcr.io/austin-texas/myapp:1.0
 
-# Security scan
+# Image Scanning
 trivy image --severity HIGH,CRITICAL myapp:1.0`,
-    resources: [
-      { name: 'Docker Official Docs', url: 'https://docs.docker.com' },
-      { name: 'TechWorld with Nana YouTube', url: 'https://youtube.com/@TechWorldwithNana' },
-      { name: 'Play with Docker', url: 'https://labs.play-with-docker.com' },
+    resources:[
+      {title:'Docker Docs',url:'https://docs.docker.com'},
+      {title:'TechWorld with Nana YouTube',url:'https://youtube.com/@TechWorldwithNana'},
+      {title:'Play with Docker',url:'https://labs.play-with-docker.com'},
+      {title:'Docker Deep Dive Book',url:'https://nigelpoulton.com/books/'},
     ],
-    projects: [
-      { name: 'Dockerize FastAPI + Postgres', desc: 'Multi-container app: FastAPI + Postgres + Redis with Docker Compose, health checks, named volumes.' },
-      { name: 'Multi-stage Production Build', desc: 'Optimized production image with multi-stage build, non-root user, .dockerignore, <50MB final image.' },
-      { name: 'Automated Image Pipeline', desc: 'GitHub Actions workflow: build → scan with Trivy → push to GHCR on every commit.' },
+    projects:[
+      {title:'Dockerize FastAPI + Postgres',desc:'Multi-container with Docker Compose, health checks, named volumes'},
+      {title:'Multi-stage Production Build',desc:'Optimized image with non-root user, .dockerignore, under 50MB'},
+      {title:'Automated Image Pipeline',desc:'GitHub Actions: build → Trivy scan → push to GHCR on every commit'},
     ]
   },
   {
-    id: 'kubernetes', name: 'Kubernetes', icon: '☸️', color: '#6366f1', hours: 50, difficulty: 'Intermediate → Advanced',
-    phases: [
-      { title: 'Phase 1 – Core Concepts (Week 1-2)', topics: [
-        { id: 'k8s1', text: 'Kubernetes architecture: control plane & nodes', hours: 3 },
-        { id: 'k8s2', text: 'Pods, ReplicaSets, Deployments', hours: 4 },
-        { id: 'k8s3', text: 'Services: ClusterIP, NodePort, LoadBalancer', hours: 3 },
-        { id: 'k8s4', text: 'ConfigMaps & Secrets', hours: 2 },
-        { id: 'k8s5', text: 'Namespaces & resource quotas', hours: 2 },
-        { id: 'k8s6', text: 'kubectl CLI fundamentals', hours: 4 },
+    id:'kubernetes', name:'Kubernetes', emoji:'☸️', color:'#6366f1', hours:50, level:'Intermediate→Advanced',
+    phases:[
+      { title:'Phase 1 – Core Concepts', meta:'Week 1-2, 18hrs', topics:[
+        {id:'k8s1',label:'Kubernetes architecture: control plane & nodes',hrs:3},
+        {id:'k8s2',label:'Pods, ReplicaSets, Deployments',hrs:4},
+        {id:'k8s3',label:'Services: ClusterIP, NodePort, LoadBalancer',hrs:3},
+        {id:'k8s4',label:'ConfigMaps & Secrets',hrs:2},
+        {id:'k8s5',label:'Namespaces & resource quotas',hrs:2},
+        {id:'k8s6',label:'kubectl CLI fundamentals',hrs:4},
       ]},
-      { title: 'Phase 2 – Workloads & Networking (Week 3-4)', topics: [
-        { id: 'k8s7', text: 'StatefulSets & persistent volumes', hours: 4 },
-        { id: 'k8s8', text: 'Ingress controllers & rules', hours: 3 },
-        { id: 'k8s9', text: 'DaemonSets & Jobs/CronJobs', hours: 3 },
-        { id: 'k8s10', text: 'Liveness, readiness & startup probes', hours: 2 },
-        { id: 'k8s11', text: 'HorizontalPodAutoscaler', hours: 2 },
-        { id: 'k8s12', text: 'NetworkPolicies', hours: 2 },
-        { id: 'k8s13', text: 'RBAC: Roles, ClusterRoles, Bindings', hours: 2 },
+      { title:'Phase 2 – Workloads & Networking', meta:'Week 3-4, 18hrs', topics:[
+        {id:'k8s7',label:'StatefulSets & persistent volumes',hrs:4},
+        {id:'k8s8',label:'Ingress controllers & rules',hrs:3},
+        {id:'k8s9',label:'DaemonSets & Jobs/CronJobs',hrs:3},
+        {id:'k8s10',label:'Liveness, readiness & startup probes',hrs:2},
+        {id:'k8s11',label:'HorizontalPodAutoscaler',hrs:2},
+        {id:'k8s12',label:'NetworkPolicies',hrs:2},
+        {id:'k8s13',label:'RBAC: Roles, ClusterRoles, Bindings',hrs:2},
       ]},
-      { title: 'Phase 3 – Advanced Operations (Week 5-6)', topics: [
-        { id: 'k8s14', text: 'Local dev with Minikube / kind', hours: 2 },
-        { id: 'k8s15', text: 'Resource requests & limits, QoS', hours: 3 },
-        { id: 'k8s16', text: 'Node affinity & taints/tolerations', hours: 2 },
-        { id: 'k8s17', text: 'Kubernetes logging & monitoring basics', hours: 3 },
-        { id: 'k8s18', text: 'Troubleshooting: describe, logs, exec', hours: 2 },
-        { id: 'k8s19', text: 'Upgrade strategies: rolling, blue-green, canary', hours: 2 },
-      ]}
+      { title:'Phase 3 – Advanced Operations', meta:'Week 5-6, 14hrs', topics:[
+        {id:'k8s14',label:'Local dev with Minikube / kind',hrs:2},
+        {id:'k8s15',label:'Resource requests & limits, QoS',hrs:3},
+        {id:'k8s16',label:'Node affinity & taints/tolerations',hrs:2},
+        {id:'k8s17',label:'Kubernetes logging & monitoring',hrs:3},
+        {id:'k8s18',label:'Troubleshooting: describe, logs, exec',hrs:2},
+        {id:'k8s19',label:'Upgrade strategies: rolling, blue-green, canary',hrs:2},
+      ]},
     ],
-    commands: `# Cluster
+    commands:`# === CLUSTER INFO ===
 kubectl cluster-info
 kubectl get nodes -o wide
 kubectl get pods -A -o wide
+kubectl api-resources
 
-# CREATE vs RUN vs APPLY
+# === CORE COMMANDS ===
 kubectl create deployment nginx --image=nginx
-kubectl create deployment nginx --image=nginx --dry-run=client -o yaml > deploy.yaml
 kubectl run testpod --image=nginx
-kubectl run -it ubuntu --image=ubuntu
 kubectl apply -f deployment.yaml
 
-# Pods
-kubectl get pods --show-labels
+# === PODS ===
 kubectl get pods -o wide
 kubectl describe pod nginx
-kubectl logs nginx -f
-kubectl logs nginx --previous
 kubectl exec -it nginx -- bash
-kubectl delete pod nginx
+kubectl logs nginx -f
 
-# Deployments
+# === DEPLOYMENTS ===
 kubectl create deployment nginx-deployment --image=nginx --replicas=3
 kubectl scale deployment nginx-deployment --replicas=5
 kubectl set image deployment nginx-deployment nginx=nginx:1.25
 kubectl rollout status deployment nginx-deployment
-kubectl rollout history deployment nginx-deployment
 kubectl rollout undo deployment nginx-deployment
 
-# Services
-kubectl expose deployment nginx --type=NodePort --port=80
+# === SERVICES ===
+kubectl expose pod redis --port=6379 --name=redis-service
+kubectl expose deployment webapp --port=80 --type=NodePort
 kubectl get svc
-kubectl get endpoints
 
-# Labels
-kubectl label pod pod-1 app=dev
-kubectl get pods -l env=dev
-
-# Namespaces
+# === NAMESPACES ===
+kubectl get namespaces
 kubectl get pods -A
-kubectl get pods -n kube-system
 
-# Monitoring
+# === RBAC ===
+kubectl auth can-i get pods --as=system:serviceaccount:default:myapp
+kubectl create role pod-reader --verb=get,list,watch --resource=pods
+
+# === HPA ===
+kubectl autoscale deployment nginx --cpu-percent=50 --min=2 --max=10
+
+# === MONITORING ===
 kubectl top node
 kubectl top pod
 
-# ETCD Backup
+# === ETCD BACKUP ===
 ETCDCTL_API=3 etcdctl snapshot save /backup/etcd-$(date +%Y%m%d).db \\
   --endpoints=https://127.0.0.1:2379 \\
   --cacert=/etc/kubernetes/pki/etcd/ca.crt \\
   --cert=/etc/kubernetes/pki/etcd/server.crt \\
   --key=/etc/kubernetes/pki/etcd/server.key`,
-    resources: [
-      { name: 'Kubernetes Official Docs', url: 'https://kubernetes.io/docs/' },
-      { name: 'TechWorld with Nana YouTube', url: 'https://youtube.com/@TechWorldwithNana' },
-      { name: 'KodeKloud', url: 'https://kodekloud.com' },
-      { name: 'CKAD Practice Labs', url: 'https://github.com/dgkanatsios/CKAD-exercises' },
+    resources:[
+      {title:'Kubernetes Docs',url:'https://kubernetes.io/docs/'},
+      {title:'TechWorld with Nana',url:'https://youtube.com/@TechWorldwithNana'},
+      {title:'KodeKloud',url:'https://kodekloud.com'},
+      {title:'CKAD Exercises GitHub',url:'https://github.com/dgkanatsios/CKAD-exercises'},
     ],
-    projects: [
-      { name: 'Deploy FastAPI Stack on K8s', desc: 'Deploy FastAPI + Postgres + Redis on K8s with ConfigMaps, Secrets, PVCs, and Ingress.' },
-      { name: 'Autoscaling Microservice', desc: 'Configure HPA with custom metrics, load test with k6, observe scale-out events.' },
-      { name: 'Ingress with TLS', desc: 'Set up NGINX Ingress with cert-manager, Let\'s Encrypt cert, and host-based routing.' },
+    projects:[
+      {title:'Deploy FastAPI Stack on K8s',desc:'FastAPI + Postgres + Redis with ConfigMaps, Secrets, PVCs, Ingress'},
+      {title:'Autoscaling Microservice',desc:'HPA with custom metrics, load test with k6, observe scale-out'},
+      {title:'Ingress with TLS',desc:'NGINX Ingress + cert-manager + Let\'s Encrypt + host-based routing'},
     ]
   },
   {
-    id: 'helm', name: 'Helm', icon: '⛵', color: '#8b5cf6', hours: 20, difficulty: 'Intermediate',
-    phases: [
-      { title: 'Phase 1 – Helm Basics (Week 1)', topics: [
-        { id: 'hm1', text: 'What is Helm? Charts, releases, repos', hours: 2 },
-        { id: 'hm2', text: 'Installing & using existing charts', hours: 2 },
-        { id: 'hm3', text: 'Helm CLI: install, upgrade, rollback, uninstall', hours: 2 },
-        { id: 'hm4', text: 'values.yaml & overriding defaults', hours: 2 },
+    id:'helm', name:'Helm', emoji:'⛵', color:'#8b5cf6', hours:20, level:'Intermediate',
+    phases:[
+      { title:'Phase 1 – Helm Basics', meta:'Week 1, 8hrs', topics:[
+        {id:'hm1',label:'What is Helm? Charts, releases, repos',hrs:2},
+        {id:'hm2',label:'Installing & using existing charts',hrs:2},
+        {id:'hm3',label:'Helm CLI: install, upgrade, rollback, uninstall',hrs:2},
+        {id:'hm4',label:'values.yaml & overriding defaults',hrs:2},
       ]},
-      { title: 'Phase 2 – Chart Development (Week 2)', topics: [
-        { id: 'hm5', text: 'Chart structure: templates, helpers, NOTES.txt', hours: 3 },
-        { id: 'hm6', text: 'Go templating: variables, conditionals, loops', hours: 3 },
-        { id: 'hm7', text: 'Named templates & _helpers.tpl', hours: 2 },
+      { title:'Phase 2 – Chart Development', meta:'Week 2, 8hrs', topics:[
+        {id:'hm5',label:'Chart structure: templates, helpers, NOTES.txt',hrs:3},
+        {id:'hm6',label:'Go templating: variables, conditionals, loops',hrs:3},
+        {id:'hm7',label:'Named templates & _helpers.tpl',hrs:2},
       ]},
-      { title: 'Phase 3 – Advanced Helm (Week 3)', topics: [
-        { id: 'hm8', text: 'Chart dependencies & subcharts', hours: 2 },
-        { id: 'hm9', text: 'Helm hooks & tests', hours: 1 },
-        { id: 'hm10', text: 'Publishing to a Helm registry', hours: 1 },
-      ]}
+      { title:'Phase 3 – Advanced Helm', meta:'Week 3, 4hrs', topics:[
+        {id:'hm8',label:'Chart dependencies & subcharts',hrs:2},
+        {id:'hm9',label:'Helm hooks & tests',hrs:1},
+        {id:'hm10',label:'Publishing to a Helm registry',hrs:1},
+      ]},
     ],
-    commands: `# Helm CLI
+    commands:`# Helm Repos & Search
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 helm search repo bitnami/nginx
-helm install my-nginx bitnami/nginx --namespace prod --create-namespace
+
+# Install, Upgrade, Rollback
+helm install my-nginx bitnami/nginx -n prod --create-namespace
 helm upgrade my-nginx bitnami/nginx --set replicaCount=3
 helm rollback my-nginx 1
-helm uninstall my-nginx
+helm uninstall my-nginx -n prod
 helm list -A
-helm status my-nginx
 
-# Create your own chart
+# Create Your Own Chart
 helm create myapp
 
-# Template debugging
+# Template Debugging
 helm template myapp ./myapp -f values-prod.yaml
 helm lint ./myapp
 helm install myapp ./myapp --dry-run --debug
 
-# Override values
-helm install myapp ./myapp \\
-  --set image.tag=1.2.0 \\
-  --set replicaCount=3 \\
-  -f custom-values.yaml
-
-# Package & push
+# Package & Push
 helm package ./myapp
 helm push myapp-1.0.0.tgz oci://ghcr.io/austin-texas/charts`,
-    resources: [
-      { name: 'Helm Official Docs', url: 'https://helm.sh/docs/' },
-      { name: 'ArtifactHub', url: 'https://artifacthub.io' },
-      { name: 'TechWorld with Nana Helm', url: 'https://youtube.com/@TechWorldwithNana' },
+    resources:[
+      {title:'Helm Docs',url:'https://helm.sh/docs/'},
+      {title:'ArtifactHub',url:'https://artifacthub.io'},
+      {title:'TechWorld with Nana',url:'https://youtube.com/@TechWorldwithNana'},
     ],
-    projects: [
-      { name: 'FastAPI Helm Chart', desc: 'Create a production Helm chart for your FastAPI app with configurable ingress, HPA, and secrets.' },
-      { name: 'Multi-service Chart', desc: 'Package FastAPI + Postgres + Redis as a single Helm chart with subchart dependencies.' },
-      { name: 'Chart with Autoscaling', desc: 'Helm chart with optional HPA, Ingress TLS, and environment-specific values files.' },
+    projects:[
+      {title:'FastAPI Helm Chart',desc:'Production chart with configurable ingress, HPA, secrets management'},
+      {title:'Multi-service Chart',desc:'FastAPI + Postgres + Redis as single chart with subchart dependencies'},
+      {title:'Chart with Autoscaling',desc:'Helm chart with optional HPA, Ingress TLS, environment values files'},
     ]
   },
   {
-    id: 'github-actions', name: 'GitHub Actions', icon: '⚙️', color: '#9ca3af', hours: 20, difficulty: 'Beginner → Intermediate',
-    phases: [
-      { title: 'Phase 1 – CI/CD Basics (Week 1)', topics: [
-        { id: 'gh1', text: 'GitHub Actions concepts: workflows, jobs, steps', hours: 2 },
-        { id: 'gh2', text: 'YAML syntax for workflows', hours: 2 },
-        { id: 'gh3', text: 'Triggers: push, pull_request, schedule, workflow_dispatch', hours: 2 },
-        { id: 'gh4', text: 'Actions marketplace & reusable actions', hours: 2 },
+    id:'ghactions', name:'GitHub Actions', emoji:'⚙️', color:'#9ca3af', hours:20, level:'Beginner→Intermediate',
+    phases:[
+      { title:'Phase 1 – CI/CD Basics', meta:'Week 1, 8hrs', topics:[
+        {id:'gh1',label:'GitHub Actions concepts: workflows, jobs, steps',hrs:2},
+        {id:'gh2',label:'YAML syntax for workflows',hrs:2},
+        {id:'gh3',label:'Triggers: push, pull_request, schedule, workflow_dispatch',hrs:2},
+        {id:'gh4',label:'Actions marketplace & reusable actions',hrs:2},
       ]},
-      { title: 'Phase 2 – Real Pipelines (Week 2)', topics: [
-        { id: 'gh5', text: 'Linting & testing in CI (Python, pytest)', hours: 2 },
-        { id: 'gh6', text: 'Building & pushing Docker images to GHCR', hours: 2 },
-        { id: 'gh7', text: 'Secrets & environment variables', hours: 2 },
-        { id: 'gh8', text: 'Matrix builds & parallel jobs', hours: 2 },
+      { title:'Phase 2 – Real Pipelines', meta:'Week 2, 8hrs', topics:[
+        {id:'gh5',label:'Linting & testing in CI with Python pytest',hrs:2},
+        {id:'gh6',label:'Building & pushing Docker images to GHCR',hrs:2},
+        {id:'gh7',label:'Secrets & environment variables',hrs:2},
+        {id:'gh8',label:'Matrix builds & parallel jobs',hrs:2},
       ]},
-      { title: 'Phase 3 – Advanced (Week 3)', topics: [
-        { id: 'gh9', text: 'Reusable workflows & composite actions', hours: 2 },
-        { id: 'gh10', text: 'Deploying to Kubernetes via GitHub Actions', hours: 2 },
-      ]}
+      { title:'Phase 3 – Advanced', meta:'Week 3, 4hrs', topics:[
+        {id:'gh9',label:'Reusable workflows & composite actions',hrs:2},
+        {id:'gh10',label:'Deploying to Kubernetes via GitHub Actions',hrs:2},
+      ]},
     ],
-    commands: `# .github/workflows/ci.yml
+    commands:`# .github/workflows/ci-cd.yml
 name: CI/CD Pipeline
 on:
   push:
@@ -649,16 +1178,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
+        with:
+          python-version: '3.11'
       - run: pip install -r requirements.txt
-      - run: pytest --cov=. --cov-report=xml
+      - run: pytest --cov=. -v
 
   build-push:
     needs: test
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
@@ -669,571 +1196,775 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ghcr.io/\${{ github.repository }}:\${{ github.sha }}
-
-  scan:
-    needs: build-push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ghcr.io/\${{ github.repository }}:\${{ github.sha }}
-          severity: HIGH,CRITICAL
-          exit-code: 1`,
-    resources: [
-      { name: 'GitHub Actions Docs', url: 'https://docs.github.com/en/actions' },
-      { name: 'GitHub Skills', url: 'https://skills.github.com' },
-      { name: 'TechWorld with Nana', url: 'https://youtube.com/@TechWorldwithNana' },
+          tags: ghcr.io/\${{ github.repository }}:\${{ github.sha }}`,
+    resources:[
+      {title:'GitHub Actions Docs',url:'https://docs.github.com/en/actions'},
+      {title:'GitHub Skills',url:'https://skills.github.com'},
+      {title:'TechWorld with Nana',url:'https://youtube.com/@TechWorldwithNana'},
+      {title:'DevOps Toolkit',url:'https://youtube.com/@DevOpsToolkit'},
     ],
-    projects: [
-      { name: 'Full CI Pipeline', desc: 'lint → test → build → trivy scan → push to GHCR for every PR and merge to main.' },
-      { name: 'Helm Chart Deployment', desc: 'Auto deploy Helm chart to K8s cluster on merge to main using kubectl + KUBECONFIG secret.' },
-      { name: 'Scheduled Data Pipeline', desc: 'Cron-triggered workflow that runs a Python data pipeline and uploads results to S3.' },
+    projects:[
+      {title:'Full CI Pipeline',desc:'Lint → test → build → Trivy scan → push to GHCR on every PR and merge'},
+      {title:'Helm Chart Deployment',desc:'Auto deploy Helm chart to K8s cluster using kubectl + KUBECONFIG secret'},
+      {title:'Scheduled Data Pipeline',desc:'Cron workflow runs Python ETL pipeline, uploads results to S3'},
     ]
   },
   {
-    id: 'gitlab-cicd', name: 'GitLab CI/CD', icon: '🦊', color: '#ef4444', hours: 20, difficulty: 'Intermediate',
-    phases: [
-      { title: 'Phase 1 – GitLab Fundamentals (Week 1)', topics: [
-        { id: 'gl1', text: '.gitlab-ci.yml structure: stages, jobs, scripts', hours: 2 },
-        { id: 'gl2', text: 'GitLab Runners: shared vs specific, Docker executor', hours: 2 },
-        { id: 'gl3', text: 'Variables, environments & protection rules', hours: 2 },
-        { id: 'gl4', text: 'Artifacts & caching strategies', hours: 2 },
+    id:'gitlab', name:'GitLab CI/CD', emoji:'🦊', color:'#ef4444', hours:20, level:'Intermediate',
+    phases:[
+      { title:'Phase 1 – GitLab Fundamentals', meta:'Week 1, 8hrs', topics:[
+        {id:'gl1',label:'.gitlab-ci.yml structure: stages, jobs, scripts',hrs:2},
+        {id:'gl2',label:'GitLab Runners: shared vs specific, Docker executor',hrs:2},
+        {id:'gl3',label:'Variables, environments & protection rules',hrs:2},
+        {id:'gl4',label:'Artifacts & caching strategies',hrs:2},
       ]},
-      { title: 'Phase 2 – Pipelines in Practice (Week 2)', topics: [
-        { id: 'gl5', text: 'Build & test stages with Python/pytest', hours: 2 },
-        { id: 'gl6', text: 'Docker build & push to GitLab Registry', hours: 2 },
-        { id: 'gl7', text: 'Multi-environment deployments (staging/prod)', hours: 2 },
-        { id: 'gl8', text: 'Merge request pipelines & rules', hours: 2 },
+      { title:'Phase 2 – Pipelines in Practice', meta:'Week 2, 8hrs', topics:[
+        {id:'gl5',label:'Build & test stages with Python/pytest',hrs:2},
+        {id:'gl6',label:'Docker build & push to GitLab Registry',hrs:2},
+        {id:'gl7',label:'Multi-environment deployments staging/prod',hrs:2},
+        {id:'gl8',label:'Merge request pipelines & rules',hrs:2},
       ]},
-      { title: 'Phase 3 – Advanced GitLab (Week 3)', topics: [
-        { id: 'gl9', text: 'DAG pipelines & needs keyword', hours: 2 },
-        { id: 'gl10', text: 'Deploy to Kubernetes with GitLab Agent', hours: 2 },
-      ]}
+      { title:'Phase 3 – Advanced GitLab', meta:'Week 3, 4hrs', topics:[
+        {id:'gl9',label:'DAG pipelines & needs keyword',hrs:2},
+        {id:'gl10',label:'Deploy to Kubernetes with GitLab Agent',hrs:2},
+      ]},
     ],
-    commands: `# .gitlab-ci.yml
+    commands:`# .gitlab-ci.yml
 stages: [test, build, scan, deploy-staging, deploy-prod]
 
 variables:
-  IMAGE_TAG: \$CI_REGISTRY_IMAGE:\$CI_COMMIT_SHA
+  DOCKER_REGISTRY: $CI_REGISTRY
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 
 test:
   stage: test
   image: python:3.11
   script:
     - pip install -r requirements.txt
-    - pytest --cov=. --cov-report=xml
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
+    - pytest --cov=. -v
 
 build:
   stage: build
   script:
-    - docker login -u \$CI_REGISTRY_USER -p \$CI_REGISTRY_PASSWORD \$CI_REGISTRY
-    - docker build -t \$IMAGE_TAG .
-    - docker push \$IMAGE_TAG
-  rules:
-    - if: \$CI_COMMIT_BRANCH == "main"
-
-scan:
-  stage: scan
-  image: aquasec/trivy:latest
-  script:
-    - trivy image --exit-code 1 --severity HIGH,CRITICAL \$IMAGE_TAG
-
-deploy-staging:
-  stage: deploy-staging
-  environment: staging
-  script:
-    - kubectl set image deployment/myapp myapp=\$IMAGE_TAG -n staging
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
 
 deploy-prod:
   stage: deploy-prod
-  environment: production
+  environment:
+    name: production
   script:
-    - kubectl set image deployment/myapp myapp=\$IMAGE_TAG -n production
+    - helm upgrade myapp ./charts/myapp \\
+        --set image.tag=$CI_COMMIT_SHA \\
+        -n production --install
   when: manual`,
-    resources: [
-      { name: 'GitLab CI/CD Docs', url: 'https://docs.gitlab.com/ee/ci/' },
-      { name: 'GitLab YouTube', url: 'https://youtube.com/@GitLab' },
-      { name: 'TechWorld with Nana GitLab', url: 'https://youtube.com/@TechWorldwithNana' },
+    resources:[
+      {title:'GitLab CI/CD Docs',url:'https://docs.gitlab.com/ee/ci/'},
+      {title:'GitLab YouTube',url:'https://youtube.com/@Gitlab'},
+      {title:'TechWorld with Nana',url:'https://youtube.com/@TechWorldwithNana'},
+      {title:'GitLab University',url:'https://about.gitlab.com/learn/'},
     ],
-    projects: [
-      { name: 'Python App CI/CD', desc: 'Full pipeline: test → build Docker → push to GitLab Registry → deploy to K8s.' },
-      { name: 'Environment Promotion Pipeline', desc: 'Auto-deploy to dev/staging, manual gate to prod, with rollback on failure.' },
-      { name: 'Helm Chart Auto-Deploy', desc: 'Helm upgrade on every merge to main using GitLab K8s Agent.' },
+    projects:[
+      {title:'Python App CI/CD',desc:'Test → build Docker → push GitLab Registry → deploy to K8s'},
+      {title:'Environment Promotion Pipeline',desc:'Auto-deploy dev/staging, manual gate to prod with rollback'},
+      {title:'Helm Chart Auto-Deploy',desc:'Helm upgrade on every merge using GitLab K8s Agent'},
     ]
-  }
+  },
 ];
 
-/* ═══════════════════ KNOWLEDGE BASE DATA ═══════════════════ */
+const SIDEBAR_ITEMS = TECHS.map(t=>({id:t.id,name:t.name,emoji:t.emoji,color:t.color}));
+SIDEBAR_ITEMS.push({id:'kb',name:'Knowledge Base',emoji:'📚',color:'#a78bfa',isKB:true});
+
+// ─── KNOWLEDGE BASE DATA ───
 const KB_CHAPTERS = [
-{num:'01',title:'Architecture and Control Plane',badge:'🔵 Control Plane',badgeColor:'#3b82f6',borderColor:'#3b82f6',
-rows:[['kube-apiserver','REST entry point; authentication, authorization, admission, audit logs'],['etcd','Distributed key-value state store; Raft quorum, backups, compaction'],['kube-scheduler','Filtering/scoring nodes, plugins, priorities, preemption'],['kube-controller-manager','Control loops, leader election, owner references, garbage collection'],['Admission chain','Mutating/validating webhooks and policies; ordering, failurePolicy']],
-engNote:'Deep in mind: desired state vs observed state, eventual consistency, resourceVersion, watches.'},
-{num:'02',title:'Worker Nodes and Runtime',badge:'🟢 Nodes',badgeColor:'#10b981',borderColor:'#10b981',
-rows:[['kubelet','Node agent; Pod sync, CRI calls, probes, evictions'],['kube-proxy','Service traffic routing; iptables/nftables'],['containerd / CRI-O','Container Runtime Interface, images, sandboxes'],['CNI plugins','Pod addressing, IPAM, routes, network policy'],['CSI node components','Stage, mount, publish/unpublish volumes']],
-engNote:'Failure practice: inspect node conditions, kubelet journal, runtime status.'},
-{num:'03',title:'Workload API Objects',badge:'🟣 Workloads',badgeColor:'#8b5cf6',borderColor:'#8b5cf6',
-rows:[['Pod','One or more containers, shared network namespace'],['Deployment','Stateless workload declarative rollout'],['StatefulSet','Stable identities, ordered rollout'],['DaemonSet','Runs a Pod on each eligible node'],['Job / CronJob','Finite tasks / scheduled jobs']],
-engNote:'Know init/sidecar/ephemeral containers, lifecycle hooks, probes.'},
-{num:'04',title:'Networking',badge:'🌐 Network',badgeColor:'#0ea5e9',borderColor:'#0ea5e9',
-rows:[['Service','ClusterIP, NodePort, LoadBalancer, ExternalName'],['CoreDNS','Cluster name resolution, caching'],['Ingress / Gateway API','HTTP(S) routing resources'],['NetworkPolicy','Ingress/egress traffic selection'],['Service mesh','Istio / Linkerd; mTLS, traffic policy']],
-engNote:'Troubleshoot: Pod IP → DNS → Service VIP → EndpointSlice → backend readiness.'},
-{num:'05',title:'Security and Identity',badge:'🔐 Security',badgeColor:'#dc2626',borderColor:'#dc2626',
-rows:[['Authentication','Client certs, OIDC, tokens'],['RBAC','Roles, ClusterRoles, Bindings'],['Pod Security Admission','Restricted/Baseline/Privileged profiles'],['Secrets management','Vault, External Secrets Operator'],['Supply chain','SBOM, signed images, vulnerability scanning']],
-engNote:'Hardening: least privilege, dedicated ServiceAccounts, admission enforcement.'},
-{num:'06',title:'Observability and SRE',badge:'👁️ Observability',badgeColor:'#e65100',borderColor:'#e65100',
-rows:[['Prometheus','Scraping, time series, recording and alert rules'],['Grafana','Dashboards and exploration'],['Alertmanager','Deduplication, grouping, routing'],['OpenTelemetry','Traces, metrics and logs'],['SRE','SLIs, SLOs, error budgets']],
-engNote:'Observe four layers: application, Pod/container, node and control plane.'}
+  {num:'01',title:'Architecture and Control Plane',badge:'🔵',color:'#3b82f6',
+   rows:[['kube-apiserver','REST entry point — authentication, authorization, admission control, audit logging'],['etcd','Raft consensus, periodic backups, compaction, TLS peer auth, snapshot restore'],['kube-scheduler','Filter → Score → Preempt pipeline, scheduling profiles, extender webhooks'],['kube-controller-manager','Control loops (Deployment, ReplicaSet, Node, Job controllers), leader election'],['cloud-controller-manager','Cloud provider integrations (LB, routes, node lifecycle)'],['API Aggregation','Extending API surface with APIService objects'],['Admission Chain','MutatingAdmissionWebhook → ValidatingAdmissionWebhook → ValidatingAdmissionPolicy (CEL)'],['PKI & HA','Certificate hierarchy, rotation strategies, etcd failure domains']],
+   note:'Core loop: desired state (etcd) vs observed state → reconciliation.'},
+  {num:'02',title:'Worker Nodes and Runtime',badge:'🟢',color:'#10b981',
+   rows:[['kubelet','Pod lifecycle sync, CRI gRPC calls, probe execution, eviction manager'],['kube-proxy','iptables/IPVS/nftables modes, service VIP routing, conntrack'],['containerd / CRI-O','OCI-compliant runtimes, image pull, snapshot management'],['runc / crun','Low-level OCI runtime, namespace/cgroup setup'],['CNI plugins','Calico (BGP/eBPF), Cilium (eBPF), Flannel (VXLAN)'],['CSI node','Volume mount/unmount, device staging, node publish'],['OS Internals','systemd, cgroups v2 resource limits, OOM killer behavior'],['NUMA / Topology','Topology Manager, device plugins (GPU), hugepages, CPU pinning']],
+   note:'Inspect: kubectl describe node, journalctl -u kubelet, crictl ps.'},
+  {num:'03',title:'Workload API Objects',badge:'🟣',color:'#8b5cf6',
+   rows:[['Pod','Lifecycle (Pending→Running→Succeeded/Failed), probes, init containers, sidecar containers'],['Deployment','Rolling update strategy (maxSurge/maxUnavailable), rollback, revision history'],['ReplicaSet','Maintains desired replica count, label selector matching'],['StatefulSet','Stable network identities, ordered rollout/scaledown, volumeClaimTemplates'],['DaemonSet','One pod per node, toleration-aware scheduling'],['Job','Finite task execution, completions, parallelism, backoffLimit'],['CronJob','Scheduled jobs, concurrencyPolicy (Allow/Forbid/Replace)'],['Short Names','po|svc|cm|secret|ing|deploy|sts|ns|rs|ds|pv|pvc|cj|netpol|sa']],
+   note:'All workloads are managed by controllers that reconcile desired vs actual state continuously.'},
+  {num:'04',title:'Networking',badge:'🌐',color:'#06b6d4',
+   rows:[['Service','ClusterIP, NodePort, LoadBalancer, ExternalName'],['EndpointSlice','Scalable endpoint tracking, dual-stack support'],['CoreDNS','Cluster DNS, caching, upstream forwarding'],['CNI','Calico, Cilium, Flannel, IPAM strategies'],['Ingress / IngressClass','L7 HTTP routing, host/path rules, TLS termination'],['Gateway API','GatewayClass → Gateway → HTTPRoute/TCPRoute'],['NetworkPolicy','Pod-level firewall: ingress/egress rules'],['Packet Path','Pod IP → DNS → Service VIP → kube-proxy → EndpointSlice → Pod']],
+   note:'Default: all pods can talk to all pods. NetworkPolicy is additive — start with default-deny.'},
+  {num:'05',title:'Configuration, Tenancy and Policy',badge:'⚙️',color:'#9ca3af',
+   rows:[['ConfigMap','Key-value config, mountable as files or env vars'],['Secret','Base64-encoded, encryption at rest, rotation strategies'],['Namespace','Logical isolation boundary, per-namespace RBAC, quotas'],['ResourceQuota','Limits total CPU/memory/object count per namespace'],['LimitRange','Default/min/max resource requests and limits per container'],['ServiceAccount','Workload identity, bound tokens, OIDC federation'],['Labels / Annotations','Labels for selection, annotations for metadata'],['Finalizers / OwnerRefs','Prevent deletion until cleanup, cascading garbage collection']],
+   note:'Separate dev/staging/prod via namespaces. Enforce immutable artifact promotion.'},
+  {num:'06',title:'Storage and Data Protection',badge:'💾',color:'#f59e0b',
+   rows:[['Volume Types','emptyDir, projected, secret, configMap, hostPath'],['PersistentVolume (PV)','Cluster-level storage resource'],['PersistentVolumeClaim (PVC)','Namespace-scoped request for storage'],['StorageClass','Dynamic provisioning, reclaim policies'],['CSI','Container Storage Interface — controller + node plugin'],['VolumeSnapshot','Point-in-time snapshot of PVC'],['Storage Backends','NFS, TrueNAS/ZFS, Ceph RBD, Longhorn, cloud EBS']],
+   note:'Access modes: RWO, RWX, RWOP. Always plan backup/restore.'},
+  {num:'07',title:'Security and Identity',badge:'🔐',color:'#ef4444',
+   rows:[['Authentication','Client certificates, OIDC tokens, ServiceAccount tokens'],['RBAC','Role/ClusterRole define permissions, bindings grant them'],['Admission','Pod Security Admission (PSA), webhooks, CEL policies'],['Runtime Hardening','SecurityContext, seccomp profiles, AppArmor'],['Secrets Management','Vault, External Secrets Operator, Secrets Store CSI'],['Supply Chain','SBOM, Cosign image signing, Trivy/Grype scanning'],['Runtime Detection','Falco — syscall-level threat detection'],['Network Isolation','Default-deny NetworkPolicy, service mesh mTLS']],
+   note:'Principle of least privilege everywhere.'},
+  {num:'08',title:'Scheduling and Resource Management',badge:'📊',color:'#6366f1',
+   rows:[['Placement','nodeSelector, nodeAffinity, podAffinity/podAntiAffinity'],['Spread','TopologySpreadConstraints'],['Isolation','Taints + tolerations'],['Prioritization','PriorityClass, preemption'],['Resources','requests (scheduling guarantee), limits (hard cap), QoS'],['Quotas','ResourceQuota per namespace, LimitRange defaults'],['Advanced','RuntimeClass, GPU scheduling, hugepages'],['Maintenance','cordon, drain, PDB-aware eviction']],
+   note:'Pending Pod? Check: kubectl describe pod → Events.'},
+  {num:'09',title:'Scaling, Availability and Reliability',badge:'📈',color:'#10b981',
+   rows:[['HPA','Scale on CPU, memory, custom metrics'],['VPA','Vertical Pod Autoscaler — auto right-sizing'],['Cluster Autoscaler','Add/remove nodes based on pending pods'],['Karpenter','Just-in-time node provisioning'],['KEDA','Event-driven autoscaling'],['Metrics Server','Lightweight resource metrics for HPA'],['PDB','PodDisruptionBudget — minimum available'],['SRE Concepts','SLIs, SLOs, error budgets, burn rate alerts']],
+   note:'HA ≠ DR. HA prevents downtime; DR recovers from catastrophic loss.'},
+  {num:'10',title:'Cluster Administration',badge:'🛠️',color:'#f59e0b',
+   rows:[['kubectl','kubeconfig, JSONPath, strategic merge patches'],['kubeadm','Cluster bootstrap, certificate management, upgrades'],['Helm / Kustomize','Package management vs overlay patching'],['Cluster API','Declarative cluster lifecycle management'],['Upgrades','Version skew policy, API deprecation checks'],['Backups','etcd snapshots, Velero'],['Operations','Node replacement, audit policy, log rotation'],['Platforms','EKS/AKS/GKE vs kubeadm bare-metal']],
+   note:'Always stage upgrades. Test backup restoration regularly.'},
+  {num:'11',title:'API Extensibility and Operators',badge:'🔌',color:'#8b5cf6',
+   rows:[['CRD','CustomResourceDefinition — extend the API'],['Operator Pattern','Controller watching CRs, reconciliation loop'],['Frameworks','Kubebuilder (Go), Operator SDK, kopf (Python)'],['API Versioning','Conversion webhooks for multi-version CRDs'],['Admission Webhook','Mutating/Validating webhooks'],['ValidatingAdmissionPolicy','CEL-based admission (K8s 1.28+)'],['APIService','Aggregated API servers'],['Finalizers','Pre-deletion hooks for cleanup']],
+   note:'Operators must be idempotent and expose observability metrics.'},
+  {num:'12',title:'Observability and SRE',badge:'👁️',color:'#06b6d4',
+   rows:[['Prometheus','Pull-based scraping, PromQL'],['Grafana','Dashboards, data sources, alerting'],['Alertmanager','Alert routing, grouping, silencing'],['OpenTelemetry','Unified traces + metrics + logs'],['Tempo / Jaeger','Distributed tracing backends'],['Loki / Elasticsearch','Log aggregation'],['Collection','Fluent Bit, Fluentd, Vector'],['SRE Practice','SLIs → SLOs → error budgets → alert on burn rate']],
+   note:'Observe 4 layers: application, Pod health, node resources, control plane.'},
+  {num:'13',title:'CI/CD, GitOps and Platform Delivery',badge:'🚀',color:'#7c3aed',
+   rows:[['CI Pipelines','GitHub Actions, GitLab CI'],['Registries','GHCR, Harbor, ECR, Docker Hub'],['Packaging','Helm charts vs Kustomize overlays'],['GitOps','Argo CD / Flux — pull-based reconciliation'],['ApplicationSet','Auto-generate Argo CD Applications'],['Progressive Delivery','Argo Rollouts / Flagger'],['Infrastructure','Terraform, Ansible'],['Policy as Code','Kyverno / OPA Gatekeeper']],
+   note:'Full pipeline: commit → test → build → scan → registry → GitOps → reconcile → verify.'},
+  {num:'14',title:'Incident Troubleshooting',badge:'🚨',color:'#ef4444',
+   rows:[['Pending','Check scheduling events, taints, nodeSelector, PVC binding'],['CrashLoopBackOff','kubectl logs --previous, check probes, resource limits'],['ImagePullBackOff','Registry URL, image tag, pull secret'],['OOMKilled','Exceeded memory limit — increase limits or fix leak'],['NotReady Node','kubelet logs, CRI status, CNI, certificate expiry'],['DNS Failure','CoreDNS pods, resolv.conf, NetworkPolicy UDP/53'],['Service Timeout','Selector matches? EndpointSlice? Readiness probe?'],['Ingress 502/503','Controller logs, upstream service reachable?'],['PVC Pending','StorageClass? CSI driver? Capacity?'],['etcd/API Latency','etcd quorum? Disk IOPS? API request queue?']],
+   note:'Framework: blast radius → evidence → isolate → mitigate → recover → root cause → prevention.'},
+  {num:'15',title:'Disaster Recovery and Production Design',badge:'🛡️',color:'#10b981',
+   rows:[['RPO / RTO','Recovery Point/Time Objectives'],['etcd Recovery','Snapshot restore, quorum reconstruction'],['Stateful Workloads','Application-level backups, PVC snapshots'],['Multi-cluster','Active-active, active-passive, federation'],['Runbook Design','Documented, tested, version-controlled procedures'],['Chaos Engineering','Chaos Mesh, Litmus — validate resilience'],['Capacity Planning','Growth projections, headroom, right-sizing']],
+   note:'Practice restores in staging on schedule — an untested backup is not a backup.'},
+  {num:'16',title:'Four-Node Proxmox Lab Implementation',badge:'🖥️',color:'#a78bfa',
+   rows:[['Proxmox Cluster','4-node cluster, quorum-based, TrueNAS/ZFS'],['VM Provisioning','Ubuntu 22.04, cloud-init, static IPs, SSH keys'],['kubeadm init','Initialize control plane on 192.168.137.112'],['Worker Join','kubeadm join with token + discovery hash'],['CNI Install','Calico or Cilium'],['MetalLB','L2 mode, IP address pool for LoadBalancer'],['Ingress','NGINX Ingress Controller via Helm'],['Storage','TrueNAS NFS or Longhorn'],['Monitoring','kube-prometheus-stack via Helm'],['GitOps','Argo CD → watches DevOps-Study-Plan repo']],
+   note:'Brian\'s lab: control plane 192.168.137.112, workers .113/.114/.115.',
+   extraCode:`# Brian's actual lab — control plane: 192.168.137.112
+
+# Generate fresh join command (run on k8s-ctrlr):
+kubeadm token create --print-join-command
+kubeadm token list
+
+# Reset worker (run as root):
+sudo -i
+systemctl stop kubelet && systemctl disable kubelet
+pkill -9 kubelet
+kubeadm reset -f
+rm -rf /etc/kubernetes /var/lib/kubelet /var/lib/etcd /etc/cni/net.d /var/lib/cni
+systemctl restart containerd && systemctl enable kubelet
+
+# Join workers:
+kubeadm join 192.168.137.112:6443 \\
+  --token 3khzfe.vdiagygc07jez7vi \\
+  --discovery-token-ca-cert-hash sha256:837fa73...
+
+# Verify after join:
+kubectl get nodes -o wide
+kubectl get pods -n kube-system`},
 ];
 
-const KB_BRIAN_NOTES = [
-{title:'📌 The 3 Core kubectl Commands',type:'cards',cards:[
-{label:'🔥 kubectl create',subtitle:'"Make it now" — Quick testing',color:'#7c3aed',cls:'cmd-card-create',cmds:['kubectl create deployment nginx --image=nginx','kubectl create deployment nginx --image=nginx --dry-run=client -o yaml > deploy.yaml']},
-{label:'🔥 kubectl run',subtitle:'"Run a Pod for testing" — Debug, one-off',color:'#06b6d4',cls:'cmd-card-run',cmds:['kubectl run testpod --image=nginx','kubectl run -it ubuntu --image=ubuntu']},
-{label:'🔥 kubectl apply',subtitle:'"Source of truth YAML" — GitOps, production',color:'#10b981',cls:'cmd-card-apply',cmds:['kubectl apply -f deployment.yaml','kubectl apply -f deployment.yaml --dry-run=client']}
-],summary:'⭐ create = quick build | run = quick Pod | apply = real-world YAML | dry-run = preview without creating'},
-{title:'📌 Pod Operations',code:`kubectl get pods -o wide
-kubectl describe pod nginx
-kubectl logs nginx -f
-kubectl logs nginx --previous
-kubectl exec -it nginx -- bash
-kubectl delete pod nginx`},
-{title:'📌 Deployment Commands',code:`kubectl create deployment nginx-deployment --image=nginx --replicas=3
-kubectl scale deployment nginx-deployment --replicas=5
-kubectl set image deployment nginx-deployment nginx=nginx:1.25
-kubectl rollout status deployment nginx-deployment
-kubectl rollout undo deployment nginx-deployment`},
-{title:'📌 Services & Namespaces',code:`kubectl expose deployment nginx --type=NodePort --port=80
-kubectl get svc
-kubectl get namespaces
-kubectl get pods -A
-kubectl get pods -n kube-system`},
-{title:'📌 Monitoring & Logs',code:`kubectl top node
-kubectl top pod
-kubectl logs <podname> -f
-kubectl get events -A --sort-by=.lastTimestamp | tail -30`}
+const KB_BRIANS_NOTES = [
+  {title:'3 Core kubectl Commands',content:`<b>CREATE</b> = "Make it now" — Quick testing, no YAML needed
+<code>kubectl create deployment nginx --image=nginx</code>
+
+<b>RUN</b> = "Run a Pod for testing" — Debug, one-off Pods
+<code>kubectl run testpod --image=nginx</code>
+
+<b>APPLY</b> = "Use my YAML as source of truth" — GitOps, production
+<code>kubectl apply -f deployment.yaml</code>
+
+⭐ Summary: create=quick build | run=quick Pod | apply=real-world YAML`},
+  {title:'Pod Operations',content:`<code>kubectl get pods</code> — List pods
+<code>kubectl get pods -o wide</code> — Show IP, node
+<code>kubectl describe pod nginx</code> — Single pod detail
+<code>kubectl get pods --watch</code> — Live stream
+<code>kubectl get pods --show-labels</code>`},
+  {title:'ReplicaSet Commands',content:`<code>kubectl get replicaset</code> or <code>kubectl get rs</code>
+<code>kubectl describe replicaset myrs</code>
+<code>kubectl explain replicaset</code> — Explains every field
+<code>kubectl scale --replicas=5 rs/myrs</code> — Scale UP`},
+  {title:'Deployment Commands',content:`<code>kubectl create deployment nginx-deployment --image=nginx --replicas=3</code>
+<code>kubectl scale deployment nginx-deployment --replicas=5</code>
+<code>kubectl set image deployment nginx-deployment nginx=nginx:1.25</code>
+<code>kubectl rollout status deployment nginx-deployment</code>
+<code>kubectl rollout undo deployment nginx-deployment</code>`},
+  {title:'Labels & Selectors',content:`<code>kubectl label pod pod-1 app=dev</code>
+<code>kubectl run hakkari --image=nginx --labels=type=Webserver</code>
+<code>kubectl label pod pod-1 env-</code> — Remove label (note the dash)
+<code>kubectl get pods -l env=dev</code> — Filter by label`},
+  {title:'Services',content:`<code>kubectl expose pod redis --port=6379 --name=redis-service</code>
+<code>kubectl expose deployment webapp --port=80 --type=NodePort</code>
+<code>kubectl get svc</code>
+<code>kubectl get endpoints</code>`},
+  {title:'Namespaces',content:`<code>kubectl get namespaces</code>
+<code>kubectl get pods -n prod</code>
+<code>kubectl get pods -A</code> — All namespaces
+
+DNS: <code>mysql.connect("db-service.dev.svc.cluster.local")</code>`},
+  {title:'SSH/Exec Into Containers',content:`Single container: <code>kubectl exec -it nginx -- bash</code>
+Multi-container: <code>kubectl exec -it multi-pod -c redis-container -- bash</code>
+Debug pod: <code>kubectl run debug --image=busybox --rm -it -- sh</code>`},
+  {title:'Monitoring & Top',content:`<code>kubectl top node</code> — Node CPU/memory
+<code>kubectl top pod</code> — Pod CPU/memory
+<code>watch kubectl top node</code> — Live auto-refresh
+<code>kubectl logs nginx -f</code> — Follow logs`},
+  {title:'YAML Structure',content:`Required fields:
+<code>apiVersion: apps/v1</code>
+<code>kind: Deployment</code> — FIRST LETTER CAPITAL
+<code>metadata:</code> — name, labels, namespace
+<code>spec:</code> — image, CPU, RAM, ports`},
+  {title:'kubeadm Token & Join',content:`<code>kubeadm token create --print-join-command</code>
+<code>kubeadm token list</code>
+
+Brian's lab join:
+<code>kubeadm join 192.168.137.112:6443 --token 3khzfe... --discovery-token-ca-cert-hash sha256:837fa73...</code>`},
+  {title:'System Health Check',content:`1. <code>kubectl get nodes</code> — All nodes Ready?
+2. <code>kubectl get pods -n kube-system</code> — System pods running?
+3. <code>kubectl create deployment nginx --image=nginx</code>
+4. <code>kubectl expose deployment nginx --port=80 --type=NodePort</code>
+5. <code>curl http://&lt;node-ip&gt;:&lt;nodeport&gt;</code>
+6. Cleanup deployments & services`},
 ];
 
 const KB_RUNBOOKS = [
-{title:'CrashLoopBackOff',severity:'critical',color:'#f87171',bgColor:'#dc262622',steps:['kubectl describe pod <name> → check Events','kubectl logs <pod> --previous → read crash reason','Check readiness/liveness probe config','Check resource limits (OOMKilled?)','Fix and kubectl rollout restart deployment/<name>']},
-{title:'Pod Stuck Pending',severity:'high',color:'#fb923c',bgColor:'#f9731622',steps:['kubectl describe pod <name> → Events section','Check resource requests vs node capacity','Check taints/tolerations','Check PVC binding']},
-{title:'Node NotReady',severity:'high',color:'#fb923c',bgColor:'#f9731622',steps:['kubectl describe node <name> → Conditions','SSH to node: systemctl status kubelet','journalctl -u kubelet -n 100','Check disk/memory pressure']},
-{title:'DNS Failure',severity:'medium',color:'#fbbf24',bgColor:'#f59e0b22',steps:['kubectl run dnstest --image=busybox --rm -it -- nslookup kubernetes.default','kubectl get pods -n kube-system | grep coredns','Check NetworkPolicy blocking port 53']},
-{title:'etcd Backup Procedure',severity:'medium',color:'#fbbf24',bgColor:'#f59e0b22',isCode:true,code:`ETCDCTL_API=3 etcdctl snapshot save /backup/etcd-$(date +%Y%m%d).db \\
-  --endpoints=https://127.0.0.1:2379 \\
-  --cacert=/etc/kubernetes/pki/etcd/ca.crt \\
-  --cert=/etc/kubernetes/pki/etcd/server.crt \\
-  --key=/etc/kubernetes/pki/etcd/server.key`}
+  {title:'CrashLoopBackOff',severity:'critical',emoji:'🔴',steps:['kubectl describe pod <name> — check Events section','kubectl logs <name> --previous — read crashed container logs','Verify probes: liveness probe may kill container too early','Check resource limits — OOMKilled masquerades as CrashLoop','Validate entrypoint/cmd — is binary present in image?','Check ConfigMap/Secret mounts — missing keys cause failures','Test image locally: docker run --rm -it <image> sh']},
+  {title:'ImagePullBackOff',severity:'high',emoji:'🟠',steps:['kubectl describe pod <name> — read "Failed to pull image"','Verify image name and tag exist in registry','Check imagePullSecrets on Pod/ServiceAccount','Test pull manually: docker pull <image>','For private registries: kubectl create secret docker-registry ...','Check network connectivity to registry']},
+  {title:'Pod Stuck Pending',severity:'high',emoji:'🟠',steps:['kubectl describe pod <name> — check scheduler Events','Look for: Insufficient cpu/memory, taints, affinity mismatches','kubectl get nodes — any NotReady or cordoned?','Check PVC binding: kubectl get pvc','Review ResourceQuota: kubectl get quota -n <ns>','Check nodeSelector/nodeAffinity — do matching nodes exist?']},
+  {title:'Node NotReady',severity:'critical',emoji:'🔴',steps:['ssh to node → systemctl status kubelet','journalctl -u kubelet -f — check for errors','crictl ps — container runtime responding?','Check disk space: df -h','Check certificates: ls -la /var/lib/kubelet/pki/','Check network: curl -k https://<api>:6443/healthz','If certificates expired: kubeadm certs renew all']},
+  {title:'OOMKilled',severity:'high',emoji:'🟠',steps:['kubectl describe pod — Last State: OOMKilled','Check memory limits vs actual usage: kubectl top pod','Review for memory leaks','Increase limits if workload legitimately needs more','For JVM: set -Xmx to ~75% of container limit','Consider VPA for automatic right-sizing']},
+  {title:'DNS Failure',severity:'high',emoji:'🟠',steps:['kubectl get pods -n kube-system -l k8s-app=kube-dns','kubectl exec -it <pod> -- nslookup kubernetes.default','Check /etc/resolv.conf in pod','Check NetworkPolicy — UDP port 53 blocked?','kubectl logs -n kube-system <coredns-pod>','Verify CoreDNS ConfigMap']},
+  {title:'Service Timeout',severity:'medium',emoji:'🟡',steps:['kubectl get svc <name> — verify type, port, targetPort','kubectl get endpoints <name> — backend IPs listed?','If no endpoints: check selector labels match pod labels','Check readiness probe — pods must pass readiness','kubectl exec -it <pod> -- curl localhost:<port>','Check NetworkPolicy']},
+  {title:'etcd Backup',severity:'critical',emoji:'🔴',steps:['Identify etcd endpoints','Find certificates: ls /etc/kubernetes/pki/etcd/','ETCDCTL_API=3 etcdctl snapshot save /backup/etcd-$(date +%Y%m%d).db','Verify: ETCDCTL_API=3 etcdctl snapshot status','Copy backup to remote storage','Automate via CronJob — daily minimum','TEST RESTORE in staging regularly!']},
+  {title:'Control Plane Health',severity:'critical',emoji:'🔴',steps:['kubectl get pods -n kube-system — all Running?','API server logs: kubectl logs -n kube-system kube-apiserver-<node>','Scheduler, Controller Manager, etcd logs','Check static manifests: ls /etc/kubernetes/manifests/','Verify kubelet: systemctl status kubelet']},
 ];
 
-const KB_ARCH_DIAGRAMS = [
-{title:'K8s Cluster Architecture',content:`┌─────────────────── CONTROL PLANE ──────────────────┐
-│  kube-apiserver ◄──► etcd (Raft/TLS)               │
-│  kube-scheduler (filter→score→bind)                 │
-│  kube-controller-manager (reconciliation loops)     │
-└───────────────────────┬────────────────────────────┘
-                        │
-   ┌────────────────────▼──────────────────────┐
-   │ WORKER NODES                               │
-   │ kubelet → CRI → containerd → runc          │
-   │ kube-proxy (iptables/eBPF)                 │
-   │ CNI plugin (Calico/Cilium/Flannel)         │
-   └────────────────────────────────────────────┘`},
-{title:'Service Traffic Flow',content:`Client Request → kube-proxy (iptables/eBPF)
-  → ClusterIP VIP → EndpointSlice
-  → CNI network → Pod IP → Container port`},
-{title:'K8s API Request Flow',content:`kubectl → TLS → kube-apiserver → Authentication
-  → Authorization (RBAC) → Mutating Admission
-  → Schema Validation → Validating Admission
-  → etcd (persist) → Response`}
+const KB_ARCHITECTURE = [
+  {title:'K8s Cluster Architecture',diagram:`┌─────────────────────────────────────────────────────┐
+│                 CONTROL PLANE                        │
+│  ┌──────────┐ ┌───────────┐ ┌────────────────────┐  │
+│  │  etcd     │ │ API Server│ │ Controller Manager │  │
+│  │ (Raft     │ │ (REST,    │ │ (Deployment, RS,   │  │
+│  │  consensus│ │  AuthN,   │ │  Node, Job loops)  │  │
+│  │  store)   │ │  AuthZ,   │ │                    │  │
+│  │           │ │  Admission│ │ ┌────────────────┐ │  │
+│  └──────────┘ └───────────┘ │ │   Scheduler    │ │  │
+│                              │ │ (Filter/Score) │ │  │
+│                              │ └────────────────┘ │  │
+│                              └────────────────────┘  │
+├──────────────────────────────────────────────────────┤
+│                  WORKER NODES                        │
+│  ┌─────────────────────────────────────────────────┐ │
+│  │ Node 1                    Node 2                │ │
+│  │ ┌────────┐ ┌──────────┐  ┌────────┐ ┌────────┐ │ │
+│  │ │kubelet │ │kube-proxy│  │kubelet │ │kube-prx│ │ │
+│  │ └────────┘ └──────────┘  └────────┘ └────────┘ │ │
+│  │ ┌─────┐┌─────┐┌─────┐   ┌─────┐┌─────┐       │ │
+│  │ │Pod 1││Pod 2││Pod 3│   │Pod 4││Pod 5│       │ │
+│  │ └─────┘└─────┘└─────┘   └─────┘└─────┘       │ │
+│  │ containerd / CRI-O       containerd / CRI-O    │ │
+│  └─────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────┘`},
+  {title:'Pod Lifecycle State Machine',diagram:`                    ┌──────────┐
+           ┌───────>│ Pending  │<──── (scheduling, image pull)
+           │        └────┬─────┘
+           │             │ scheduled + containers starting
+           │             v
+           │        ┌──────────┐
+           │        │ Running  │<──── (at least 1 container running)
+           │        └────┬─────┘
+           │             │
+           │     ┌───────┴────────┐
+           │     │                │
+           │     v                v
+     ┌───────────┐       ┌────────────┐
+     │ Succeeded │       │   Failed   │
+     │ (exit 0)  │       │ (exit != 0)│
+     └───────────┘       └────────────┘
+
+  CrashLoopBackOff = Failed → restart → Failed → backoff delay increases`},
+  {title:'Service Traffic Flow',diagram:`Client Request
+      │
+      v
+┌─────────────┐
+│   Ingress   │  (NGINX / Traefik — L7 routing)
+│  Controller │
+└──────┬──────┘
+       │ host/path match
+       v
+┌─────────────┐
+│   Service   │  (ClusterIP — virtual IP)
+│  10.96.0.10 │
+└──────┬──────┘
+       │ kube-proxy / eBPF
+       v
+┌─────────────┐
+│ EndpointSlice│  (list of ready Pod IPs)
+└──────┬──────┘
+       │ round-robin
+       v
+┌─────────────┐
+│   Pod       │  (application container)
+└─────────────┘`},
+  {title:'API Request Flow',diagram:`kubectl apply -f deploy.yaml
+      │
+      v
+┌──────────────┐
+│ Authentication│ ← certs / tokens / OIDC
+└──────┬───────┘
+       v
+┌──────────────┐
+│ Authorization │ ← RBAC (Role + RoleBinding)
+└──────┬───────┘
+       v
+┌──────────────────────────┐
+│ Admission Controllers    │
+│ 1. MutatingWebhook       │
+│ 2. Schema Validation     │
+│ 3. ValidatingWebhook     │
+│ 4. ValidatingAdmPolicy   │
+└──────┬───────────────────┘
+       v
+┌──────────────┐
+│    etcd      │ ← persist to store
+└──────────────┘
+       │
+       v
+  Controllers watch → reconcile → actual state`},
 ];
 
 const KB_LABS = [
-{num:'01',title:'Deploy Full Nginx Stack',code:`kubectl create deployment nginx --image=nginx --replicas=3
-kubectl expose deployment nginx --type=NodePort --port=80
-kubectl get service nginx
-kubectl scale deployment nginx --replicas=5
-kubectl rollout status deployment nginx`},
-{num:'02',title:'Labels, Selectors & Namespaces',code:`kubectl run app1 --image=nginx --labels=env=dev,tier=frontend
-kubectl get pods --show-labels
-kubectl get pods -l env=dev
-kubectl create namespace finance
-kubectl run redis --image=redis -n=finance
-kubectl get pods -A`},
-{num:'03',title:'Troubleshooting Live Cluster',code:`kubectl run crashtest --image=busybox -- /bin/sh -c 'exit 1'
-kubectl describe pod crashtest
-kubectl logs crashtest --previous
-kubectl describe nodes | grep -A5 Conditions
-kubectl top nodes`}
+  {title:'Lab 01: Bootstrap 4-Node K8s',steps:['Provision 4 Ubuntu 22.04 VMs on Proxmox (2 CPU, 4GB RAM each)','Set static IPs: controller=192.168.137.112, workers=.113/.114/.115','Disable swap: swapoff -a','Install containerd, kubeadm, kubelet, kubectl','kubeadm init --pod-network-cidr=10.244.0.0/16','Copy kubeconfig','Install Calico CNI','Join workers','Verify: kubectl get nodes -o wide — all Ready']},
+  {title:'Lab 02: Deploy Full Nginx Stack',steps:['kubectl create deployment nginx --image=nginx --replicas=3','Verify 3 pods on different nodes','kubectl expose deployment nginx --port=80 --type=NodePort','curl the NodePort','Scale to 5 replicas','Update image to nginx:1.25','kubectl rollout undo deployment nginx']},
+  {title:'Lab 03: ReplicaSet Scale Lab',steps:['Create RS YAML with replicas: 2','kubectl apply -f replicaset.yaml','kubectl scale --replicas=5 rs/my-rs','Delete a pod — watch RS recreate it','Scale down to 1']},
+  {title:'Lab 04: Labels, Selectors & Namespaces',steps:['Create dev and prod namespaces','Run pods with tier/env labels','Filter pods by label across namespaces','Add and remove labels dynamically']},
+  {title:'Lab 05: Services Deep Dive',steps:['Create ClusterIP, NodePort, LoadBalancer services','Test internal connectivity with busybox','Test external access via NodePort','Verify MetalLB assigns EXTERNAL-IP']},
+  {title:'Lab 06: ETCD Backup & Restore',steps:['Find etcd pod and certs','Take snapshot backup','Create test data','Delete test data','Restore from backup','Verify data is recovered']},
+  {title:'Lab 07: Troubleshooting CrashLoopBackOff',steps:['Create broken pod with bad command','Observe CrashLoopBackOff','Use describe and logs to diagnose','Fix the pod','Verify Running status']},
+  {title:'Lab 08: Deploy FastAPI + Postgres Stack',steps:['Create namespace','Create Postgres Secret and ConfigMap','Deploy Postgres StatefulSet with PVC','Create Postgres Service','Build and deploy FastAPI','Create Ingress','Test the API endpoints']},
 ];
 
-const TABS = ['topics','commands','resources','projects'];
-const TAB_LABELS = ['Topics','Commands','Resources','Projects'];
-const TAB_ICONS = ['list-checks','terminal','bookmark','hammer'];
+// ─── STATE ───
+let activeItem = 'linux';
+let activeTechTab = 'topics';
+let activeKBTab = 'chapters';
+let checkedTopics = JSON.parse(localStorage.getItem('devops_checked') || '{}');
+let celebratedTechs = JSON.parse(localStorage.getItem('devops_celebrated') || '{}');
 
-const KB_TABS = ['all','notes','runbooks','architecture','labs'];
-const KB_TAB_LABELS = ['All Chapters','Brian\'s Notes','Runbooks','Architecture','Labs'];
-const KB_TAB_ICONS = ['book-open','sticky-note','alert-triangle','layers','flask-conical'];
-
-/* ═══════════════════ STATE ═══════════════════ */
-const SK = 'devops_brian_v4';
-let S = {completed:{},activeTech:'python',activeTab:'topics',kbTab:'all',kbSearch:''};
-
-function loadS(){try{const d=localStorage.getItem(SK);if(d){const p=JSON.parse(d);S.completed=p.completed||{};S.activeTech=p.activeTech||'python';S.activeTab=p.activeTab||'topics';S.kbTab=p.kbTab||'all';S.kbSearch=p.kbSearch||'';}}catch(e){}}
-function saveS(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
-function resetAll(){S.completed={};saveS();renderAll();}
-
-/* ═══════════════════ CALCULATIONS ═══════════════════ */
-function allTopics(t){return t.phases.flatMap(p=>p.topics);}
-function techProg(t){const ts=allTopics(t),d=ts.filter(x=>S.completed[x.id]).length;return{done:d,total:ts.length,pct:ts.length?Math.round(d/ts.length*100):0};}
-function techHours(t){const ts=allTopics(t);return{done:ts.filter(x=>S.completed[x.id]).reduce((s,x)=>s+x.hours,0),total:ts.reduce((s,x)=>s+x.hours,0)};}
-function overallStats(){let tt=0,dt=0,th=0,dh=0,m=0;techData.forEach(t=>{const ts=allTopics(t),d=ts.filter(x=>S.completed[x.id]).length;tt+=ts.length;dt+=d;th+=ts.reduce((s,x)=>s+x.hours,0);dh+=ts.filter(x=>S.completed[x.id]).reduce((s,x)=>s+x.hours,0);if(ts.length>0&&d===ts.length)m++;});return{tt,dt,th,dh,pct:tt?Math.round(dt/tt*100):0,m};}
-
-/* ═══════════════════ CONFETTI ═══════════════════ */
-function confetti(){const c=document.createElement('div');c.className='confetti-container';document.body.appendChild(c);const cols=['#7c3aed','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6','#3b82f6','#ec4899'];for(let i=0;i<60;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'%';p.style.background=cols[Math.floor(Math.random()*cols.length)];p.style.animationDelay=Math.random()+'s';p.style.animationDuration=(2+Math.random()*2)+'s';p.style.width=(6+Math.random()*8)+'px';p.style.height=(6+Math.random()*8)+'px';c.appendChild(p);}setTimeout(()=>c.remove(),4000);}
-
-/* ═══════════════════ HELPERS ═══════════════════ */
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function codeBlock(code,color){
-const id='cb'+Math.random().toString(36).substr(2,6);
-return `<div class="code-block" style="border-left: 3px solid ${color||'#7c3aed'};" id="${id}"><button class="copy-btn" data-copy="${id}">📋 Copy</button><pre><code>${escHtml(code)}</code></pre></div>`;
+function save() {
+  localStorage.setItem('devops_checked', JSON.stringify(checkedTopics));
+  localStorage.setItem('devops_celebrated', JSON.stringify(celebratedTechs));
 }
 
-/* ═══════════════════ SIDEBAR ═══════════════════ */
-function renderSidebar(){
-['sidebar-tech-list','mobile-tech-list'].forEach(cid=>{
-const c=document.getElementById(cid);if(!c)return;c.innerHTML='';
-techData.forEach(t=>{
-const p=techProg(t),a=S.activeTech===t.id;
-const b=document.createElement('button');
-b.className=`sidebar-item w-full text-left px-3 py-2 rounded-lg flex items-center gap-2.5 ${a?'active':''}`;
-b.innerHTML=`<div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-sm" style="background:${t.color}22">${t.icon}</div><div class="flex-1 min-w-0"><div class="flex items-center justify-between"><span class="text-[12px] font-medium ${a?'text-white':'text-surface-200'} truncate">${t.name}</span><span class="text-[9px] font-bold tabular-nums ${p.pct===100?'text-green-400':'text-surface-400'}">${p.pct}%</span></div><div class="progress-track h-1 mt-1"><div class="progress-fill h-full" style="width:${p.pct}%;background:${t.color}"></div></div></div>${p.pct===100?'<span class="text-[10px]">🏆</span>':''}`;
-b.addEventListener('click',()=>{S.activeTech=t.id;S.activeTab='topics';saveS();renderAll();closeMobile();});
-c.appendChild(b);
-});
-// Knowledge Base button
-const kb=document.createElement('button');
-const isKB=S.activeTech==='knowledgebase';
-kb.className=`sidebar-item w-full text-left px-3 py-2 rounded-lg flex items-center gap-2.5 mt-3 border-t border-white/5 pt-3 ${isKB?'active':''}`;
-kb.innerHTML=`<div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-sm" style="background:#7c3aed22">📚</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="text-[12px] font-medium ${isKB?'text-white':'text-surface-200'}">Knowledge Base</span><span class="kb-badge-new">NEW</span></div></div>`;
-kb.addEventListener('click',()=>{S.activeTech='knowledgebase';saveS();renderAll();closeMobile();});
-c.appendChild(kb);
-});
+// ─── SIDEBAR ───
+function renderSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  const newItems = ['linux','aws','terraform','ansible','gitops','monitoring','platform','windows'];
+  const coreItems = ['python','fastapi','kafka','docker','kubernetes','helm','ghactions','gitlab'];
+
+  const newLabel = document.createElement('div');
+  newLabel.className = 'sidebar-section-label';
+  newLabel.textContent = 'Infrastructure & Cloud';
+  nav.appendChild(newLabel);
+  SIDEBAR_ITEMS.forEach(item => { if (newItems.includes(item.id)) appendSidebarItem(nav, item); });
+
+  const coreLabel = document.createElement('div');
+  coreLabel.className = 'sidebar-section-label';
+  coreLabel.textContent = 'Languages & Tools';
+  nav.appendChild(coreLabel);
+  SIDEBAR_ITEMS.forEach(item => { if (coreItems.includes(item.id)) appendSidebarItem(nav, item); });
+
+  const kbLabel = document.createElement('div');
+  kbLabel.className = 'sidebar-section-label';
+  kbLabel.textContent = 'Reference';
+  nav.appendChild(kbLabel);
+  SIDEBAR_ITEMS.forEach(item => { if (item.isKB) appendSidebarItem(nav, item); });
+
+  nav.querySelectorAll('.sidebar-item').forEach(el => {
+    el.addEventListener('click', () => {
+      activeItem = el.dataset.id;
+      if (activeItem !== 'kb') activeTechTab = 'topics';
+      render();
+      document.getElementById('sidebar').classList.remove('open');
+    });
+  });
 }
 
-/* ═══════════════════ RENDER DETAIL ═══════════════════ */
-function renderDetail(){
-const panel=document.getElementById('detail-panel');
-if(S.activeTech==='knowledgebase'){renderKnowledgeBase(panel);return;}
-const tech=techData.find(t=>t.id===S.activeTech);if(!tech){panel.innerHTML='';return;}
-const p=techProg(tech),h=techHours(tech);
-let tabHtml='';
-TABS.forEach((tab,i)=>{
-const isActive=S.activeTab===tab;
-tabHtml+=`<button class="tab-btn flex-shrink-0 px-3 py-2 text-[11px] md:text-xs font-medium whitespace-nowrap transition-all ${isActive?'tab-active':'tab-inactive'}" data-tab="${tab}"><span class="flex items-center gap-1"><i data-lucide="${TAB_ICONS[i]}" class="w-3.5 h-3.5"></i> ${TAB_LABELS[i]}</span></button>`;
-});
-
-panel.innerHTML=`<div class="fade-in">
-<div class="rounded-2xl p-4 md:p-5 mb-4 gradient-border" style="background:#1a1d2e;">
-<div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
-<div class="flex items-center gap-3 flex-1"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style="background:${tech.color}22">${tech.icon}</div><div><h2 class="font-display text-lg md:text-xl font-bold text-white">${tech.name}</h2><div class="flex items-center gap-2 mt-1 flex-wrap"><span class="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-white/5 text-surface-300">${tech.difficulty}</span><span class="text-[10px] text-surface-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>${tech.hours}hrs</span></div></div></div>
-<div class="text-right flex-shrink-0"><p class="text-xl font-bold tabular-nums" style="color:${tech.color}">${p.pct}%</p><p class="text-[10px] text-surface-400">${p.done}/${p.total} topics · ${h.done}/${h.total}hrs</p></div>
-</div>
-<div class="progress-track h-2"><div class="progress-fill h-full" style="width:${p.pct}%;background:${tech.color}"></div></div>
-${p.pct===100?'<div class="mt-2 text-center text-xs font-semibold text-green-400">🎉 Mastered!</div>':''}
-</div>
-<div class="tab-scroll flex gap-0.5 mb-4 border-b border-white/5 pb-0">${tabHtml}</div>
-<div id="tab-content"></div>
-</div>`;
-initLucide();
-panel.querySelectorAll('.tab-btn').forEach(b=>{b.addEventListener('click',()=>{S.activeTab=b.dataset.tab;saveS();renderTabContent(tech);panel.querySelectorAll('.tab-btn').forEach(x=>x.className=x.className.replace('tab-active','tab-inactive'));b.className=b.className.replace('tab-inactive','tab-active');});});
-renderTabContent(tech);
+function appendSidebarItem(nav, item) {
+  const pct = item.isKB ? null : getTechPct(item.id);
+  const div = document.createElement('div');
+  div.className = 'sidebar-item' + (activeItem === item.id ? ' active' : '');
+  div.dataset.id = item.id;
+  div.innerHTML = `
+    <div class="icon-bubble" style="background:${item.color}26;">${item.emoji}</div>
+    <div class="item-info">
+      <div class="item-name">${item.name}${item.isKB ? ' <span class="new-badge">REF</span>' : ''}</div>
+      ${pct !== null ? `<div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%;background:${item.color};"></div></div>` : ''}
+    </div>
+    ${pct !== null ? `<div class="pct">${pct}%</div>` : ''}
+  `;
+  nav.appendChild(div);
 }
 
-function renderTabContent(tech){
-const a=document.getElementById('tab-content');if(!a)return;
-switch(S.activeTab){
-case 'topics':renderTopics(a,tech);break;
-case 'commands':renderCommands(a,tech);break;
-case 'resources':renderResources(a,tech);break;
-case 'projects':renderProjects(a,tech);break;
-}
-initLucide();initCopyBtns();
+function getTechPct(techId) {
+  const tech = TECHS.find(t => t.id === techId);
+  if (!tech) return 0;
+  const all = tech.phases.flatMap(p => p.topics);
+  if (all.length === 0) return 0;
+  const done = all.filter(t => checkedTopics[t.id]).length;
+  return Math.round((done / all.length) * 100);
 }
 
-function renderTopics(a,tech){
-let h='<div class="space-y-2 fade-in">';
-tech.phases.forEach((ph,pi)=>{
-const pts=ph.topics,pd=pts.filter(t=>S.completed[t.id]).length,pp=pts.length?Math.round(pd/pts.length*100):0;
-h+=`<div class="rounded-xl overflow-hidden" style="background:#1a1d2e;border:1px solid rgba(255,255,255,0.05);">
-<button class="accordion-header w-full text-left px-4 py-3 flex items-center gap-2 hover:bg-white/[0.02] transition-colors" data-phase="${pi}">
-<i data-lucide="chevron-down" class="w-3.5 h-3.5 text-surface-400 transition-transform accordion-chevron"></i>
-<div class="flex-1 min-w-0"><div class="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2"><h3 class="text-xs font-semibold text-surface-100">${ph.title}</h3></div></div>
-<div class="flex items-center gap-2 flex-shrink-0"><div class="progress-track h-1 w-12 hidden sm:block"><div class="progress-fill h-full" style="width:${pp}%;background:${tech.color}"></div></div><span class="text-[10px] font-bold tabular-nums ${pp===100?'text-green-400':'text-surface-400'}">${pd}/${pts.length}</span></div>
-</button>
-<div class="accordion-content open" data-phase-content="${pi}"><div class="px-3 pb-2 space-y-1">`;
-pts.forEach(topic=>{
-const done=S.completed[topic.id];
-h+=`<div class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-white/[0.02] transition-colors ${done?'topic-done':''}" data-topic-row="${topic.id}">
-<input type="checkbox" class="checkbox-custom" data-topic-id="${topic.id}" ${done?'checked':''} />
-<span class="topic-text text-[12px] flex-1 ${done?'text-surface-500':'text-surface-200'}">${topic.text}</span>
-<span class="text-[9px] text-surface-500 flex-shrink-0 bg-white/5 px-1.5 py-0.5 rounded">${topic.hours}h</span>
-${done?'<i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-green-400 flex-shrink-0"></i>':''}
-</div>`;
-});
-h+=`</div></div></div>`;
-});
-h+='</div>';
-a.innerHTML=h;
-a.querySelectorAll('.accordion-header').forEach(hd=>{hd.addEventListener('click',()=>{const c=a.querySelector(`[data-phase-content="${hd.dataset.phase}"]`);const ch=hd.querySelector('.accordion-chevron');if(c)c.classList.toggle('open');if(ch)ch.classList.toggle('-rotate-90');});});
-a.querySelectorAll('.checkbox-custom').forEach(cb=>{cb.addEventListener('change',()=>{
-const id=cb.dataset.topicId;const t=techData.find(x=>x.id===S.activeTech);const wasMastered=t?techProg(t).pct===100:false;
-if(cb.checked)S.completed[id]=true;else delete S.completed[id];saveS();
-if(!wasMastered&&t&&techProg(t).pct===100)confetti();
-renderAll();
-});});
+function getTechHoursDone(techId) {
+  const tech = TECHS.find(t => t.id === techId);
+  if (!tech) return 0;
+  return tech.phases.flatMap(p => p.topics).filter(t => checkedTopics[t.id]).reduce((s, t) => s + t.hrs, 0);
 }
 
-function renderCommands(a,tech){
-if(!tech.commands){a.innerHTML='<p class="text-sm text-surface-400">No commands yet.</p>';return;}
-a.innerHTML=`<div class="fade-in space-y-3"><div class="flex items-center gap-2 mb-2"><i data-lucide="terminal" class="w-5 h-5" style="color:${tech.color}"></i><h3 class="font-display text-sm font-bold text-white">Command Reference</h3></div>${codeBlock(tech.commands,tech.color)}</div>`;
+// ─── STATS ───
+function updateStats() {
+  const allTopics = TECHS.flatMap(t => t.phases.flatMap(p => p.topics));
+  const totalTopics = allTopics.length;
+  const doneTopics = allTopics.filter(t => checkedTopics[t.id]).length;
+  const totalHours = TECHS.reduce((s, t) => s + t.hours, 0);
+  const doneHours = allTopics.filter(t => checkedTopics[t.id]).reduce((s, t) => s + t.hrs, 0);
+  const pct = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
+  const mastered = TECHS.filter(t => getTechPct(t.id) === 100).length;
+
+  document.getElementById('stat-topics').textContent = `${doneTopics} / ${totalTopics}`;
+  document.getElementById('stat-hours').textContent = `${doneHours} / ${totalHours}`;
+  document.getElementById('stat-pct').textContent = `${pct}%`;
+  document.getElementById('stat-mastered').textContent = mastered;
 }
 
-function renderResources(a,tech){
-const items=tech.resources||[];
-let h=`<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 fade-in">`;
-items.forEach(r=>{
-h+=`<div class="card-hover rounded-xl p-4" style="background:#1a1d2e;border:1px solid rgba(255,255,255,0.05);">
-<div class="flex items-start gap-2.5">
-<div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:${tech.color}22"><i data-lucide="external-link" class="w-4 h-4" style="color:${tech.color}"></i></div>
-<div><h4 class="text-xs font-semibold text-surface-100">${r.name}</h4><p class="text-[11px] text-surface-400 mt-0.5 break-all">${r.url}</p></div>
-</div></div>`;
-});
-h+='</div>';a.innerHTML=h;
+// ─── CONFETTI ───
+function fireConfetti() {
+  const emojis = ['🎉','🎊','⭐','🏆','✨','🔥','💪','🚀'];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top = '-20px';
+    el.style.animationDelay = (Math.random() * 0.8) + 's';
+    el.style.animationDuration = (1.8 + Math.random() * 1.5) + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
 }
 
-function renderProjects(a,tech){
-const items=tech.projects||[];
-let h=`<div class="space-y-2 fade-in">`;
-items.forEach((proj,i)=>{
-h+=`<div class="card-hover rounded-xl p-4" style="background:#1a1d2e;border:1px solid rgba(255,255,255,0.05);">
-<div class="flex items-start gap-2.5">
-<div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:${tech.color}22"><span class="text-xs font-bold" style="color:${tech.color}">${i+1}</span></div>
-<div class="flex-1"><h4 class="text-xs font-semibold text-surface-100">${proj.name}</h4><p class="text-[11px] text-surface-400 mt-1">${proj.desc}</p></div>
-</div></div>`;
-});
-h+='</div>';a.innerHTML=h;
+// ─── COPY ───
+function setupCopyButtons() {
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const code = this.closest('.code-block-wrap').querySelector('pre').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        this.textContent = '✓ Copied';
+        this.classList.add('copied');
+        setTimeout(() => { this.textContent = 'Copy'; this.classList.remove('copied'); }, 2000);
+      });
+    });
+  });
 }
 
-/* ═══════════════════ KNOWLEDGE BASE RENDER ═══════════════════ */
-function renderKnowledgeBase(panel){
-const search=S.kbSearch||'';
-let tabHtml='';
-KB_TABS.forEach((tab,i)=>{
-const isActive=S.kbTab===tab;
-tabHtml+=`<button class="kb-tab-btn flex-shrink-0 px-3 py-2 text-[11px] md:text-xs font-medium whitespace-nowrap transition-all ${isActive?'tab-active':'tab-inactive'}" data-kbtab="${tab}"><span class="flex items-center gap-1"><i data-lucide="${KB_TAB_ICONS[i]}" class="w-3.5 h-3.5"></i> ${KB_TAB_LABELS[i]}</span></button>`;
-});
-panel.innerHTML=`<div class="fade-in">
-<div class="rounded-2xl p-4 md:p-5 mb-4 gradient-border" style="background:#1a1d2e;">
-<h2 class="font-display text-lg md:text-xl font-bold gradient-text mb-1">📚 Senior Engineering Knowledge Base</h2>
-<p class="text-xs text-surface-400">All chapters, runbooks, labs and Brian's personal notes</p>
-</div>
-<div class="relative mb-4">
-<i data-lucide="search" class="w-4 h-4 text-surface-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-<input type="text" id="kb-search-input" class="kb-search-input" placeholder="Search chapters, notes, runbooks..." value="${escHtml(search)}" />
-</div>
-<div class="tab-scroll flex gap-0.5 mb-4 border-b border-white/5 pb-0">${tabHtml}</div>
-<div id="kb-tab-content"></div>
-</div>`;
-initLucide();
-panel.querySelectorAll('.kb-tab-btn').forEach(b=>{b.addEventListener('click',()=>{S.kbTab=b.dataset.kbtab;saveS();panel.querySelectorAll('.kb-tab-btn').forEach(x=>x.className=x.className.replace('tab-active','tab-inactive'));b.className=b.className.replace('tab-inactive','tab-active');renderKBTabContent();});});
-const si=document.getElementById('kb-search-input');
-if(si){si.addEventListener('input',()=>{S.kbSearch=si.value;saveS();renderKBTabContent();});}
-renderKBTabContent();
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function renderKBTabContent(){
-const a=document.getElementById('kb-tab-content');if(!a)return;
-const q=(S.kbSearch||'').toLowerCase().trim();
-switch(S.kbTab){
-case 'all':renderKBChapters(a,q);break;
-case 'notes':renderKBNotes(a,q);break;
-case 'runbooks':renderKBRunbooks(a,q);break;
-case 'architecture':renderKBArchitecture(a,q);break;
-case 'labs':renderKBLabs(a,q);break;
-}
-initLucide();initCopyBtns();
-}
+// ─── TECH VIEW ───
+function renderTechView(tech) {
+  const pct = getTechPct(tech.id);
+  const hrsDone = getTechHoursDone(tech.id);
+  const allTopics = tech.phases.flatMap(p => p.topics);
+  const doneCount = allTopics.filter(t => checkedTopics[t.id]).length;
 
-function matchSearch(text,q){if(!q)return true;return text.toLowerCase().includes(q);}
+  let html = `
+    <div style="background:var(--bg-elevated);border-radius:var(--r-xl);padding:24px;margin-bottom:20px;box-shadow:var(--shadow-card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;">
+      <div style="width:64px;height:64px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:var(--shadow-md);flex-shrink:0;background:${tech.color}20;">${tech.emoji}</div>
+      <div style="flex:1;min-width:200px;">
+        <h2 style="font-size:24px;font-weight:800;color:var(--txt-primary);letter-spacing:-0.03em;">${tech.name}</h2>
+        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
+          <span style="background:var(--bg-section);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:500;color:var(--txt-secondary);">${tech.level}</span>
+          <span style="background:var(--bg-section);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:500;color:var(--txt-secondary);">${tech.hours}hrs total</span>
+          <span style="background:var(--bg-section);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:500;color:var(--txt-secondary);">${hrsDone}hrs done</span>
+        </div>
+        <div style="margin-top:14px;width:100%;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--txt-muted);font-weight:500;margin-bottom:6px;">
+            <span>${doneCount} of ${allTopics.length} topics</span>
+            <span style="color:var(--accent);font-weight:700;">${pct}%</span>
+          </div>
+          <div style="height:6px;background:var(--bg-section);border-radius:var(--r-full);overflow:hidden;">
+            <div style="height:100%;border-radius:var(--r-full);background:linear-gradient(90deg,#007AFF,#5AC8FA);transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);width:${pct}%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs-bar">
+      <button class="tab-btn tech-tab-btn ${activeTechTab==='topics'?'active':''}" data-tab="topics">Topics</button>
+      <button class="tab-btn tech-tab-btn ${activeTechTab==='commands'?'active':''}" data-tab="commands">Commands</button>
+      <button class="tab-btn tech-tab-btn ${activeTechTab==='resources'?'active':''}" data-tab="resources">Resources</button>
+      <button class="tab-btn tech-tab-btn ${activeTechTab==='projects'?'active':''}" data-tab="projects">Projects</button>
+    </div>
+  `;
 
-function renderKBChapters(a,q){
-const filtered=KB_CHAPTERS.filter(ch=>{if(!q)return true;return (ch.title+' '+ch.rows.map(r=>r.join(' ')).join(' ')+' '+(ch.engNote||'')).toLowerCase().includes(q);});
-if(!filtered.length){a.innerHTML='<p class="text-sm text-surface-400 text-center py-8">No chapters match your search.</p>';return;}
-let h='<div class="space-y-2 fade-in">';
-filtered.forEach((ch,ci)=>{
-let tableH=`<div class="overflow-x-auto mt-3"><table class="kb-table"><thead><tr><th>Component</th><th>Senior-Level Knowledge</th></tr></thead><tbody>`;
-ch.rows.forEach(r=>{tableH+=`<tr><td>${escHtml(r[0])}</td><td>${escHtml(r[1])}</td></tr>`;});
-tableH+='</tbody></table></div>';
-const engNoteH=ch.engNote?`<div class="kb-eng-note"><p>💡 ${escHtml(ch.engNote)}</p></div>`:'';
-h+=`<div class="kb-chapter-card rounded-xl overflow-hidden" style="border-left:3px solid ${ch.borderColor}">
-<button class="accordion-header w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/[0.02]" data-phase="kbc${ci}">
-<i data-lucide="chevron-down" class="w-3.5 h-3.5 text-surface-400 accordion-chevron -rotate-90"></i>
-<span class="text-xs font-bold text-surface-300 tabular-nums w-6">${ch.num}</span>
-<span class="text-xs font-semibold text-surface-100 flex-1">${ch.title}</span>
-<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:${ch.badgeColor}22;color:${ch.badgeColor}">${ch.badge}</span>
-</button>
-<div class="accordion-content" data-phase-content="kbc${ci}"><div class="px-4 pb-4">${tableH}${engNoteH}</div></div>
-</div>`;
-});
-h+='</div>';a.innerHTML=h;
-a.querySelectorAll('.accordion-header').forEach(hd=>{hd.addEventListener('click',()=>{const c=a.querySelector(`[data-phase-content="${hd.dataset.phase}"]`);const ch=hd.querySelector('.accordion-chevron');if(c)c.classList.toggle('open');if(ch)ch.classList.toggle('-rotate-90');});});
-}
-
-function renderKBNotes(a,q){
-const filtered=KB_BRIAN_NOTES.filter(n=>matchSearch(n.title+(n.code||'')+(n.note||'')+(n.summary||''),q));
-if(!filtered.length){a.innerHTML='<p class="text-sm text-surface-400 text-center py-8">No notes match.</p>';return;}
-let h='<div class="space-y-2 fade-in">';
-filtered.forEach((note,ni)=>{
-let contentH='';
-if(note.type==='cards'){
-contentH+='<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">';
-note.cards.forEach(card=>{
-contentH+=`<div class="${card.cls} rounded-xl p-3"><h5 class="text-[11px] font-bold mb-0.5" style="color:${card.color}">${card.label}</h5><p class="text-[10px] text-surface-400 mb-2">${card.subtitle}</p>`;
-card.cmds.forEach(cmd=>{contentH+=`<code class="block text-[10px] font-mono text-surface-200 bg-black/20 rounded px-2 py-1 mb-1 overflow-x-auto">${escHtml(cmd)}</code>`;});
-contentH+='</div>';
-});
-contentH+='</div>';
-if(note.summary)contentH+=`<div class="mt-2 text-[11px] font-semibold text-yellow-300 bg-yellow-500/10 rounded-lg px-3 py-2">${note.summary}</div>`;
-} else {
-if(note.code)contentH+=`<div class="mt-3">${codeBlock(note.code,'#f59e0b')}</div>`;
-if(note.note)contentH+=`<div class="mt-2 text-[11px] text-surface-300 bg-white/[0.02] rounded-lg px-3 py-2 whitespace-pre-line">${escHtml(note.note)}</div>`;
-}
-h+=`<div class="brian-note-card rounded-xl overflow-hidden">
-<button class="accordion-header w-full text-left px-4 py-3 flex items-center gap-2 hover:bg-white/[0.02]" data-phase="bn${ni}">
-<i data-lucide="chevron-down" class="w-3.5 h-3.5 text-surface-400 accordion-chevron -rotate-90"></i>
-<span class="text-xs font-semibold text-surface-100 flex-1">${note.title}</span>
-</button>
-<div class="accordion-content" data-phase-content="bn${ni}"><div class="px-4 pb-4">${contentH}</div></div>
-</div>`;
-});
-h+='</div>';a.innerHTML=h;
-a.querySelectorAll('.accordion-header').forEach(hd=>{hd.addEventListener('click',()=>{const c=a.querySelector(`[data-phase-content="${hd.dataset.phase}"]`);const ch=hd.querySelector('.accordion-chevron');if(c)c.classList.toggle('open');if(ch)ch.classList.toggle('-rotate-90');});});
-}
-
-function renderKBRunbooks(a,q){
-const filtered=KB_RUNBOOKS.filter(r=>matchSearch(r.title+(r.steps?r.steps.join(' '):'')+(r.code||''),q));
-if(!filtered.length){a.innerHTML='<p class="text-sm text-surface-400 text-center py-8">No runbooks match.</p>';return;}
-let h='<div class="space-y-2 fade-in">';
-filtered.forEach((rb,ri)=>{
-const sevLabel=rb.severity==='critical'?'🔴 Critical':rb.severity==='high'?'🟠 High':'🟡 Medium';
-const sevCls=rb.severity==='critical'?'severity-critical':rb.severity==='high'?'severity-high':'severity-medium';
-let contentH='';
-if(rb.isCode){contentH=`<div class="mt-3">${codeBlock(rb.code,'#7c3aed')}</div>`;
-}else{contentH='<ol class="mt-3 space-y-1.5">';rb.steps.forEach((step,si)=>{contentH+=`<li class="flex items-start gap-2"><span class="text-[10px] font-bold text-surface-400 mt-0.5 w-4 flex-shrink-0">${si+1}.</span><span class="text-[12px] text-surface-200">${escHtml(step)}</span></li>`;});contentH+='</ol>';}
-h+=`<div class="rounded-xl overflow-hidden" style="background:#1a1d2e;border:1px solid rgba(255,255,255,0.05);">
-<button class="accordion-header w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/[0.02]" data-phase="rb${ri}">
-<i data-lucide="chevron-down" class="w-3.5 h-3.5 text-surface-400 accordion-chevron -rotate-90"></i>
-<span class="text-xs font-semibold text-surface-100 flex-1">${rb.title}</span>
-<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${sevCls}">${sevLabel}</span>
-</button>
-<div class="accordion-content" data-phase-content="rb${ri}"><div class="px-4 pb-4">${contentH}</div></div>
-</div>`;
-});
-h+='</div>';a.innerHTML=h;
-a.querySelectorAll('.accordion-header').forEach(hd=>{hd.addEventListener('click',()=>{const c=a.querySelector(`[data-phase-content="${hd.dataset.phase}"]`);const ch=hd.querySelector('.accordion-chevron');if(c)c.classList.toggle('open');if(ch)ch.classList.toggle('-rotate-90');});});
-}
-
-function renderKBArchitecture(a,q){
-const filtered=KB_ARCH_DIAGRAMS.filter(d=>matchSearch(d.title+(d.content||''),q));
-if(!filtered.length){a.innerHTML='<p class="text-sm text-surface-400 text-center py-8">No diagrams match.</p>';return;}
-let h='<div class="space-y-3 fade-in">';
-filtered.forEach(diag=>{
-h+=`<div class="rounded-xl p-4" style="background:#1a1d2e;border:1px solid rgba(255,255,255,0.05);">
-<h4 class="text-xs font-bold text-surface-100 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-purple-400"></i>${diag.title}</h4>
-<pre class="text-[11px] text-surface-200 overflow-x-auto font-mono bg-[#0d1117] p-4 rounded-lg mt-3" style="border-left:3px solid #7c3aed">${escHtml(diag.content)}</pre>
-</div>`;
-});
-h+='</div>';a.innerHTML=h;
+  if (activeTechTab === 'topics') {
+    tech.phases.forEach((phase, pi) => {
+      const phaseTopics = phase.topics;
+      const phaseDone = phaseTopics.filter(t => checkedTopics[t.id]).length;
+      html += `<div class="phase-card">
+        <div class="phase-header" data-phase="${tech.id}-${pi}">
+          <div>
+            <span style="font-size:14px;font-weight:700;color:var(--txt-primary);">${phase.title}</span>
+            <span style="font-size:12px;color:var(--txt-muted);margin-left:8px;">${phase.meta || ''} · ${phaseDone}/${phaseTopics.length}</span>
+          </div>
+          <span class="phase-chevron" id="chevron-${tech.id}-${pi}">▶</span>
+        </div>
+        <div class="phase-topics" id="topics-${tech.id}-${pi}">`;
+      phaseTopics.forEach(topic => {
+        const checked = checkedTopics[topic.id];
+        const done = checked ? 'done' : '';
+        html += `<div class="topic-row ${done}" data-topic-row="${topic.id}">
+          <div class="ios-checkbox ${checked ? 'checked' : ''}" data-chk="${topic.id}"></div>
+          <span class="topic-text">${topic.label}</span>
+          <span class="hours-badge">${topic.hrs}h</span>
+        </div>`;
+      });
+      html += `</div></div>`;
+    });
+  } else if (activeTechTab === 'commands') {
+    html += `<div class="code-block-wrap">
+      <div class="code-block-header">
+        <span class="code-block-lang">Shell</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre>${escapeHtml(tech.commands)}</pre>
+    </div>`;
+  } else if (activeTechTab === 'resources') {
+    tech.resources.forEach(r => {
+      html += `<a class="resource-card" href="${r.url}" target="_blank" rel="noopener">
+        <div class="resource-icon">🔗</div>
+        <div>
+          <div class="r-title">${r.title}</div>
+          <div class="r-url">${r.url}</div>
+        </div>
+        <span class="resource-chevron">›</span>
+      </a>`;
+    });
+  } else if (activeTechTab === 'projects') {
+    tech.projects.forEach((p,i) => {
+      html += `<div class="project-card">
+        <div class="project-num">${i+1}</div>
+        <div class="p-title">${p.title}</div>
+        <div class="p-desc">${p.desc}</div>
+      </div>`;
+    });
+  }
+  return html;
 }
 
-function renderKBLabs(a,q){
-const filtered=KB_LABS.filter(l=>matchSearch(l.title+(l.code||''),q));
-if(!filtered.length){a.innerHTML='<p class="text-sm text-surface-400 text-center py-8">No labs match.</p>';return;}
-let h='<div class="space-y-2 fade-in">';
-filtered.forEach((lab,li)=>{
-let contentH='';
-if(lab.code)contentH+=`<div class="mt-3">${codeBlock(lab.code,'#06b6d4')}</div>`;
-h+=`<div class="rounded-xl overflow-hidden" style="background:#1a1d2e;border:1px solid rgba(255,255,255,0.05);">
-<button class="accordion-header w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/[0.02]" data-phase="lb${li}">
-<i data-lucide="chevron-down" class="w-3.5 h-3.5 text-surface-400 accordion-chevron -rotate-90"></i>
-<div class="flex items-center justify-center w-7 h-7 rounded-full gradient-bar flex-shrink-0"><span class="text-[11px] font-bold text-white">${lab.num}</span></div>
-<span class="text-xs font-semibold text-surface-100 flex-1">${lab.title}</span>
-</button>
-<div class="accordion-content" data-phase-content="lb${li}"><div class="px-4 pb-4">${contentH}</div></div>
-</div>`;
-});
-h+='</div>';a.innerHTML=h;
-a.querySelectorAll('.accordion-header').forEach(hd=>{hd.addEventListener('click',()=>{const c=a.querySelector(`[data-phase-content="${hd.dataset.phase}"]`);const ch=hd.querySelector('.accordion-chevron');if(c)c.classList.toggle('open');if(ch)ch.classList.toggle('-rotate-90');});});
+// ─── KNOWLEDGE BASE VIEW ───
+function renderKBView() {
+  let html = `
+    <div style="margin-bottom:20px;">
+      <h2 style="font-size:22px;font-weight:800;color:var(--txt-primary);letter-spacing:-0.03em;">📚 Senior Engineering Knowledge Base</h2>
+      <p style="font-size:14px;color:var(--txt-muted);font-weight:400;margin-top:4px;">16 K8s chapters, Brian's notes, runbooks, architecture & labs</p>
+    </div>
+    <div class="search-bar">
+      <span class="search-icon"><i data-lucide="search" class="w-4 h-4"></i></span>
+      <input type="text" id="kb-search" placeholder="Search knowledge base..." />
+    </div>
+    <div class="tabs-bar">
+      <button class="tab-btn kb-tab-btn ${activeKBTab==='chapters'?'active':''}" data-kbtab="chapters">Chapters</button>
+      <button class="tab-btn kb-tab-btn ${activeKBTab==='notes'?'active':''}" data-kbtab="notes">Brian's Notes</button>
+      <button class="tab-btn kb-tab-btn ${activeKBTab==='runbooks'?'active':''}" data-kbtab="runbooks">Runbooks</button>
+      <button class="tab-btn kb-tab-btn ${activeKBTab==='architecture'?'active':''}" data-kbtab="architecture">Architecture</button>
+      <button class="tab-btn kb-tab-btn ${activeKBTab==='labs'?'active':''}" data-kbtab="labs">Labs</button>
+    </div>
+    <div id="kb-content"></div>
+  `;
+  return html;
 }
 
-/* ═══════════════════ STATS ═══════════════════ */
-function renderStats(){
-const s=overallStats();
-document.getElementById('overall-progress-bar').style.width=s.pct+'%';
-document.getElementById('overall-progress-text').textContent=s.pct+'%';
-document.getElementById('stat-done').textContent=s.dt+'/'+s.tt;
-document.getElementById('stat-hours').textContent=s.dh+'/'+s.th;
-document.getElementById('stat-percent').textContent=s.pct+'%';
-document.getElementById('stat-mastered').textContent=s.m+'/8';
+function renderKBContent(filter) {
+  const container = document.getElementById('kb-content');
+  if (!container) return;
+  let html = '';
+  const q = (filter || '').toLowerCase();
+
+  if (activeKBTab === 'chapters') {
+    KB_CHAPTERS.forEach((ch, idx) => {
+      if (q && !ch.title.toLowerCase().includes(q) && !ch.rows.some(r => r[0].toLowerCase().includes(q) || r[1].toLowerCase().includes(q)) && !(ch.note||'').toLowerCase().includes(q)) return;
+      html += `<div class="accordion" data-acc="${idx}">
+        <div class="accordion-header" data-acc-toggle="${idx}">
+          <span class="acc-arrow">▶</span>
+          <span>${ch.badge}</span>
+          <span>Ch${ch.num} – ${ch.title}</span>
+        </div>
+        <div class="accordion-body" data-acc-body="${idx}">
+          <div class="accordion-body-inner">
+            <div style="overflow-x:auto;">
+              <table class="kb-table">
+                <thead><tr><th>Component</th><th>Details</th></tr></thead>
+                <tbody>${ch.rows.map(r => `<tr><td style="color:${ch.color};">${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody>
+              </table>
+            </div>
+            ${ch.note ? `<div class="kb-note">📝 <b>Key Insight:</b> ${ch.note}</div>` : ''}
+            ${ch.extraCode ? `<div class="code-block-wrap" style="margin-top:12px;"><div class="code-block-header"><span class="code-block-lang">Shell</span><button class="copy-btn">Copy</button></div><pre>${escapeHtml(ch.extraCode)}</pre></div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    });
+  } else if (activeKBTab === 'notes') {
+    KB_BRIANS_NOTES.forEach((note, idx) => {
+      if (q && !note.title.toLowerCase().includes(q) && !note.content.toLowerCase().includes(q)) return;
+      html += `<div class="accordion" data-acc="n${idx}">
+        <div class="accordion-header" data-acc-toggle="n${idx}">
+          <span class="acc-arrow">▶</span>
+          <span>📝</span>
+          <span>${note.title}</span>
+        </div>
+        <div class="accordion-body" data-acc-body="n${idx}">
+          <div class="accordion-body-inner">
+            <div style="font-size:14px;color:var(--txt-secondary);line-height:1.8;white-space:pre-wrap;">${note.content}</div>
+          </div>
+        </div>
+      </div>`;
+    });
+  } else if (activeKBTab === 'runbooks') {
+    KB_RUNBOOKS.forEach(rb => {
+      if (q && !rb.title.toLowerCase().includes(q) && !rb.steps.some(s => s.toLowerCase().includes(q))) return;
+      const sevClass = rb.severity === 'critical' ? 'sev-critical' : rb.severity === 'high' ? 'sev-high' : 'sev-medium';
+      html += `<div class="runbook-card">
+        <div class="rb-title">${rb.emoji} ${rb.title} <span class="severity-badge ${sevClass}">${rb.severity.toUpperCase()}</span></div>
+        <ol>${rb.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+      </div>`;
+    });
+  } else if (activeKBTab === 'architecture') {
+    KB_ARCHITECTURE.forEach(arch => {
+      if (q && !arch.title.toLowerCase().includes(q) && !arch.diagram.toLowerCase().includes(q)) return;
+      html += `<div style="margin:16px 0;">
+        <h3 style="font-size:16px;font-weight:700;color:var(--txt-primary);margin-bottom:10px;">${arch.title}</h3>
+        <div class="arch-diagram">${escapeHtml(arch.diagram)}</div>
+      </div>`;
+    });
+  } else if (activeKBTab === 'labs') {
+    KB_LABS.forEach((lab, i) => {
+      if (q && !lab.title.toLowerCase().includes(q) && !lab.steps.some(s => s.toLowerCase().includes(q))) return;
+      html += `<div class="lab-card">
+        <div class="lab-title"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9px;background:var(--accent-green);color:white;font-size:14px;font-weight:700;">🔬</span> ${lab.title}</div>
+        <ol>${lab.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+      </div>`;
+    });
+  }
+  container.innerHTML = html || '<div style="text-align:center;padding:48px 24px;color:var(--txt-muted);"><div style="font-size:40px;margin-bottom:12px;">🔍</div><h3 style="font-size:17px;font-weight:600;color:var(--txt-secondary);margin-bottom:6px;">No results found</h3><p style="font-size:14px;">Try a different search term.</p></div>';
+
+  container.querySelectorAll('.accordion-header').forEach(hdr => {
+    hdr.addEventListener('click', function() {
+      const key = this.dataset.accToggle;
+      const body = container.querySelector(`[data-acc-body="${key}"]`);
+      body.classList.toggle('open');
+      this.classList.toggle('open');
+    });
+  });
+  setupCopyButtons();
+  if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") lucide.createIcons();
 }
 
-/* ═══════════════════ COPY BUTTONS ═══════════════════ */
-function initCopyBtns(){
-document.querySelectorAll('[data-copy]').forEach(btn=>{
-btn.removeEventListener('click',handleCopy);
-btn.addEventListener('click',handleCopy);
-});
+// ─── MAIN RENDER ───
+function render() {
+  renderSidebar();
+  updateStats();
+  const content = document.getElementById('content-area');
+
+  if (activeItem === 'kb') {
+    content.innerHTML = renderKBView();
+    content.querySelectorAll('.kb-tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        activeKBTab = this.dataset.kbtab;
+        content.querySelectorAll('.kb-tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        renderKBContent(document.getElementById('kb-search')?.value || '');
+      });
+    });
+    const searchInput = document.getElementById('kb-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() { renderKBContent(this.value); });
+    }
+    renderKBContent('');
+  } else {
+    const tech = TECHS.find(t => t.id === activeItem);
+    if (tech) {
+      content.innerHTML = renderTechView(tech);
+      attachTechEventListeners(tech);
+    }
+  }
+  if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") lucide.createIcons();
 }
-function handleCopy(e){
-const btn=e.currentTarget;
-const block=document.getElementById(btn.dataset.copy);
-if(!block)return;
-const code=block.querySelector('code');
-if(!code)return;
-navigator.clipboard.writeText(code.innerText).then(()=>{
-btn.textContent='✅ Copied!';
-setTimeout(()=>{btn.textContent='📋 Copy';},2000);
-}).catch(()=>{btn.textContent='❌ Failed';setTimeout(()=>{btn.textContent='📋 Copy';},2000);});
+
+function attachTechEventListeners(tech) {
+  // Phase toggle
+  document.querySelectorAll('.phase-header').forEach(hdr => {
+    hdr.addEventListener('click', function() {
+      const phaseId = this.dataset.phase;
+      const topics = document.getElementById('topics-' + phaseId);
+      const chevron = document.getElementById('chevron-' + phaseId);
+      if (topics) {
+        topics.classList.toggle('collapsed');
+        if (chevron) chevron.classList.toggle('open');
+      }
+    });
+  });
+
+  // Checkbox toggle
+  document.querySelectorAll('.ios-checkbox').forEach(chk => {
+    chk.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const topicId = this.dataset.chk;
+      const isChecked = !checkedTopics[topicId];
+      checkedTopics[topicId] = isChecked;
+      if (!isChecked) delete checkedTopics[topicId];
+      save();
+
+      this.classList.toggle('checked', isChecked);
+      const row = this.closest('.topic-row');
+      if (row) row.classList.toggle('done', isChecked);
+
+      updateStats();
+      renderSidebar();
+
+      if (tech) {
+        const pct = getTechPct(tech.id);
+        if (pct === 100 && !celebratedTechs[tech.id]) {
+          celebratedTechs[tech.id] = true;
+          save();
+          fireConfetti();
+        }
+      }
+    });
+  });
+
+  // Topic row click → toggle checkbox
+  document.querySelectorAll('.topic-row').forEach(row => {
+    row.addEventListener('click', function(e) {
+      if (e.target.closest('.ios-checkbox')) return;
+      const chk = this.querySelector('.ios-checkbox');
+      if (chk) chk.click();
+    });
+  });
+
+  // Tab buttons
+  document.querySelectorAll('.tech-tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      activeTechTab = this.dataset.tab;
+      render();
+    });
+  });
+  setupCopyButtons();
 }
 
-/* ═══════════════════ LUCIDE ═══════════════════ */
-function initLucide(){if(typeof lucide!=="undefined"&&typeof lucide.createIcons==="function")lucide.createIcons();}
+// ─── MOBILE MENU ───
+function setupMobile() {
+  const toggleBtn = document.getElementById('mobile-toggle-btn');
+  const sidebar = document.getElementById('sidebar');
+  if (window.innerWidth <= 768) toggleBtn.style.display = 'flex';
+  toggleBtn.addEventListener('click', function() { sidebar.classList.toggle('open'); });
+  window.addEventListener('resize', function() {
+    if (window.innerWidth <= 768) { toggleBtn.style.display = 'flex'; }
+    else { toggleBtn.style.display = 'none'; sidebar.classList.remove('open'); }
+  });
+}
 
-/* ═══════════════════ RENDER ALL ═══════════════════ */
-function renderAll(){renderSidebar();renderDetail();renderStats();}
-
-/* ═══════════════════ MOBILE ═══════════════════ */
-function closeMobile(){const o=document.getElementById('mobile-overlay');if(o)o.style.display='none';}
-document.getElementById('mobile-menu-btn').addEventListener('click',()=>{const o=document.getElementById('mobile-overlay');if(o)o.style.display='block';});
-document.getElementById('mobile-close-btn').addEventListener('click',closeMobile);
-document.getElementById('mobile-overlay').addEventListener('click',(e)=>{if(e.target===e.currentTarget)closeMobile();});
-
-/* ═══════════════════ RESET MODAL ═══════════════════ */
-const rm=document.getElementById('reset-modal');
-document.getElementById('reset-all-btn').addEventListener('click',()=>{rm.style.display='flex';});
-document.getElementById('reset-cancel-btn').addEventListener('click',()=>{rm.style.display='none';});
-document.getElementById('reset-confirm-btn').addEventListener('click',()=>{rm.style.display='none';resetAll();});
-rm.addEventListener('click',(e)=>{if(e.target===e.currentTarget)rm.style.display='none';});
-
-/* ═══════════════════ INIT ═══════════════════ */
-loadS();
-renderAll();
+// ─── INIT ───
+if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") lucide.createIcons();
+setupMobile();
+render();
 </script>
 </body>
 </html>
