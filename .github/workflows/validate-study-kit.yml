@@ -1,0 +1,31 @@
+name: Validate study kit
+on:
+  pull_request:
+    paths:
+      - 'study-automation/**'
+      - '.github/workflows/validate-study-kit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: python3 -m py_compile study-automation/scripts/lab001_validate.py
+      - name: Shell syntax
+        run: bash -n study-automation/scripts/lab001_collect.sh
+      - name: Validate task tracker
+        run: |
+          python3 - <<'PY'
+          import csv
+          with open('study-automation/tasks.csv', newline='') as f:
+              rows = list(csv.DictReader(f))
+          assert len(rows) >= 8
+          ids = [row['id'] for row in rows]
+          assert len(set(ids)) == len(ids), 'duplicate lab IDs'
+          assert all(row['risk'] in ('GREEN','AMBER','RED') for row in rows)
+          assert all(row['status'] in ('Ready','Blocked','In Progress','Review','Passed','Needs Work') for row in rows)
+          print(f'Validated {len(rows)} labs')
+          PY
