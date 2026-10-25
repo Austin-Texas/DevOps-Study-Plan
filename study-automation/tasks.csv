@@ -1,0 +1,13 @@
+id,track,title,prerequisite,risk,status,evidence,approval
+LAB-001,Kubernetes,Read-only cluster baseline,,GREEN,Ready,Sanitized node and pod assessment,Not required
+LAB-002,Linux Administration,System and service inventory,LAB-001,GREEN,Blocked,systemd CPU memory disk analysis,Not required
+LAB-003,Networking,Trace DNS and service packet flow,LAB-001,GREEN,Blocked,Network trace and explanation,Not required
+LAB-004,Docker,Inspect image and container lifecycle,LAB-002,GREEN,Blocked,Container report and answer sheet,Not required
+LAB-005,Kubernetes,Deploy a test-only application,LAB-001,AMBER,Blocked,Deployment rollout and rollback,Human approval
+LAB-006,Security,Read-only RBAC and security posture audit,LAB-001,GREEN,Blocked,Redacted audit and recommendations,Not required
+LAB-007,Windows Administration,Inventory Windows services and updates,LAB-002,GREEN,Blocked,Redacted PowerShell system report,Not required
+LAB-008,CI/CD & GitOps,Build safe pipeline with manual release gate,LAB-004,AMBER,Blocked,CI lint tests and manual approval,Human approval
+LAB-009,Terraform & Ansible,Plan-only VM infrastructure and dry-run config,LAB-002,GREEN,Blocked,Terraform plan and Ansible check output,Not required
+LAB-010,Kubernetes,Plan kube-prometheus-stack monitoring install,LAB-001,GREEN,Blocked,Helm values review and installation plan,Not required
+LAB-011,Security,Introduce dependency image and secret scanning,LAB-008,AMBER,Blocked,Findings and approved pipeline changes,Human approval
+LAB-012,Kubernetes,Recovery and observability tabletop drill,LAB-010,GREEN,Blocked,Runbook and tabletop assessment,Not required
