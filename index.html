@@ -2533,9 +2533,20 @@ function getLinuxNotebookEntries() {
 }
 function renderLinuxCommandNotebook() {
   const entries = getLinuxNotebookEntries();
-  let html = `<div style="padding:18px;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-elevated)">
+  let html = `<style>
+    #linux-command-results { display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;align-items:start }
+    #linux-command-results .linux-command-entry {margin:0!important;min-width:0}
+    #linux-command-results .linux-command-entry > summary {list-style:none;min-height:46px;padding:10px 12px!important}
+    #linux-command-results .linux-command-entry > summary::-webkit-details-marker {display:none}
+    #linux-command-results .linux-command-entry > summary:hover {background:var(--bg-section)}
+    .linux-command-overlay {position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:900;cursor:pointer}
+    .linux-command-modal {position:fixed;z-index:901;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100vw - 32px));max-height:min(78vh,740px);overflow:auto;background:var(--bg-elevated);border:1px solid var(--border);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.24);padding:18px}
+    .linux-command-modal .kb-table {font-size:12px}
+    .linux-command-modal .kb-table td,.linux-command-modal .kb-table th {padding:8px}
+    @media(max-width:520px){#linux-command-results{grid-template-columns:1fr}.linux-command-modal{padding:12px}}
+  </style><div style="padding:18px;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-elevated)">
     <h3 style="font-size:18px;font-weight:800">📓 Linux Command Notebook</h3>
-    <p style="font-size:13px;color:var(--txt-secondary);margin:8px 0 14px">Enter a command to save it. Select a compact row to see its flags, explanation and safety notes. Existing reference commands are preserved.</p>
+    <p style="font-size:13px;color:var(--txt-secondary);margin:8px 0 14px">Enter a command to save it. Select a command card to open its explanation in a small popup. Existing reference commands are preserved.</p>
     <form id="linux-command-add-form" style="display:flex;gap:8px;flex-wrap:wrap">
       <input id="linux-command-add" aria-label="New Linux command" required autocomplete="off" placeholder="Type a Linux command and press Enter…" style="flex:1;min-width:220px;padding:12px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary)">
       <button type="submit" class="tab-btn active" style="padding:10px 18px">+ Add</button>
@@ -2545,14 +2556,17 @@ function renderLinuxCommandNotebook() {
   </div><div id="linux-command-results">`;
   entries.forEach((entry,i) => {
     const haystack = [entry.command,entry.category,entry.summary,entry.notes,...(entry.parts||[]).flat()].join(' ').toLowerCase();
-    const risk = entry.risk === 'high' ? '#dc2626' : entry.risk === 'medium' ? '#b45309' : entry.risk === 'unreviewed' ? '#b45309' : '#16a34a';
-    html += `<details class="linux-command-entry" data-search="${escapeHtml(haystack)}" style="margin-bottom:8px;border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated);overflow:hidden">
+    html += `<details class="linux-command-entry" data-search="${escapeHtml(haystack)}" style="border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated)">
       <summary style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;flex-wrap:wrap">
         <code style="font-size:13px;font-weight:700;flex:1;overflow-wrap:anywhere">${escapeHtml(entry.command)}</code>
-        <span style="font-size:11px;color:${risk};font-weight:700">${escapeHtml(entry.risk||'unreviewed').toUpperCase()}</span>
-        <span style="font-size:12px;color:var(--txt-muted)">Details ▾</span>
+        <span style="font-size:12px;color:var(--txt-muted)">↗</span>
       </summary>
-      <div style="padding:12px 16px 18px;border-top:1px solid var(--border);max-width:740px;margin:0 auto">
+      <div class="linux-command-overlay" aria-hidden="true"></div>
+      <div class="linux-command-modal" role="dialog" aria-modal="true" aria-label="Explanation of ${escapeHtml(entry.command)}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <code style="font-size:15px;font-weight:800;overflow-wrap:anywhere">${escapeHtml(entry.command)}</code>
+          <button type="button" class="linux-command-close" aria-label="Close explanation" style="border:1px solid var(--border);border-radius:8px;background:var(--bg-section);color:var(--txt-primary);padding:6px 10px;cursor:pointer">✕ Close</button>
+        </div>
         <p style="font-size:13px;margin:12px 0"><strong>What does it do?</strong><br>${escapeHtml(entry.summary||'Explanation pending. This command was saved locally; no AI service is connected.')}</p>
         ${entry.parts && entry.parts.length ? `<div style="overflow-x:auto"><p style="font-size:13px;font-weight:700;margin:12px 0 6px">What each part means</p><table class="kb-table"><thead><tr><th>Token / flag</th><th>Meaning</th></tr></thead><tbody>${entry.parts.map(p=>`<tr><td><code>${escapeHtml(p[0])}</code></td><td>${escapeHtml(p[1])}</td></tr>`).join('')}</tbody></table></div>` : '<p style="font-size:12px;color:var(--txt-muted)">Flag-by-flag analysis awaits AI backend integration.</p>'}
         <div class="kb-note" style="margin-top:10px;font-size:13px;line-height:1.65">${escapeHtml(entry.notes||'Do not execute unfamiliar commands, especially with sudo, rm, or destructive options, until verified.')}</div>
@@ -2859,6 +2873,14 @@ function attachTechEventListeners(tech) {
   });
   if (tech && tech.id === 'linux' && activeTechTab === 'commands') {
     const search = document.getElementById('linux-command-search');
+    document.querySelectorAll('.linux-command-entry').forEach(card => {
+      card.addEventListener('toggle', () => {
+        if (card.open) document.querySelectorAll('.linux-command-entry').forEach(other => { if (other !== card) other.open = false; });
+      });
+      const close = () => { card.open = false; };
+      card.querySelector('.linux-command-close')?.addEventListener('click', close);
+      card.querySelector('.linux-command-overlay')?.addEventListener('click', close);
+    });
     const addForm = document.getElementById('linux-command-add-form');
     if (addForm) addForm.addEventListener('submit', function(event) {
       event.preventDefault();
