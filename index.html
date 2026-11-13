@@ -2934,8 +2934,6 @@ function attachAnsibleNotebook(tech){
   };
   show();
  }
-
- }
  };
  root.querySelector('#ans-reference-form').onsubmit=e=>{e.preventDefault();ansSet('reference',root.querySelector('#ans-reference-text').value);window.ansNotebookStatus={type:'saved',title:'✓ Reference saved',detail:'Original Ansible reference updated in this browser'};repaint()};
 }
