@@ -2860,7 +2860,7 @@ function renderAnsibleNotebook(tech){
  <p style="font-size:12px;color:var(--txt-muted);margin:8px 0 12px">Commands and notes save in this browser.</p>
  <input id="ans-filter" class="ans-field" placeholder="Filter saved commands…">
  <div id="ans-categories" style="margin-top:14px;background:var(--bg-section);border:1px solid var(--border);border-radius:16px;padding:12px">
- ${Object.keys(groups).sort().map(g=>`<details class="ans-cat" data-ans-category="${esc(g)}"><summary><span>${esc(g)}</span><small>${groups[g].length} commands</small></summary><div class="ans-card-grid">${groups[g].map(e=>`<div class="ans-card" data-ans-search="${esc(e.command.toLowerCase())}"><code>${esc(e.command)}</code><button title="Open / edit" data-ans-open="${esc(e.id)}">✎</button><button title="Delete" data-ans-delete="${esc(e.id)}">🗑</button></div>`).join('')}</div></details>`).join('')}
+ ${Object.keys(groups).sort().map(g=>`<details class="ans-cat" data-ans-category="${esc(g)}"><summary><span>${esc(g)}</span><small>${groups[g].length} commands</small></summary><div class="ans-card-grid">${groups[g].map(e=>`<div class="ans-card" data-ans-search="${esc(e.command.toLowerCase())}"><code>${esc(e.command)}</code><button title="Open command details" aria-label="Open command details" data-ans-open="${esc(e.id)}">✎</button><button title="Delete" data-ans-delete="${esc(e.id)}">🗑</button></div>`).join('')}</div></details>`).join('')}
  </div></section><section><div class="ans-status ${status?.type||''}" id="ans-status"><small>Command category</small><h3 style="margin:9px 0">${esc(status?.title||'Type a command to see where it will be saved')}</h3><p style="font-size:12px">${esc(status?.detail||'Your command will appear under its matching expandable category.')}</p></div>
  <details class="ans-cat"><summary>+ Add more notes</summary><div style="padding:12px">${notes.map((n,i)=>`<div class="ans-card" style="margin-bottom:8px"><span style="flex:1;white-space:pre-wrap;overflow-wrap:anywhere">${esc(n)}</span><button data-ans-note-edit="${i}">✎</button><button data-ans-note-delete="${i}">🗑</button></div>`).join('')}<form id="ans-note-form"><textarea id="ans-note-input" class="ans-field" placeholder="Write a new note…" required></textarea><button class="ans-btn">+ Add note</button></form></div></details>
  <details class="ans-cat"><summary>Original Ansible command reference (preserved) · ✎ Editable</summary><div style="padding:12px"><div class="ans-row"><button class="ans-btn" data-ans-reference-edit type="button">✎ Edit</button><button class="ans-btn" data-ans-reference-copy type="button">Copy</button></div><pre id="ans-original-display" style="max-height:380px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:var(--bg-section);border-radius:10px">${esc(ansGet('reference',tech.commands))}</pre><form id="ans-reference-form" hidden><textarea id="ans-reference-text" class="ans-field">${esc(ansGet('reference',tech.commands))}</textarea><button class="ans-btn">Save reference</button><button class="ans-btn" type="button" data-ans-reference-cancel>Cancel</button></form></div></details>
@@ -2885,9 +2885,56 @@ function attachAnsibleNotebook(tech){
  if(b.hasAttribute('data-ans-reference-edit')){root.querySelector('#ans-reference-form').hidden=false}
  if(b.hasAttribute('data-ans-reference-cancel')){root.querySelector('#ans-reference-form').hidden=true}
  if(b.hasAttribute('data-ans-reference-copy')){navigator.clipboard.writeText(root.querySelector('#ans-original-display').textContent);b.textContent='✓ Copied'}
- if(b.hasAttribute('data-ans-open')){const item=ansEntries(tech).find(x=>x.id===b.dataset.ansOpen);if(!item)return;const modal=root.querySelector('#ans-modal-root');modal.innerHTML=`<div class="ans-modal-backdrop"><div class="ans-modal"><div class="ans-row" style="justify-content:space-between"><h3>Command details</h3><button class="ans-btn" data-ans-close>✕</button></div><div id="ans-modal-message"></div><form id="ans-edit"><label>Command<input class="ans-field" name="command" required value="${escapeHtml(item.command)}"></label><label>What does it do?<textarea class="ans-field" name="summary">${escapeHtml(item.summary||'')}</textarea></label><label>Example<input class="ans-field" name="example" value="${escapeHtml(item.example||item.command)}"></label><div class="ans-row"><button class="ans-btn">Save changes</button><button class="ans-btn" type="button" data-ans-close>Close</button></div></form></div></div>`;
- modal.onclick=ev=>{if(ev.target.hasAttribute('data-ans-close')||ev.target.classList.contains('ans-modal-backdrop'))modal.innerHTML=''};
- modal.querySelector('#ans-edit').onsubmit=ev=>{ev.preventDefault();const data=Object.fromEntries(new FormData(ev.target));if(item.id.startsWith('ref-')){const c=ansGet('changes',{});c[item.id]={...data};ansSet('changes',c)}else{const a=ansGet('added',[]);const ix=a.findIndex(x=>x.id===item.id);if(ix>=0){a[ix]={...a[ix],...data};ansSet('added',a)}}const currentModal=modal.innerHTML;repaint();const m=document.getElementById('ans-modal-root');m.innerHTML=currentModal;m.querySelector('#ans-modal-message').innerHTML='<p style="background:#dcfce7;color:#166534;padding:12px;border-radius:10px">✓ Changes saved successfully</p>';m.querySelector('#ans-edit').replaceWith(Object.assign(document.createElement('div'),{textContent:'Updated command: '+data.command}));m.querySelectorAll('[data-ans-close]').forEach(x=>x.onclick=()=>m.innerHTML='')};
+
+ if(b.hasAttribute('data-ans-open')){
+  const id=b.dataset.ansOpen;
+  const modal=root.querySelector('#ans-modal-root');
+  const read=()=>ansEntries(tech).find(x=>x.id===id);
+  const esc=x=>escapeHtml(String(x??''));
+  const parseFlags=x=>String(x||'').replace(/\\\\n/g,'\n').split('\n').map(line=>line.trim()).filter(Boolean).map(line=>{const i=line.indexOf('|');return i<0?[line,'']:[line.slice(0,i).trim(),line.slice(i+1).trim()]});
+  const show=(message='')=>{
+   const item=read();if(!item){modal.innerHTML='';return}
+   const rows=parseFlags(item.flags||'');
+   modal.innerHTML=`<div class="ans-modal-backdrop"><div class="ans-modal" role="dialog" aria-modal="true" aria-label="Ansible command details">
+    <div class="ans-row" style="justify-content:space-between;align-items:center"><h3 style="overflow-wrap:anywhere">${esc(item.command)}</h3><div class="ans-row"><button class="ans-btn" type="button" data-modal-edit title="Edit command" aria-label="Edit command">✎</button><button class="ans-btn" type="button" data-modal-delete title="Delete command" aria-label="Delete command">🗑</button><button class="ans-btn" type="button" data-modal-close title="Close">✕</button></div></div>
+    ${message?'<p style="background:#dcfce7;color:#166534;padding:12px;border-radius:10px;margin:12px 0">✓ Changes saved successfully</p>':''}
+    <h4 style="margin-top:14px;font-weight:700">What does it do?</h4><p style="white-space:pre-wrap;margin:8px 0 16px">${esc(item.summary||'No explanation added yet.')}</p>
+    <h4 style="font-weight:700;margin-bottom:8px">What each part means</h4>
+    <table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px;background:var(--bg-section)">Token / flag</th><th style="text-align:left;padding:8px;background:var(--bg-section)">Meaning</th></tr></thead><tbody>${rows.map(([token,meaning])=>`<tr><td style="padding:8px;border-bottom:1px solid var(--border)"><code>${esc(token)}</code></td><td style="padding:8px;border-bottom:1px solid var(--border)">${esc(meaning)}</td></tr>`).join('')}</tbody></table>
+    <div style="margin-top:16px;padding:12px;border:1px solid var(--border);border-radius:10px"><div class="ans-row" style="justify-content:space-between"><strong>COMMAND EXAMPLE</strong><button type="button" class="ans-btn" data-modal-copy>Copy</button></div><pre style="white-space:pre-wrap;overflow-wrap:anywhere;margin-top:12px">${esc(item.example||item.command)}</pre></div>
+    </div></div>`;
+  };
+  const edit=()=>{
+   const item=read();if(!item)return;
+   modal.innerHTML=`<div class="ans-modal-backdrop"><div class="ans-modal" role="dialog" aria-modal="true" aria-label="Edit Ansible command"><div class="ans-row" style="justify-content:space-between"><h3>Edit command</h3><button type="button" class="ans-btn" data-modal-close>✕</button></div>
+   <form id="ans-edit"><label>Command<input class="ans-field" name="command" required value="${esc(item.command)}"></label><label>What does it do?<textarea class="ans-field" name="summary">${esc(item.summary||'')}</textarea></label><label>Flags and meanings (one per line: token | explanation)<textarea class="ans-field" name="flags" rows="6">${esc(item.flags||'')}</textarea></label><label>Example<input class="ans-field" name="example" value="${esc(item.example||item.command)}"></label><div class="ans-row"><button class="ans-btn" type="submit">Save changes</button><button type="button" class="ans-btn" data-modal-cancel>Cancel</button></div></form></div></div>`;
+  };
+  modal.onclick=ev=>{
+   const btn=ev.target.closest('button');
+   if(ev.target.classList.contains('ans-modal-backdrop')||btn?.hasAttribute('data-modal-close')){modal.innerHTML='';return}
+   if(btn?.hasAttribute('data-modal-edit'))edit();
+   if(btn?.hasAttribute('data-modal-cancel'))show();
+   if(btn?.hasAttribute('data-modal-copy')){navigator.clipboard.writeText(read()?.example||read()?.command||'');btn.textContent='✓ Copied'}
+   if(btn?.hasAttribute('data-modal-delete')){if(confirm('Delete this command?')){const item=read();if(item.id.startsWith('ref-')){const c=ansGet('changes',{});c[id]={...(c[id]||{}),deleted:true};ansSet('changes',c)}else ansSet('added',ansGet('added',[]).filter(x=>x.id!==id));repaint()}}
+  };
+  modal.onsubmit=ev=>{
+   if(ev.target.id!=='ans-edit')return;ev.preventDefault();
+   const data=Object.fromEntries(new FormData(ev.target));
+   const duplicate=ansEntries(tech).find(x=>x.id!==id&&x.command.toLowerCase().replace(/\s+/g,' ').trim()===data.command.toLowerCase().replace(/\s+/g,' ').trim());
+   if(duplicate){alert('Already saved under '+ansCategory(duplicate.command));return}
+   if(id.startsWith('ref-')){const c=ansGet('changes',{});c[id]={...(c[id]||{}),...data};ansSet('changes',c)}
+   else{const items=ansGet('added',[]);const i=items.findIndex(x=>x.id===id);if(i>=0){items[i]={...items[i],...data};ansSet('added',items)}}
+   const expanded=[...root.querySelectorAll('.ans-cat[data-ans-category]')].filter(x=>x.open).map(x=>x.dataset.ansCategory);
+   const updated=renderAnsibleNotebook(tech);root.outerHTML=updated;attachAnsibleNotebook(tech);
+   const newRoot=document.getElementById('ans-notebook');
+   newRoot.querySelectorAll('.ans-cat[data-ans-category]').forEach(x=>{x.open=expanded.includes(x.dataset.ansCategory)||x.dataset.ansCategory===ansCategory(data.command)});
+   const newModal=newRoot.querySelector('#ans-modal-root');newModal.innerHTML=modal.innerHTML;
+   // Reopen details using the newly attached command card, preserving the modal until explicitly closed.
+   const opener=newRoot.querySelector('[data-ans-open="'+id+'"]');if(opener){opener.click();const notice=newRoot.querySelector('#ans-modal-root .ans-modal h3');if(notice)notice.insertAdjacentHTML('afterend','<p style="background:#dcfce7;color:#166534;padding:12px;border-radius:10px;margin:12px 0">✓ Changes saved successfully</p>')}
+  };
+  show();
+ }
+
  }
  };
  root.querySelector('#ans-reference-form').onsubmit=e=>{e.preventDefault();ansSet('reference',root.querySelector('#ans-reference-text').value);window.ansNotebookStatus={type:'saved',title:'✓ Reference saved',detail:'Original Ansible reference updated in this browser'};repaint()};
