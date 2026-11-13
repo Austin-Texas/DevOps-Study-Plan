@@ -669,6 +669,12 @@ pre {
   .top-header-inner { flex-direction: column; align-items: flex-start !important; }
   .tabs-bar { flex-wrap: wrap; }
 }
+/* Technology navigation beside the main platform heading */
+.header-right-controls{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:flex-end}
+#header-tech-tabs .tabs-bar{display:flex;gap:3px;margin:0;padding:4px;border-radius:12px;white-space:nowrap}
+#header-tech-tabs .tab-btn{padding:9px 12px}
+@media(max-width:1100px){.top-header-inner{flex-wrap:wrap;gap:12px}.header-right-controls{justify-content:flex-start}}
+@media(max-width:650px){.header-right-controls{width:100%}#header-tech-tabs .tabs-bar{flex-wrap:wrap}}
 </style>
 </head>
 <body data-id="0">
@@ -712,7 +718,7 @@ pre {
         <h1 data-id="23" class="text-2xl font-extrabold" style="color:var(--txt-primary);letter-spacing:-0.03em;">🚀 Senior DevOps Engineering Platform</h1>
         <p data-id="24" class="text-sm mt-1" style="color:var(--txt-muted);">Your roadmap to $250K/year DevOps mastery</p>
       </div>
-      <div data-id="25" class="text-xs" style="color:var(--txt-muted);">Welcome back, Brian 👋</div>
+      <div class="header-right-controls"><div id="header-tech-tabs"></div><div data-id="25" class="text-xs" style="color:var(--txt-muted);white-space:nowrap">Welcome back, Brian 👋</div></div>
     </div>
   </header>
 
@@ -2860,6 +2866,8 @@ function renderKBContent(filter) {
 
 // ─── MAIN RENDER ───
 function render() {
+  const headerTabs = document.getElementById('header-tech-tabs');
+  if (headerTabs) headerTabs.replaceChildren();
   renderSidebar();
   updateStats();
   const content = document.getElementById('content-area');
@@ -2884,6 +2892,8 @@ function render() {
     if (tech) {
       content.innerHTML = renderTechView(tech);
       attachTechEventListeners(tech);
+      const tabs = content.querySelector('.tabs-bar');
+      if (headerTabs && tabs) headerTabs.appendChild(tabs);
     }
   }
   if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") lucide.createIcons();
