@@ -2628,6 +2628,7 @@ function renderLinuxCommandNotebook() {
   let html = `<style>
     .linux-input-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}.linux-input-columns>div{min-width:0}.linux-destination-panel{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--bg-section);box-sizing:border-box}.linux-destination-panel strong{font-size:12px;color:var(--txt-muted)}#linux-destination-name{font-size:17px;font-weight:750;margin-top:10px}#linux-destination-help{font-size:12px;color:var(--txt-secondary);margin-top:8px}@media(max-width:850px){.linux-input-columns{grid-template-columns:1fr}}
 .linux-destination-panel.is-saved{background:#dcfce7!important;border-color:#86efac!important;color:#166534!important}.linux-destination-panel.is-saved strong,.linux-destination-panel.is-saved p{color:#166534!important}
+    .linux-destination-panel.is-existing{background:#fff7ed!important;border-color:#fb923c!important;color:#9a3412!important}.linux-destination-panel.is-existing strong,.linux-destination-panel.is-existing p{color:#9a3412!important}
     .linux-extra-notes{margin-top:12px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--bg-elevated)}.linux-extra-notes>summary{cursor:pointer;font-weight:700}.linux-extra-notes textarea{width:100%;min-height:190px;resize:vertical;box-sizing:border-box;padding:12px;margin-top:12px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary);font:13px/1.5 monospace}
     /* Independent columns: opening the original reference or notes must not
        shift the command category cards in the opposite column. */
@@ -3308,7 +3309,7 @@ function attachTechEventListeners(tech) {
     const newField = document.getElementById('linux-command-add');
     if (newField) newField.addEventListener('input', function() {
       const command = this.value.trim();
-      document.querySelector('.linux-destination-panel')?.classList.remove('is-saved');
+      document.querySelector('.linux-destination-panel')?.classList.remove('is-saved', 'is-existing');
       document.getElementById('linux-destination-name').textContent = command ? linuxNotebookCategory({command}) : 'Type a command to see where it will be saved';
       document.getElementById('linux-destination-help').textContent = command ? 'This command will be saved under this category.' : 'Your command will appear under its matching expandable category below.';
     });
@@ -3318,9 +3319,14 @@ function attachTechEventListeners(tech) {
       const category = linuxNotebookCategory(found);
       const status = document.getElementById('linux-command-status');
       status.textContent = 'ℹ Command already available — not saved again.';
-      status.style.color = '#1d4ed8';
+      status.style.color = '#9a3412';
+      status.style.background = '#ffedd5';
+      status.style.border = '1px solid #fdba74';
+      status.style.borderRadius = '9px';
+      status.style.padding = '10px 12px';
       const panel = document.querySelector('.linux-destination-panel');
       panel?.classList.remove('is-saved');
+      panel?.classList.add('is-existing');
       document.getElementById('linux-destination-name').textContent = 'Already saved under: ' + category;
       document.getElementById('linux-destination-help').textContent = 'Location: Commands → ' + category + ' → ' + found.command + '. Expand this category below to find the existing card.';
       const groups = [...document.querySelectorAll('.linux-command-category')];
@@ -3342,6 +3348,7 @@ function attachTechEventListeners(tech) {
       catch (_) { document.getElementById('linux-command-status').textContent = 'Browser storage is unavailable; this command could not be saved.'; return; }
       const category = linuxNotebookCategory({command});
       render();
+      document.querySelector('.linux-destination-panel')?.classList.remove('is-existing');
       document.querySelector('.linux-destination-panel')?.classList.add('is-saved');
       document.getElementById('linux-destination-name').textContent = '✓ Saved under: ' + category;
       document.getElementById('linux-destination-help').textContent = 'Open the ' + category + ' category below to find your command.';
