@@ -2532,7 +2532,10 @@ function getLinuxNotebookEntries() {
   let edits = {};
   try { edits = JSON.parse(localStorage.getItem('linux-notebook-edits-v1') || '{}'); } catch (_) {}
   const entries = [...LINUX_COMMAND_NOTEBOOK, ...(Array.isArray(saved) ? saved.filter(e => e && typeof e.command === 'string').map(e => explainCommonLinuxCommand(e.command) || e) : [])];
-  return entries.map(e => ({...e, ...(edits[e.command] || {})}));
+  let deleted = [];
+  try { deleted = JSON.parse(localStorage.getItem('linux-notebook-deleted-v1') || '[]'); } catch (_) {}
+  return entries.map(e => ({...e, ...(edits[e.command] || {}), _originalCommand:e.command}))
+    .filter(e => !deleted.includes(e._originalCommand) && !deleted.includes(e.command));
 
 }
 function renderLinuxCommandNotebook() {
@@ -2569,8 +2572,9 @@ function renderLinuxCommandNotebook() {
       <div class="linux-command-modal" role="dialog" aria-modal="true" aria-label="Explanation of ${escapeHtml(entry.command)}">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
           <code style="font-size:15px;font-weight:800;overflow-wrap:anywhere">${escapeHtml(entry.command)}</code>
-          <button type="button" class="linux-command-edit" data-command-index="${i}" style="margin-left:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-section);color:var(--txt-primary);padding:6px 10px;cursor:pointer">✎ Edit</button>
-          <button type="button" class="linux-command-close" aria-label="Close explanation" style="border:1px solid var(--border);border-radius:8px;background:var(--bg-section);color:var(--txt-primary);padding:6px 10px;cursor:pointer">✕ Close</button>
+          <button type="button" class="linux-command-edit" data-command-index="${i}" style="margin-left:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-section);color:var(--txt-primary);padding:6px 10px;cursor:pointer" title="Edit command" aria-label="Edit command">✎</button>
+          <button type="button" class="linux-command-delete" aria-label="Delete command" title="Delete command" style="border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:#c0392b;padding:5px 8px;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 10v6M14 10v6"/></svg></button>
+          <button type="button" class="linux-command-close" aria-label="Close explanation" title="Close" style="border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary);width:27px;height:27px;padding:0;cursor:pointer;font-size:17px;line-height:1">×</button>
         </div>
         <form class="linux-command-edit-form" data-command-index="${i}" hidden style="margin-top:12px;display:none;flex-direction:column;gap:9px">
           <label style="font-size:12px;font-weight:700">Command<input name="command" required value="${escapeHtml(entry.command)}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)"></label>
@@ -2895,6 +2899,19 @@ function attachTechEventListeners(tech) {
       const close = () => { card.open = false; };
       card.querySelector('.linux-command-close')?.addEventListener('click', close);
       card.querySelector('.linux-command-overlay')?.addEventListener('click', close);
+      card.querySelector('.linux-command-delete')?.addEventListener('click', () => {
+        const index = Number(card.querySelector('.linux-command-edit').dataset.commandIndex);
+        const entry = getLinuxNotebookEntries()[index];
+        if (!entry || !confirm('Delete "' + entry.command + '" from your notebook?')) return;
+        let deleted = [];
+        try { deleted = JSON.parse(localStorage.getItem('linux-notebook-deleted-v1') || '[]'); } catch (_) {}
+        if (!Array.isArray(deleted)) deleted = [];
+        deleted.push(entry._originalCommand || entry.command);
+        try { localStorage.setItem('linux-notebook-deleted-v1', JSON.stringify([...new Set(deleted)])); }
+        catch (_) { alert('Unable to delete. Browser storage may be blocked.'); return; }
+        render();
+      });
+
       const editButton = card.querySelector('.linux-command-edit');
       const form = card.querySelector('.linux-command-edit-form');
       const readonly = card.querySelector('.linux-command-readonly');
