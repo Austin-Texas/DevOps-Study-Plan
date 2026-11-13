@@ -2552,6 +2552,13 @@ function renderLinuxCommandNotebook() {
     .linux-command-modal .kb-table td,.linux-command-modal .kb-table th {padding:8px}
     @media(max-width:520px){#linux-command-results{grid-template-columns:1fr}.linux-command-modal{padding:12px}}
 
+    /* Keep the notebook controls comfortably sized on wide monitors */
+    #linux-command-add-form, #linux-command-search, #linux-command-status {max-width:780px}
+    #linux-command-add-form {margin-left:auto;margin-right:auto}
+    #linux-command-search {display:block!important;width:100%!important;box-sizing:border-box;margin-left:auto!important;margin-right:auto!important}
+    #linux-command-status {margin-left:auto;margin-right:auto}
+    #linux-command-add {min-width:0!important}
+    @media(max-width:600px){#linux-command-add-form,#linux-command-search,#linux-command-status{max-width:100%}}
     /* Premium translucent glass styling scoped to Linux notebook */
     #linux-command-results {gap:12px;padding:12px;border-radius:20px;background:linear-gradient(135deg,rgba(59,130,246,.055),rgba(139,92,246,.045));border:1px solid rgba(140,150,175,.13)}
     #linux-command-results .linux-command-entry {background:linear-gradient(145deg,rgba(255,255,255,.66),rgba(238,243,255,.38))!important;border:1px solid rgba(148,163,184,.28)!important;border-radius:15px!important;box-shadow:0 5px 18px rgba(15,23,42,.045),inset 0 1px rgba(255,255,255,.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
