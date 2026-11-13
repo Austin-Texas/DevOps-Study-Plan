@@ -2540,9 +2540,9 @@ function renderLinuxCommandNotebook() {
     #linux-command-results .linux-command-entry > summary::-webkit-details-marker {display:none}
     #linux-command-results .linux-command-entry > summary:hover {background:var(--bg-section)}
     .linux-command-overlay {position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:900;cursor:pointer}
-    .linux-command-modal {position:fixed;z-index:901;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100vw - 32px));max-height:min(78vh,740px);overflow:auto;background:var(--bg-elevated);border:1px solid var(--border);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.24);padding:18px}
-    .linux-command-modal .kb-table {font-size:12px}
-    .linux-command-modal .kb-table td,.linux-command-modal .kb-table th {padding:8px}
+    .linux-command-modal {position:fixed;z-index:901;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,calc(100vw - 24px));max-height:min(65vh,540px);overflow:auto;background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;box-shadow:0 18px 55px rgba(0,0,0,.24);padding:12px}
+    .linux-command-modal .kb-table {font-size:11px;line-height:1.35}
+    .linux-command-modal .kb-table td,.linux-command-modal .kb-table th {padding:5px 7px}.linux-command-modal p {line-height:1.4}.linux-command-modal .kb-note {padding:8px!important;line-height:1.4!important}.linux-command-modal .code-block-wrap {margin-top:7px!important}.linux-command-modal pre {padding:9px!important;font-size:12px!important}
     @media(max-width:520px){#linux-command-results{grid-template-columns:1fr}.linux-command-modal{padding:12px}}
   </style><div style="padding:18px;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-elevated)">
     <h3 style="font-size:18px;font-weight:800">📓 Linux Command Notebook</h3>
