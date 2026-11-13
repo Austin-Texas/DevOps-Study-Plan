@@ -2529,7 +2529,11 @@ function explainCommonLinuxCommand(command) {
 function getLinuxNotebookEntries() {
   let saved = [];
   try { saved = JSON.parse(localStorage.getItem('linux-notebook-custom-v1') || '[]'); } catch (_) {}
-  return [...LINUX_COMMAND_NOTEBOOK, ...(Array.isArray(saved) ? saved.filter(e => e && typeof e.command === 'string').map(e => explainCommonLinuxCommand(e.command) || e) : [])];
+  let edits = {};
+  try { edits = JSON.parse(localStorage.getItem('linux-notebook-edits-v1') || '{}'); } catch (_) {}
+  const entries = [...LINUX_COMMAND_NOTEBOOK, ...(Array.isArray(saved) ? saved.filter(e => e && typeof e.command === 'string').map(e => explainCommonLinuxCommand(e.command) || e) : [])];
+  return entries.map(e => ({...e, ...(edits[e.command] || {})}));
+
 }
 function renderLinuxCommandNotebook() {
   const entries = getLinuxNotebookEntries();
@@ -2565,12 +2569,23 @@ function renderLinuxCommandNotebook() {
       <div class="linux-command-modal" role="dialog" aria-modal="true" aria-label="Explanation of ${escapeHtml(entry.command)}">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
           <code style="font-size:15px;font-weight:800;overflow-wrap:anywhere">${escapeHtml(entry.command)}</code>
+          <button type="button" class="linux-command-edit" data-command-index="${i}" style="margin-left:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-section);color:var(--txt-primary);padding:6px 10px;cursor:pointer">✎ Edit</button>
           <button type="button" class="linux-command-close" aria-label="Close explanation" style="border:1px solid var(--border);border-radius:8px;background:var(--bg-section);color:var(--txt-primary);padding:6px 10px;cursor:pointer">✕ Close</button>
         </div>
+        <form class="linux-command-edit-form" data-command-index="${i}" hidden style="margin-top:12px;display:none;flex-direction:column;gap:9px">
+          <label style="font-size:12px;font-weight:700">Command<input name="command" required value="${escapeHtml(entry.command)}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)"></label>
+          <label style="font-size:12px;font-weight:700">What does it do?<textarea name="summary" rows="3" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)">${escapeHtml(entry.summary||'')}</textarea></label>
+          <label style="font-size:12px;font-weight:700">Flags and meanings (one per line: flag | explanation)<textarea name="parts" rows="5" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)">${escapeHtml((entry.parts||[]).map(p=>p.join(' | ')).join('\\n'))}</textarea></label>
+          <label style="font-size:12px;font-weight:700">Notes and warnings<textarea name="notes" rows="3" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)">${escapeHtml(entry.notes||'')}</textarea></label>
+          <label style="font-size:12px;font-weight:700">Example<input name="example" value="${escapeHtml(entry.example||entry.command)}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)"></label>
+          <div style="display:flex;gap:8px"><button type="submit" class="tab-btn active">Save changes</button><button type="button" class="linux-command-cancel tab-btn">Cancel</button></div>
+        </form>
+        <div class="linux-command-readonly">
         <p style="font-size:13px;margin:12px 0"><strong>What does it do?</strong><br>${escapeHtml(entry.summary||'Explanation pending. This command was saved locally; no AI service is connected.')}</p>
         ${entry.parts && entry.parts.length ? `<div style="overflow-x:auto"><p style="font-size:13px;font-weight:700;margin:12px 0 6px">What each part means</p><table class="kb-table"><thead><tr><th>Token / flag</th><th>Meaning</th></tr></thead><tbody>${entry.parts.map(p=>`<tr><td><code>${escapeHtml(p[0])}</code></td><td>${escapeHtml(p[1])}</td></tr>`).join('')}</tbody></table></div>` : '<p style="font-size:12px;color:var(--txt-muted)">Flag-by-flag analysis awaits AI backend integration.</p>'}
         <div class="kb-note" style="margin-top:10px;font-size:13px;line-height:1.65">${escapeHtml(entry.notes||'Do not execute unfamiliar commands, especially with sudo, rm, or destructive options, until verified.')}</div>
         <div class="code-block-wrap" style="margin-top:10px"><div class="code-block-header"><span class="code-block-lang">Command example</span><button class="copy-btn" type="button">Copy</button></div><pre>${escapeHtml(entry.example||entry.command)}</pre></div>
+        </div>
       </div>
     </details>`;
   });
@@ -2880,6 +2895,37 @@ function attachTechEventListeners(tech) {
       const close = () => { card.open = false; };
       card.querySelector('.linux-command-close')?.addEventListener('click', close);
       card.querySelector('.linux-command-overlay')?.addEventListener('click', close);
+      const editButton = card.querySelector('.linux-command-edit');
+      const form = card.querySelector('.linux-command-edit-form');
+      const readonly = card.querySelector('.linux-command-readonly');
+      const setEditing = (editing) => {
+        form.hidden = !editing;
+        form.style.display = editing ? 'flex' : 'none';
+        readonly.hidden = editing;
+        editButton.hidden = editing;
+      };
+      editButton?.addEventListener('click', () => setEditing(true));
+      card.querySelector('.linux-command-cancel')?.addEventListener('click', () => setEditing(false));
+      form?.addEventListener('submit', event => {
+        event.preventDefault();
+        const fields = new FormData(form);
+        const index = Number(form.dataset.commandIndex);
+        const original = getLinuxNotebookEntries()[index];
+        const newCommand = String(fields.get('command') || '').trim();
+        if (!newCommand) return;
+        const parts = String(fields.get('parts') || '').split('\\n').map(line => {
+          const split = line.indexOf('|');
+          return split < 0 ? [line.trim(), ''] : [line.slice(0,split).trim(),line.slice(split+1).trim()];
+        }).filter(p => p[0]);
+        const edited = {command:newCommand,summary:String(fields.get('summary')||''),notes:String(fields.get('notes')||''),example:String(fields.get('example')||''),parts};
+        let edits = {};
+        try { edits = JSON.parse(localStorage.getItem('linux-notebook-edits-v1')||'{}'); } catch (_) {}
+        edits[original.command] = edited;
+        try { localStorage.setItem('linux-notebook-edits-v1',JSON.stringify(edits)); }
+        catch (_) { alert('Unable to save. Browser storage may be blocked or full.'); return; }
+        render();
+      });
+
     });
     const addForm = document.getElementById('linux-command-add-form');
     if (addForm) addForm.addEventListener('submit', function(event) {
