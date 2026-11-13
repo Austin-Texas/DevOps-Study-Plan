@@ -2878,11 +2878,11 @@ function renderTechView(tech) {
     if (tech.id === 'linux') {
       // Notebook is displayed beside the Linux Administration hero above.
     } else {
-      const lines = String(tech.commands || '').split('\\n').map(line => line.trim()).filter(Boolean);
+      const lines = String(tech.commands || '').split('\n').map(line => line.trim()).filter(Boolean);
       const groups = [];
       let group = {title: tech.name + ' commands', commands: []};
       for (const line of lines) {
-        if (/^#{1,5}\\s*[^#]/.test(line) || /^={3,}.*={3,}$/.test(line)) {
+        if (/^#{1,5}\s*[^#]/.test(line) || /^={3,}.*={3,}$/.test(line)) {
           if (group.commands.length) groups.push(group);
           group = {title: line.replace(/^#+\\s*|\\s*#+$/g,'').replace(/^=+|=+$/g,'').trim(), commands: []};
         } else if (!line.startsWith('#') && !line.startsWith('//')) {
