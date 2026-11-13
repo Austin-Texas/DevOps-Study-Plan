@@ -112,3 +112,8 @@ The user's screenshot clarifies the approved design beyond the initial written g
 - Test: add, duplicate, filter, category expansion, open, edit, save, cancel, delete, copy, note add/edit/delete, reference edit/copy, modal staying open after save, immediate card refresh, and reload persistence.
 - Verify Topics / Commands / Resources / Projects tabs, sidebar, light/dark mode, mobile layout and browser console. Keep required hidden statistics DOM nodes intact.
 - **Parity is an acceptance criterion, not a claim of completion.** If a page is missing a feature, implement and test it before reporting that the page fully matches Linux.
+
+## Ansible Automation progress display
+- Hide the progress bar and topic-percentage strip inside the Ansible Automation page header, while keeping its title, icon, level, and hours metadata.
+- Do not remove underlying progress calculations or affect the progress display of other technology pages.
+- Preserve the existing global stats-bar hiding rule and all Commands notebook functionality.
