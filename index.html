@@ -2489,6 +2489,7 @@ function renderTechView(tech) {
       </div>
       <pre>${escapeHtml(tech.commands)}</pre>
     </div>`;
+    }
   } else if (activeTechTab === 'resources') {
     tech.resources.forEach(r => {
       html += `<a class="resource-card" href="${r.url}" target="_blank" rel="noopener">
