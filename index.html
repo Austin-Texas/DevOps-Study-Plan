@@ -946,6 +946,116 @@ const LINUX_COMMAND_NOTEBOOK = [
     "risk": "low",
     "notes": "If not found, check installation and PATH."
   }
+,
+  {
+    "category": "Users & identity",
+    "command": "sudo -iu hakkari",
+    "summary": "Open an authorized login shell as user hakkari.",
+    "parts": [
+      [
+        "sudo",
+        "Run a command under another account with configured authorization."
+      ],
+      [
+        "-i",
+        "Start a login shell with the target user's login environment."
+      ],
+      [
+        "-u hakkari",
+        "Select the target account hakkari."
+      ]
+    ],
+    "risk": "medium",
+    "notes": "Requires sudo permission. Confirm identity with whoami and HOME with echo $HOME."
+  },
+  {
+    "category": "Paths & navigation",
+    "command": "echo $HOME",
+    "summary": "Display the current home-directory environment variable.",
+    "parts": [
+      [
+        "echo",
+        "Print arguments to standard output."
+      ],
+      [
+        "$HOME",
+        "Shell variable containing the current home-directory path."
+      ]
+    ],
+    "risk": "low",
+    "notes": "Compare with pwd; the working directory and home directory are not always identical."
+  },
+  {
+    "category": "Files & deletion",
+    "command": "sudo userdel -r username",
+    "summary": "Remove a local user account and attempt to remove its home directory and mail spool.",
+    "parts": [
+      [
+        "sudo",
+        "Run with administrative privileges."
+      ],
+      [
+        "userdel",
+        "Delete a local user account."
+      ],
+      [
+        "-r",
+        "Remove the user's home directory and mail spool when supported."
+      ],
+      [
+        "username",
+        "Placeholder account name; verify before use."
+      ]
+    ],
+    "risk": "high",
+    "notes": "DESTRUCTIVE. Verify the username, backups, ownership, running processes and organizational retention policy. Do not use for a logged-in or service account without a change plan."
+  },
+  {
+    "category": "Packages & Ansible",
+    "command": "apt show ansible",
+    "summary": "Inspect Ansible package metadata before installing.",
+    "parts": [
+      [
+        "apt",
+        "APT package-management frontend."
+      ],
+      [
+        "show",
+        "Display package details, dependencies and version."
+      ],
+      [
+        "ansible",
+        "Package to inspect."
+      ]
+    ],
+    "risk": "low",
+    "notes": "Read-only inspection; available version depends on configured repositories."
+  },
+  {
+    "category": "Inspection & verification",
+    "command": "ls -la ~/",
+    "summary": "Show hidden and visible files in the home directory.",
+    "parts": [
+      [
+        "ls",
+        "List directory entries."
+      ],
+      [
+        "-l",
+        "Long format including permissions, owner and size."
+      ],
+      [
+        "-a",
+        "Include hidden entries whose names begin with a dot."
+      ],
+      [
+        "~/",
+        "Current user's home directory."
+      ]
+    ],
+    "risk": "low",
+    "notes": "Read-only command. Be careful sharing output that exposes sensitive filenames."
+  }
 ];
 const TECHS = [
   {
