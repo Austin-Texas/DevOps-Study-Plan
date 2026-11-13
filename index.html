@@ -2561,6 +2561,14 @@ function renderLinuxCommandNotebook() {
     .linux-input-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}.linux-input-columns>div{min-width:0}.linux-destination-panel{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--bg-section);box-sizing:border-box}.linux-destination-panel strong{font-size:12px;color:var(--txt-muted)}#linux-destination-name{font-size:17px;font-weight:750;margin-top:10px}#linux-destination-help{font-size:12px;color:var(--txt-secondary);margin-top:8px}@media(max-width:850px){.linux-input-columns{grid-template-columns:1fr}}
 .linux-destination-panel.is-saved{background:#dcfce7!important;border-color:#86efac!important;color:#166534!important}.linux-destination-panel.is-saved strong,.linux-destination-panel.is-saved p{color:#166534!important}
     .linux-extra-notes{margin-top:12px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--bg-elevated)}.linux-extra-notes>summary{cursor:pointer;font-weight:700}.linux-extra-notes textarea{width:100%;min-height:190px;resize:vertical;box-sizing:border-box;padding:12px;margin-top:12px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary);font:13px/1.5 monospace}
+    /* Independent columns: opening the original reference or notes must not
+       shift the command category cards in the opposite column. */
+    .linux-input-columns{align-items:start!important;grid-auto-rows:min-content}
+    .linux-input-columns>div{align-self:start;min-height:0}
+    .linux-input-columns #linux-command-results{width:100%;min-width:0}
+    .linux-input-columns #linux-original-reference{max-width:100%;min-width:0}
+    .linux-input-columns #linux-original-reference .code-block-wrap{max-height:390px;overflow:auto}
+    .linux-input-columns #linux-original-reference pre{max-height:320px;overflow:auto}
     /* Two balanced notebook panels side-by-side, stacking only on smaller screens */
     .linux-notebook-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
     .linux-notebook-panels > *{min-width:0}
