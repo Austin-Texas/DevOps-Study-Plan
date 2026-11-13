@@ -2492,10 +2492,44 @@ function escapeHtml(str) {
 
 
 // ─── LINUX COMMAND NOTEBOOK ───
+function explainCommonLinuxCommand(command) {
+  const trimmed = command.trim().replace(/\\s+/g, ' ');
+  const words = trimmed.split(' ');
+  const base = words[0];
+  const dictionary = {
+    ls: {meaning:'Shows files and folders. Use it to inspect what is in a directory without changing anything.',use:'Checking directory contents, file permissions, owners and timestamps.',example:'ls -lah /var/log',risk:'low',flags:{'-l':'Long format: show permissions, owner, size and modification date.','-a':'Include hidden files whose names start with a dot.','-h':'Show file sizes in easy-to-read units such as KB and MB.','-R':'List subdirectories recursively.','-t':'Sort by modification time.','-r':'Reverse the sort order.','-S':'Sort by file size.'}},
+    pwd:{meaning:'Prints the full path of the directory you are currently in.',use:'Confirming your location before reading or changing files.',example:'pwd',risk:'low',flags:{}},
+    whoami:{meaning:'Shows which user account your current command is running as.',use:'Checking whether you are root or a regular user.',example:'whoami',risk:'low',flags:{}},
+    cd:{meaning:'Moves your shell into another directory.',use:'Navigating to a project folder or your home directory.',example:'cd ~/projects',risk:'low',flags:{}},
+    cat:{meaning:'Prints the contents of a text file in your terminal.',use:'Quickly checking small configuration or log files.',example:'cat /etc/os-release',risk:'low',flags:{'-n':'Show line numbers.'}},
+    mkdir:{meaning:'Creates a new directory.',use:'Organizing files or setting up project folders.',example:'mkdir -p ~/projects/demo',risk:'medium',flags:{'-p':'Create missing parent directories and do not error if the directory exists.'}},
+    grep:{meaning:'Searches text for matching lines.',use:'Finding errors or specific settings in logs and configuration files.',example:'grep -n error app.log',risk:'low',flags:{'-i':'Ignore letter case.','-n':'Show line numbers.','-r':'Search directories recursively.','-v':'Show lines that do not match.'}},
+    df:{meaning:'Shows how much space is available on mounted filesystems.',use:'Checking whether a Linux server is running out of disk space.',example:'df -h',risk:'low',flags:{'-h':'Display disk sizes in human-readable units.','-T':'Include filesystem types.'}},
+    du:{meaning:'Estimates how much disk space files or directories use.',use:'Finding large directories before cleaning up storage.',example:'du -sh /var/log',risk:'low',flags:{'-s':'Show only a total for each argument.','-h':'Use readable size units.'}},
+    rm:{meaning:'Deletes files or directories. This may be irreversible.',use:'Removing confirmed unwanted files after checking the target and backups.',example:'rm -i old-file.txt',risk:'high',flags:{'-r':'Recursively remove directories and their contents.','-f':'Force removal and suppress most prompts.','-i':'Ask before removing files.'}},
+    chmod:{meaning:'Changes file or directory permission bits.',use:'Granting or restricting read, write and execute permissions.',example:'chmod 640 config.txt',risk:'medium',flags:{'-R':'Apply changes recursively to a directory tree.'}},
+    chown:{meaning:'Changes ownership of files or directories.',use:'Correcting ownership for service accounts or application folders.',example:'sudo chown user:group file.txt',risk:'medium',flags:{'-R':'Change ownership recursively.'}}
+  };
+  const d = dictionary[base];
+  if (!d) return null;
+  const parts = [[base,d.meaning]];
+  const flags = words.slice(1).filter(w=>w.startsWith('-') && w !== '--');
+  for (const flag of flags) {
+    if (d.flags[flag]) parts.push([flag,d.flags[flag]]);
+    else if (/^-[a-zA-Z]{2,}$/.test(flag)) {
+      for (const letter of flag.slice(1)) {
+        const key = '-'+letter;
+        parts.push([key,d.flags[key] || 'This option needs manual verification in the command manual.']);
+      }
+    } else parts.push([flag,'Verify this option in the manual (man '+base+').']);
+  }
+  for (const arg of words.slice(1).filter(w=>!w.startsWith('-'))) parts.push([arg,'Command argument or path: identifies what the command operates on.']);
+  return {category:'My commands · explained',command:trimmed,summary:d.meaning,parts,risk:d.risk,notes:'When to use it: '+d.use+' Example: '+d.example+' . Review the example before using it on a production server.',example:d.example};
+}
 function getLinuxNotebookEntries() {
   let saved = [];
   try { saved = JSON.parse(localStorage.getItem('linux-notebook-custom-v1') || '[]'); } catch (_) {}
-  return [...LINUX_COMMAND_NOTEBOOK, ...(Array.isArray(saved) ? saved.filter(e => e && typeof e.command === 'string') : [])];
+  return [...LINUX_COMMAND_NOTEBOOK, ...(Array.isArray(saved) ? saved.filter(e => e && typeof e.command === 'string').map(e => explainCommonLinuxCommand(e.command) || e) : [])];
 }
 function renderLinuxCommandNotebook() {
   const entries = getLinuxNotebookEntries();
@@ -2506,23 +2540,23 @@ function renderLinuxCommandNotebook() {
       <input id="linux-command-add" aria-label="New Linux command" required autocomplete="off" placeholder="Type a Linux command and press Enter…" style="flex:1;min-width:220px;padding:12px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary)">
       <button type="submit" class="tab-btn active" style="padding:10px 18px">+ Add</button>
     </form>
-    <p id="linux-command-status" aria-live="polite" style="font-size:12px;color:var(--txt-muted);margin-top:8px">New commands save in this browser. Automatic AI explanations require a connected backend; they are not generated by this page yet.</p>
+    <p id="linux-command-status" aria-live="polite" style="font-size:12px;color:var(--txt-muted);margin-top:8px">New commands save in this browser. Common commands get built-in explanations; other commands need a connected AI backend.</p>
     <input id="linux-command-search" type="search" placeholder="Filter saved commands…" aria-label="Filter commands" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary);margin-top:12px">
   </div><div id="linux-command-results">`;
   entries.forEach((entry,i) => {
     const haystack = [entry.command,entry.category,entry.summary,entry.notes,...(entry.parts||[]).flat()].join(' ').toLowerCase();
-    const risk = entry.risk === 'high' ? '#dc2626' : entry.risk === 'medium' ? '#b45309' : '#16a34a';
+    const risk = entry.risk === 'high' ? '#dc2626' : entry.risk === 'medium' ? '#b45309' : entry.risk === 'unreviewed' ? '#b45309' : '#16a34a';
     html += `<details class="linux-command-entry" data-search="${escapeHtml(haystack)}" style="margin-bottom:8px;border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated);overflow:hidden">
       <summary style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;flex-wrap:wrap">
         <code style="font-size:13px;font-weight:700;flex:1;overflow-wrap:anywhere">${escapeHtml(entry.command)}</code>
         <span style="font-size:11px;color:${risk};font-weight:700">${escapeHtml(entry.risk||'unreviewed').toUpperCase()}</span>
         <span style="font-size:12px;color:var(--txt-muted)">Details ▾</span>
       </summary>
-      <div style="padding:4px 14px 16px;border-top:1px solid var(--border)">
-        <p style="font-size:13px;margin:12px 0">${escapeHtml(entry.summary||'Explanation pending. This command was saved locally; no AI service is connected.')}</p>
-        ${entry.parts && entry.parts.length ? `<div style="overflow-x:auto"><table class="kb-table"><thead><tr><th>Token / flag</th><th>Meaning</th></tr></thead><tbody>${entry.parts.map(p=>`<tr><td><code>${escapeHtml(p[0])}</code></td><td>${escapeHtml(p[1])}</td></tr>`).join('')}</tbody></table></div>` : '<p style="font-size:12px;color:var(--txt-muted)">Flag-by-flag analysis awaits AI backend integration.</p>'}
-        <div class="kb-note" style="margin-top:10px;font-size:13px">${escapeHtml(entry.notes||'Do not execute unfamiliar commands, especially with sudo, rm, or destructive options, until verified.')}</div>
-        <div class="code-block-wrap" style="margin-top:10px"><div class="code-block-header"><span class="code-block-lang">Command example</span><button class="copy-btn" type="button">Copy</button></div><pre>${escapeHtml(entry.command)}</pre></div>
+      <div style="padding:12px 16px 18px;border-top:1px solid var(--border);max-width:740px;margin:0 auto">
+        <p style="font-size:13px;margin:12px 0"><strong>What does it do?</strong><br>${escapeHtml(entry.summary||'Explanation pending. This command was saved locally; no AI service is connected.')}</p>
+        ${entry.parts && entry.parts.length ? `<div style="overflow-x:auto"><p style="font-size:13px;font-weight:700;margin:12px 0 6px">What each part means</p><table class="kb-table"><thead><tr><th>Token / flag</th><th>Meaning</th></tr></thead><tbody>${entry.parts.map(p=>`<tr><td><code>${escapeHtml(p[0])}</code></td><td>${escapeHtml(p[1])}</td></tr>`).join('')}</tbody></table></div>` : '<p style="font-size:12px;color:var(--txt-muted)">Flag-by-flag analysis awaits AI backend integration.</p>'}
+        <div class="kb-note" style="margin-top:10px;font-size:13px;line-height:1.65">${escapeHtml(entry.notes||'Do not execute unfamiliar commands, especially with sudo, rm, or destructive options, until verified.')}</div>
+        <div class="code-block-wrap" style="margin-top:10px"><div class="code-block-header"><span class="code-block-lang">Command example</span><button class="copy-btn" type="button">Copy</button></div><pre>${escapeHtml(entry.example||entry.command)}</pre></div>
       </div>
     </details>`;
   });
@@ -2838,7 +2872,7 @@ function attachTechEventListeners(tech) {
       let saved = [];
       try { saved = JSON.parse(localStorage.getItem('linux-notebook-custom-v1') || '[]'); } catch (_) {}
       if (!Array.isArray(saved)) saved = [];
-      saved.push({category:'My commands',command,summary:'Saved command — explanation pending AI backend integration.',parts:[],risk:'unreviewed',notes:'Not reviewed. Verify the command and flags before running it on a real machine.'});
+      saved.push(explainCommonLinuxCommand(command) || {category:'My commands',command,summary:'Saved command — explanation pending AI backend integration.',parts:[],risk:'unreviewed',notes:'Not reviewed. Verify the command and flags before running it on a real machine.'});
       try { localStorage.setItem('linux-notebook-custom-v1', JSON.stringify(saved)); }
       catch (_) { document.getElementById('linux-command-status').textContent = 'Browser storage is unavailable; this command could not be saved.'; return; }
       render();
