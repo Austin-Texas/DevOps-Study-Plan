@@ -696,6 +696,22 @@ pre {
 .tech-unified-panel .resource-card,.tech-unified-panel .project-card{max-width:100%}
 .tech-unified-panel .phase-card{margin-bottom:12px}
 @media(max-width:768px){.tech-command-grid{grid-template-columns:1fr}.tech-unified-panel{padding:14px}}
+
+/* Ansible notebook follows the approved Linux two-column visual system. */
+.ans-notebook{background:var(--bg-elevated);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow-card)}
+.ans-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.ans-columns>section{min-width:0}.ans-field{width:100%;box-sizing:border-box;padding:13px;border:1px solid var(--border);border-radius:11px;background:var(--bg-section);color:var(--txt-primary);font:inherit}
+.ans-row{display:flex;gap:8px}.ans-btn{padding:10px 14px;border:1px solid var(--border);border-radius:11px;background:var(--bg-elevated);color:var(--txt-primary);cursor:pointer;font-weight:700}
+.ans-status{padding:15px;border-radius:12px;background:var(--bg-section);border:1px solid var(--border);margin-bottom:12px}
+.ans-status.saved{background:#dcfce7;color:#166534;border-color:#86efac}.ans-status.duplicate{background:#ffedd5;color:#9a3412;border-color:#fdba74}
+.ans-cat{border:1px solid var(--border);border-radius:13px;background:var(--bg-elevated);margin:10px 0;overflow:hidden}.ans-cat summary{cursor:pointer;padding:15px;font-weight:750;display:flex;justify-content:space-between}.ans-cat summary::marker{color:var(--txt-muted)}
+.ans-card{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);min-width:0}
+.ans-card code{flex:1;overflow-wrap:anywhere;white-space:pre-wrap;font-size:12px}.ans-card button{border:0;background:transparent;cursor:pointer;color:var(--txt-secondary)}
+.ans-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:9px;padding:0 12px 12px}
+.ans-notebook textarea{min-height:90px;resize:vertical}.ans-notebook details>summary{cursor:pointer}
+.ans-modal-backdrop{position:fixed;inset:0;background:#17203377;backdrop-filter:blur(5px);z-index:9998;display:grid;place-items:center;padding:16px}
+.ans-modal{background:var(--bg-elevated);color:var(--txt-primary);border-radius:20px;padding:22px;width:min(620px,95vw);max-height:85vh;overflow:auto;box-shadow:0 20px 60px #0003}
+@media(max-width:850px){.ans-columns{grid-template-columns:1fr}}
 </style>
 </head>
 <body data-id="0">
@@ -2810,6 +2826,73 @@ function renderLinuxCommandNotebook() {
   return html;
 }
 
+
+function ansGet(key,fallback){try{return JSON.parse(localStorage.getItem('ans-notebook-'+key))??fallback}catch(e){return fallback}}
+function ansSet(key,value){localStorage.setItem('ans-notebook-'+key,JSON.stringify(value))}
+function ansCategory(command){
+ const c=command.trim().toLowerCase().replace(/^sudo\\s+/,'');
+ if(/^ansible-playbook\\b/.test(c))return 'Playbooks';
+ if(/^ansible-galaxy\\b/.test(c))return 'Roles & collections';
+ if(/^ansible-vault\\b/.test(c))return 'Vault & secrets';
+ if(/^ansible-config\\b/.test(c))return 'Configuration';
+ if(/^ansible-inventory\\b/.test(c))return 'Inventory';
+ if(/^ansible-doc\\b/.test(c))return 'Documentation';
+ if(/^ansible-pull\\b/.test(c))return 'Pull mode';
+ if(/^ansible\\b/.test(c))return /--version|--help/.test(c)?'CLI & inspection':'Ad-hoc commands';
+ if(/^pip(3)?\\s+install\\s+ansible|^apt(-get)?\\s+install\\s+ansible/.test(c))return 'Installation';
+ return 'Other commands';
+}
+function ansEntries(tech){
+ const source=String(tech.commands||'').split('\\n').map(x=>x.trim()).filter(x=>x&&!x.startsWith('#')&&!/^=+$/.test(x));
+ const defaults=source.map((command,i)=>({id:'ref-'+i,command,summary:'',example:command}));
+ const changes=ansGet('changes',{});
+ return defaults.filter(x=>!changes[x.id]?.deleted).map(x=>({...x,...(changes[x.id]||{})})).concat(ansGet('added',[]));
+}
+function renderAnsibleNotebook(tech){
+ const entries=ansEntries(tech),groups={};
+ entries.forEach(e=>{(groups[ansCategory(e.command)]??=[]).push(e)});
+ const esc=x=>escapeHtml(String(x??''));
+ const notes=ansGet('notes',[]);
+ const status=window.ansNotebookStatus||null;
+ return `<div class="ans-notebook" id="ans-notebook"><h2 style="font-size:21px;font-weight:800;margin-bottom:7px">⌨️ Ansible Command Notebook</h2><p style="font-size:13px;color:var(--txt-muted);margin-bottom:16px">Save commands, browse expandable categories, edit examples and keep your own notes.</p>
+ <div class="ans-columns"><section>
+ <form id="ans-add" class="ans-row"><input id="ans-input" class="ans-field" placeholder="Type an Ansible command and press Enter…" required autocomplete="off"><button class="ans-btn">+ Add</button></form>
+ <p style="font-size:12px;color:var(--txt-muted);margin:8px 0 12px">Commands and notes save in this browser.</p>
+ <input id="ans-filter" class="ans-field" placeholder="Filter saved commands…">
+ <div id="ans-categories" style="margin-top:14px;background:var(--bg-section);border:1px solid var(--border);border-radius:16px;padding:12px">
+ ${Object.keys(groups).sort().map(g=>`<details class="ans-cat" data-ans-category="${esc(g)}"><summary><span>${esc(g)}</span><small>${groups[g].length} commands</small></summary><div class="ans-card-grid">${groups[g].map(e=>`<div class="ans-card" data-ans-search="${esc(e.command.toLowerCase())}"><code>${esc(e.command)}</code><button title="Open / edit" data-ans-open="${esc(e.id)}">✎</button><button title="Delete" data-ans-delete="${esc(e.id)}">🗑</button></div>`).join('')}</div></details>`).join('')}
+ </div></section><section><div class="ans-status ${status?.type||''}" id="ans-status"><small>Command category</small><h3 style="margin:9px 0">${esc(status?.title||'Type a command to see where it will be saved')}</h3><p style="font-size:12px">${esc(status?.detail||'Your command will appear under its matching expandable category.')}</p></div>
+ <details class="ans-cat"><summary>+ Add more notes</summary><div style="padding:12px">${notes.map((n,i)=>`<div class="ans-card" style="margin-bottom:8px"><span style="flex:1;white-space:pre-wrap;overflow-wrap:anywhere">${esc(n)}</span><button data-ans-note-edit="${i}">✎</button><button data-ans-note-delete="${i}">🗑</button></div>`).join('')}<form id="ans-note-form"><textarea id="ans-note-input" class="ans-field" placeholder="Write a new note…" required></textarea><button class="ans-btn">+ Add note</button></form></div></details>
+ <details class="ans-cat"><summary>Original Ansible command reference (preserved) · ✎ Editable</summary><div style="padding:12px"><div class="ans-row"><button class="ans-btn" data-ans-reference-edit type="button">✎ Edit</button><button class="ans-btn" data-ans-reference-copy type="button">Copy</button></div><pre id="ans-original-display" style="max-height:380px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:var(--bg-section);border-radius:10px">${esc(ansGet('reference',tech.commands))}</pre><form id="ans-reference-form" hidden><textarea id="ans-reference-text" class="ans-field">${esc(ansGet('reference',tech.commands))}</textarea><button class="ans-btn">Save reference</button><button class="ans-btn" type="button" data-ans-reference-cancel>Cancel</button></form></div></details>
+ </section></div><div id="ans-modal-root"></div></div>`;
+}
+function attachAnsibleNotebook(tech){
+ const root=document.getElementById('ans-notebook');if(!root)return;
+ const repaint=()=>{root.outerHTML=renderAnsibleNotebook(tech);attachAnsibleNotebook(tech)};
+ root.querySelector('#ans-add').onsubmit=e=>{e.preventDefault();const cmd=root.querySelector('#ans-input').value.trim();if(!cmd)return;
+ const entries=ansEntries(tech),normalized=x=>x.toLowerCase().replace(/\\s+/g,' ').trim();
+ const existing=entries.find(x=>normalized(x.command)===normalized(cmd));const category=ansCategory(cmd);
+ if(existing){window.ansNotebookStatus={type:'duplicate',title:'Already saved',detail:'Commands → Ansible → '+ansCategory(existing.command)+' → '+existing.command}}
+ else{const added=ansGet('added',[]);added.push({id:'custom-'+Date.now(),command:cmd,summary:'',example:cmd});ansSet('added',added);window.ansNotebookStatus={type:'saved',title:'✓ Command saved successfully',detail:'Commands → Ansible → '+category}}repaint();
+ };
+ root.querySelector('#ans-filter').oninput=e=>{const term=e.target.value.toLowerCase();root.querySelectorAll('.ans-cat[data-ans-category]').forEach(cat=>{let shown=0;cat.querySelectorAll('.ans-card').forEach(card=>{const match=card.dataset.ansSearch.includes(term);card.hidden=!match;if(match)shown++});cat.hidden=!shown;if(term)cat.open=true})};
+ root.querySelector('#ans-note-form').onsubmit=e=>{e.preventDefault();const n=root.querySelector('#ans-note-input').value.trim();if(n){const a=ansGet('notes',[]);a.push(n);ansSet('notes',a);repaint()}};
+ root.onclick=e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.hasAttribute('data-ans-delete')){if(!confirm('Delete this command?'))return;const id=b.dataset.ansDelete;if(id.startsWith('ref-')){const c=ansGet('changes',{});c[id]={...(c[id]||{}),deleted:true};ansSet('changes',c)}else ansSet('added',ansGet('added',[]).filter(x=>x.id!==id));repaint()}
+ if(b.hasAttribute('data-ans-note-delete')){const a=ansGet('notes',[]);a.splice(Number(b.dataset.ansNoteDelete),1);ansSet('notes',a);repaint()}
+ if(b.hasAttribute('data-ans-note-edit')){const a=ansGet('notes',[]),i=Number(b.dataset.ansNoteEdit);const n=prompt('Edit note',a[i]);if(n!==null){a[i]=n;ansSet('notes',a);repaint()}}
+ if(b.hasAttribute('data-ans-reference-edit')){root.querySelector('#ans-reference-form').hidden=false}
+ if(b.hasAttribute('data-ans-reference-cancel')){root.querySelector('#ans-reference-form').hidden=true}
+ if(b.hasAttribute('data-ans-reference-copy')){navigator.clipboard.writeText(root.querySelector('#ans-original-display').textContent);b.textContent='✓ Copied'}
+ if(b.hasAttribute('data-ans-open')){const item=ansEntries(tech).find(x=>x.id===b.dataset.ansOpen);if(!item)return;const modal=root.querySelector('#ans-modal-root');modal.innerHTML=`<div class="ans-modal-backdrop"><div class="ans-modal"><div class="ans-row" style="justify-content:space-between"><h3>Command details</h3><button class="ans-btn" data-ans-close>✕</button></div><div id="ans-modal-message"></div><form id="ans-edit"><label>Command<input class="ans-field" name="command" required value="${escapeHtml(item.command)}"></label><label>What does it do?<textarea class="ans-field" name="summary">${escapeHtml(item.summary||'')}</textarea></label><label>Example<input class="ans-field" name="example" value="${escapeHtml(item.example||item.command)}"></label><div class="ans-row"><button class="ans-btn">Save changes</button><button class="ans-btn" type="button" data-ans-close>Close</button></div></form></div></div>`;
+ modal.onclick=ev=>{if(ev.target.hasAttribute('data-ans-close')||ev.target.classList.contains('ans-modal-backdrop'))modal.innerHTML=''};
+ modal.querySelector('#ans-edit').onsubmit=ev=>{ev.preventDefault();const data=Object.fromEntries(new FormData(ev.target));if(item.id.startsWith('ref-')){const c=ansGet('changes',{});c[item.id]={...data};ansSet('changes',c)}else{const a=ansGet('added',[]);const ix=a.findIndex(x=>x.id===item.id);if(ix>=0){a[ix]={...a[ix],...data};ansSet('added',a)}}const currentModal=modal.innerHTML;repaint();const m=document.getElementById('ans-modal-root');m.innerHTML=currentModal;m.querySelector('#ans-modal-message').innerHTML='<p style="background:#dcfce7;color:#166534;padding:12px;border-radius:10px">✓ Changes saved successfully</p>';m.querySelector('#ans-edit').replaceWith(Object.assign(document.createElement('div'),{textContent:'Updated command: '+data.command}));m.querySelectorAll('[data-ans-close]').forEach(x=>x.onclick=()=>m.innerHTML='')};
+ }
+ };
+ root.querySelector('#ans-reference-form').onsubmit=e=>{e.preventDefault();ansSet('reference',root.querySelector('#ans-reference-text').value);window.ansNotebookStatus={type:'saved',title:'✓ Reference saved',detail:'Original Ansible reference updated in this browser'};repaint()};
+}
+
 // ─── TECH VIEW ───
 function renderTechView(tech) {
   const pct = getTechPct(tech.id);
@@ -2877,6 +2960,8 @@ function renderTechView(tech) {
   } else if (activeTechTab === 'commands') {
     if (tech.id === 'linux') {
       // Notebook is displayed beside the Linux Administration hero above.
+    } else if (tech.id === 'ansible') {
+      html += renderAnsibleNotebook(tech);
     } else {
       const lines = String(tech.commands || '').split('\n').map(line => line.trim()).filter(Boolean);
       const groups = [];
@@ -3124,6 +3209,7 @@ function attachTechEventListeners(tech) {
       render();
     });
   });
+  if (tech && tech.id === 'ansible' && activeTechTab === 'commands') attachAnsibleNotebook(tech);
   if (tech && tech.id === 'linux' && activeTechTab === 'commands') {
     const search = document.getElementById('linux-command-search');
     document.querySelectorAll('.linux-command-entry').forEach(card => {
