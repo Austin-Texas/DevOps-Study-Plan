@@ -2546,14 +2546,49 @@ function getLinuxNotebookEntries() {
 }
 function linuxNotebookCategory(entry) {
   const command = (entry.command || '').trim();
-  if (/^(?:sudo\s+)?(?:ls|find|stat|tree|du|df|file)\b/.test(command)) return 'Listing & inspection';
-  if (/^(?:sudo\s+)?(?:cd|pwd|realpath|readlink)\b/.test(command)) return 'Paths & navigation';
-  if (/^(?:sudo\s+)?(?:su|whoami|id|useradd|userdel|usermod|groups)\b/.test(command)) return 'Users & identity';
-  if (/^(?:sudo\s+)?(?:apt|apt-get|dpkg|snap)\b/.test(command)) return 'Package management';
-  if (/^(?:sudo\s+)?(?:ansible|ansible-playbook)\b/.test(command)) return 'Ansible';
-  if (/^(?:sudo\s+)?(?:rm|rmdir|unlink)\b/.test(command)) return 'Files & deletion';
-  if (/^(?:echo|printf)\b/.test(command)) return 'Shell & environment';
-  return entry.category || 'Other commands';
+  // Classify by executable rather than the saved entry's old "My commands" label.
+  // This also automatically reorganizes previously saved browser commands.
+  const tokens = command.split(/\s+/);
+  let pos = 0;
+  while (['sudo','env','command','nohup','time'].includes(tokens[pos])) {
+    pos++;
+    if (tokens[pos-1] === 'sudo') {
+      while (['-u','-g','-h','-p'].includes(tokens[pos])) pos += 2;
+      while (['-i','-H','-E','-n','-s','-k'].includes(tokens[pos])) pos++;
+    }
+  }
+  const executable = (tokens[pos] || '').split('/').pop().toLowerCase();
+  const categories = {
+    'Listing & inspection':'ls find stat tree du df file locate updatedb',
+    'Paths & navigation':'cd pwd realpath readlink dirname basename pushd popd dirs',
+    'Users & identity':'su whoami id useradd adduser userdel deluser usermod passwd groups groupadd groupdel chown chgrp sudo visudo',
+    'Package management':'apt apt-get apt-cache dpkg snap flatpak dnf yum rpm pacman zypper',
+    'Ansible':'ansible ansible-playbook ansible-galaxy ansible-vault ansible-inventory ansible-config',
+    'Files & deletion':'rm rmdir unlink shred',
+    'Files & directories':'cp mv mkdir touch install ln chmod rsync tar zip unzip gzip gunzip',
+    'Shell & environment':'echo printf export printenv env set unset alias unalias source bash sh zsh history',
+    'Process management':'ps top htop btop kill pkill killall nice renice pgrep jobs bg fg strace lsof',
+    'Disk & LVM':'lsblk mount umount fdisk parted blkid mkfs mkfs.xfs mkfs.ext4 pvcreate vgcreate lvcreate lvextend pvs vgs lvs xfs_growfs resize2fs',
+    'Networking':'ip ss netstat ping traceroute tracepath dig nslookup host curl wget tcpdump nmap nmcli ethtool',
+    'Services & logs':'systemctl service journalctl dmesg logger logrotate',
+    'SSH & remote access':'ssh scp sftp ssh-keygen ssh-copy-id',
+    'Containers & Docker':'docker docker-compose podman buildah',
+    'Kubernetes':'kubectl kubeadm helm k9s',
+    'Git & version control':'git gh',
+    'Terraform & IaC':'terraform tofu terragrunt',
+    'Cloud & AWS':'aws az gcloud',
+    'Text processing':'grep egrep fgrep awk sed cut sort uniq head tail wc tr tee xargs',
+    'Editors':'vim vi nano emacs',
+    'System information':'uname hostname hostnamectl uptime free lscpu lsusb lspci timedatectl date',
+    'Security & firewall':'ufw iptables nft firewall-cmd sestatus getenforce openssl',
+    'Scheduling':'crontab at',
+    'Python & scripting':'python python3 pip pip3 node npm'
+  };
+  for (const [category, names] of Object.entries(categories)) {
+    if (names.split(' ').includes(executable)) return category;
+  }
+  // Unknown executables get their own expandable category, instead of "My commands".
+  return executable ? 'Other · ' + executable : 'Other commands';
 }
 function renderLinuxCommandNotebook() {
   const entries = getLinuxNotebookEntries();
@@ -3256,7 +3291,7 @@ function attachTechEventListeners(tech) {
       let saved = [];
       try { saved = JSON.parse(localStorage.getItem('linux-notebook-custom-v1') || '[]'); } catch (_) {}
       if (!Array.isArray(saved)) saved = [];
-      saved.push(explainCommonLinuxCommand(command) || {category:'My commands',command,summary:'Saved command — explanation pending AI backend integration.',parts:[],risk:'unreviewed',notes:'Not reviewed. Verify the command and flags before running it on a real machine.'});
+      saved.push(explainCommonLinuxCommand(command) || {category:linuxNotebookCategory({command}),command,summary:'Saved command — explanation pending AI backend integration.',parts:[],risk:'unreviewed',notes:'Not reviewed. Verify the command and flags before running it on a real machine.'});
       try { localStorage.setItem('linux-notebook-custom-v1', JSON.stringify(saved)); }
       catch (_) { document.getElementById('linux-command-status').textContent = 'Browser storage is unavailable; this command could not be saved.'; return; }
       const category = linuxNotebookCategory({command});
