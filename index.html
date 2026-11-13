@@ -2884,7 +2884,7 @@ function renderTechView(tech) {
       for (const line of lines) {
         if (/^#{1,5}\s*[^#]/.test(line) || /^={3,}.*={3,}$/.test(line)) {
           if (group.commands.length) groups.push(group);
-          group = {title: line.replace(/^#+\\s*|\\s*#+$/g,'').replace(/^=+|=+$/g,'').trim(), commands: []};
+          group = {title: line.replace(/^#+\s*|\s*#+$/g,'').replace(/^=+|=+$/g,'').trim(), commands: []};
         } else if (!line.startsWith('#') && !line.startsWith('//')) {
           group.commands.push(line);
         }
