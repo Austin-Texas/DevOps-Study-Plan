@@ -2574,6 +2574,7 @@ function linuxNotebookCategory(entry) {
         if (opt === '--user' || opt === '--group') { pos += 2; continue; }
         break;
       }
+      if (loginSwitch && (pos >= tokens.length || (pos === tokens.length - 1 && !/^(?:[a-z][\w.-]*\/)/i.test(tokens[pos])))) return 'Users & identity';
       if (pos >= tokens.length) return 'Users & identity';
       continue;
     }
@@ -3311,15 +3312,28 @@ function attachTechEventListeners(tech) {
       document.getElementById('linux-destination-name').textContent = command ? linuxNotebookCategory({command}) : 'Type a command to see where it will be saved';
       document.getElementById('linux-destination-help').textContent = command ? 'This command will be saved under this category.' : 'Your command will appear under its matching expandable category below.';
     });
+    function showLinuxExisting(command) {
+      const found = getLinuxNotebookEntries().find(e => e.command.trim().toLowerCase() === command.toLowerCase());
+      if (!found) return false;
+      const category = linuxNotebookCategory(found);
+      const status = document.getElementById('linux-command-status');
+      status.textContent = 'ℹ Command already available — not saved again.';
+      status.style.color = '#1d4ed8';
+      const panel = document.querySelector('.linux-destination-panel');
+      panel?.classList.remove('is-saved');
+      document.getElementById('linux-destination-name').textContent = 'Already saved under: ' + category;
+      document.getElementById('linux-destination-help').textContent = 'Location: Commands → ' + category + ' → ' + found.command + '. Expand this category below to find the existing card.';
+      const groups = [...document.querySelectorAll('.linux-command-category')];
+      const target = groups.find(g => g.querySelector('summary')?.textContent.includes(category));
+      if (target) target.open = true;
+      return true;
+    }
     if (addForm) addForm.addEventListener('submit', function(event) {
       event.preventDefault();
       const field = document.getElementById('linux-command-add');
       const command = field.value.trim();
       if (!command) return;
-      if (getLinuxNotebookEntries().some(e => e.command.trim() === command)) {
-        document.getElementById('linux-command-status').textContent = 'This command already exists in your notebook.';
-        return;
-      }
+      if (showLinuxExisting(command)) return;
       let saved = [];
       try { saved = JSON.parse(localStorage.getItem('linux-notebook-custom-v1') || '[]'); } catch (_) {}
       if (!Array.isArray(saved)) saved = [];
@@ -3331,7 +3345,8 @@ function attachTechEventListeners(tech) {
       document.querySelector('.linux-destination-panel')?.classList.add('is-saved');
       document.getElementById('linux-destination-name').textContent = '✓ Saved under: ' + category;
       document.getElementById('linux-destination-help').textContent = 'Open the ' + category + ' category below to find your command.';
-      document.getElementById('linux-command-status').textContent = '✓ Command saved successfully.';
+      document.getElementById('linux-command-status').textContent = '✓ Command saved successfully. Location: Commands → ' + category + ' → ' + command;
+      document.getElementById('linux-command-status').style.color = '#166534';
     });
     if (search) search.addEventListener('input', function() {
       const query = this.value.trim().toLowerCase();
