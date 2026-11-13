@@ -2559,6 +2559,8 @@ function renderLinuxCommandNotebook() {
   const entries = getLinuxNotebookEntries();
   let html = `<style>
     .linux-input-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}.linux-input-columns>div{min-width:0}.linux-destination-panel{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--bg-section);box-sizing:border-box}.linux-destination-panel strong{font-size:12px;color:var(--txt-muted)}#linux-destination-name{font-size:17px;font-weight:750;margin-top:10px}#linux-destination-help{font-size:12px;color:var(--txt-secondary);margin-top:8px}@media(max-width:850px){.linux-input-columns{grid-template-columns:1fr}}
+.linux-destination-panel.is-saved{background:#dcfce7!important;border-color:#86efac!important;color:#166534!important}.linux-destination-panel.is-saved strong,.linux-destination-panel.is-saved p{color:#166534!important}
+    .linux-extra-notes{margin-top:12px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--bg-elevated)}.linux-extra-notes>summary{cursor:pointer;font-weight:700}.linux-extra-notes textarea{width:100%;min-height:190px;resize:vertical;box-sizing:border-box;padding:12px;margin-top:12px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary);font:13px/1.5 monospace}
     /* Two balanced notebook panels side-by-side, stacking only on smaller screens */
     .linux-notebook-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
     .linux-notebook-panels > *{min-width:0}
@@ -2644,6 +2646,7 @@ function renderLinuxCommandNotebook() {
       <button type="submit" class="tab-btn active" style="padding:10px 18px">+ Add</button>
     </form>
     <p id="linux-command-status" aria-live="polite" style="font-size:12px;color:var(--txt-muted);margin-top:8px">New commands save in this browser. Common commands get built-in explanations; other commands need a connected AI backend.</p>
+    <details class="linux-extra-notes" id="linux-extra-notes"><summary>＋ Add more notes</summary><form id="linux-extra-notes-form"><textarea id="linux-extra-notes-editor" placeholder="Write your Linux notes here. You can edit them any time."></textarea><div style="display:flex;gap:8px;margin-top:8px"><button type="submit" class="tab-btn active">Save notes</button><button type="button" id="linux-extra-notes-cancel" class="tab-btn">Cancel</button></div><p id="linux-extra-notes-status" role="status" style="font-size:12px;margin-top:8px;color:var(--txt-secondary)">Notes are stored in this browser.</p></form></details>
     <input id="linux-command-search" type="search" placeholder="Filter saved commands…" aria-label="Filter commands" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary);margin-top:12px">
 </div><div class="linux-destination-panel"><strong>Command category</strong><div id="linux-destination-name">Type a command to see where it will be saved</div><p id="linux-destination-help">Your command will appear under its matching expandable category below.</p></div></div>
   <div class="linux-notebook-panels"><div id="linux-command-results">`;
@@ -3143,11 +3146,27 @@ function attachTechEventListeners(tech) {
       refDisplay.textContent = TECHS.find(t=>t.id==='linux').commands;
       showRefEditor(false);
     });
+    const notesEditor = document.getElementById('linux-extra-notes-editor');
+    if (notesEditor) {
+      notesEditor.value = localStorage.getItem('linux-extra-notes-v1') || '';
+      document.getElementById('linux-extra-notes-form')?.addEventListener('submit', event => {
+        event.preventDefault();
+        try { localStorage.setItem('linux-extra-notes-v1',notesEditor.value); }
+        catch (_) { document.getElementById('linux-extra-notes-status').textContent = 'Unable to save notes in this browser.'; return; }
+        document.getElementById('linux-extra-notes-status').textContent = '✓ Notes saved successfully';
+      });
+      document.getElementById('linux-extra-notes-cancel')?.addEventListener('click', () => {
+        notesEditor.value = localStorage.getItem('linux-extra-notes-v1') || '';
+        document.getElementById('linux-extra-notes').open = false;
+      });
+    }
     const addForm = document.getElementById('linux-command-add-form');
     const newField = document.getElementById('linux-command-add');
     if (newField) newField.addEventListener('input', function() {
       const command = this.value.trim();
+      document.querySelector('.linux-destination-panel')?.classList.remove('is-saved');
       document.getElementById('linux-destination-name').textContent = command ? linuxNotebookCategory({command}) : 'Type a command to see where it will be saved';
+      document.getElementById('linux-destination-help').textContent = command ? 'This command will be saved under this category.' : 'Your command will appear under its matching expandable category below.';
     });
     if (addForm) addForm.addEventListener('submit', function(event) {
       event.preventDefault();
@@ -3166,7 +3185,8 @@ function attachTechEventListeners(tech) {
       catch (_) { document.getElementById('linux-command-status').textContent = 'Browser storage is unavailable; this command could not be saved.'; return; }
       const category = linuxNotebookCategory({command});
       render();
-      document.getElementById('linux-destination-name').textContent = 'Saved under: ' + category;
+      document.querySelector('.linux-destination-panel')?.classList.add('is-saved');
+      document.getElementById('linux-destination-name').textContent = '✓ Saved under: ' + category;
       document.getElementById('linux-destination-help').textContent = 'Open the ' + category + ' category below to find your command.';
       document.getElementById('linux-command-status').textContent = '✓ Command saved successfully.';
     });
