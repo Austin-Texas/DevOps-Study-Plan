@@ -735,6 +735,218 @@ pre {
 
 <script>
 // ─── DATA ───
+const LINUX_COMMAND_NOTEBOOK = [
+  {
+    "category": "Users & identity",
+    "command": "su - hakkari",
+    "summary": "Switch to user hakkari with a full login environment.",
+    "parts": [
+      [
+        "su",
+        "Switch user (no option)."
+      ],
+      [
+        "-",
+        "Login-shell option: load the target user's environment and use their home directory."
+      ],
+      [
+        "hakkari",
+        "Target username; requires authorization and usually that user's password, unless invoked by root."
+      ]
+    ],
+    "risk": "low",
+    "notes": "Verify with whoami, pwd, and echo $HOME. On systems where direct su is restricted, use sudo -iu hakkari if authorized."
+  },
+  {
+    "category": "Paths & navigation",
+    "command": "cd ~/",
+    "summary": "Change to the current user's home directory.",
+    "parts": [
+      [
+        "cd",
+        "Shell built-in: change directory."
+      ],
+      [
+        "~/",
+        "Tilde expands to the current user's home directory; the trailing / is a path separator, not a flag."
+      ]
+    ],
+    "risk": "low",
+    "notes": "~/ on its own is a path expression, not a command. Use cd ~/ to navigate. cd ~hakkari/ targets hakkari's home when it exists."
+  },
+  {
+    "category": "Files & deletion",
+    "command": "sudo rm -rf /home/username/",
+    "summary": "Recursively and forcibly delete a user-home directory and everything beneath it.",
+    "parts": [
+      [
+        "sudo",
+        "Execute with elevated privileges after permission checks."
+      ],
+      [
+        "rm",
+        "Remove files and directories."
+      ],
+      [
+        "-r",
+        "Recursive: traverse and remove directories and their contents."
+      ],
+      [
+        "-f",
+        "Force: ignore nonexistent paths and suppress most confirmation prompts; it does not make deletion recoverable."
+      ],
+      [
+        "/home/username/",
+        "Absolute target path; placeholder must never be copied to a real system without deliberate validation."
+      ]
+    ],
+    "risk": "high",
+    "notes": "DANGEROUS / DESTRUCTIVE. Do not execute on production hosts or use for routine account removal. Preview the target with ls -ld -- /home/username/ and find /home/username/ -maxdepth 2 -print; confirm backups and rollback. For account management, review sudo userdel -r username separately after checking running processes and data ownership."
+  },
+  {
+    "category": "Packages & Ansible",
+    "command": "sudo apt install ansible",
+    "summary": "Install the Ansible package from configured APT repositories on Debian/Ubuntu.",
+    "parts": [
+      [
+        "sudo",
+        "Run package management with administrative privileges."
+      ],
+      [
+        "apt",
+        "APT package-management frontend."
+      ],
+      [
+        "install",
+        "Subcommand: resolve dependencies and install the named package."
+      ],
+      [
+        "ansible",
+        "Name of the software package; not a flag."
+      ]
+    ],
+    "risk": "medium",
+    "notes": "Inspect proposed package changes before confirming. Usually run sudo apt update first if package indexes are stale; verify with ansible --version. On some systems use an isolated Python environment if a newer Ansible release is required."
+  },
+  {
+    "category": "Inspection & verification",
+    "command": "whoami",
+    "summary": "Display the effective username of the current process.",
+    "parts": [
+      [
+        "whoami",
+        "Outputs current effective user; no flags here."
+      ]
+    ],
+    "risk": "low",
+    "notes": "Useful immediately after su - hakkari."
+  },
+  {
+    "category": "Inspection & verification",
+    "command": "pwd",
+    "summary": "Print the current working directory.",
+    "parts": [
+      [
+        "pwd",
+        "Print working directory; no flags here."
+      ]
+    ],
+    "risk": "low",
+    "notes": "Confirm cd ~/ or a new login shell changed directory."
+  },
+  {
+    "category": "Inspection & verification",
+    "command": "ls -ld -- /home/username/",
+    "summary": "Inspect a directory itself instead of listing its contents.",
+    "parts": [
+      [
+        "ls",
+        "List filesystem metadata."
+      ],
+      [
+        "-l",
+        "Long listing with permissions, ownership, and timestamps."
+      ],
+      [
+        "-d",
+        "List the directory itself rather than its contents."
+      ],
+      [
+        "--",
+        "Terminate options to prevent path names being interpreted as flags."
+      ],
+      [
+        "/home/username/",
+        "Directory to inspect."
+      ]
+    ],
+    "risk": "low",
+    "notes": "Read-only check before considering any deletion."
+  },
+  {
+    "category": "Inspection & verification",
+    "command": "find /home/username/ -maxdepth 2 -print",
+    "summary": "Preview file and directory names within two levels of the target.",
+    "parts": [
+      [
+        "find",
+        "Walk a directory tree."
+      ],
+      [
+        "/home/username/",
+        "Search root."
+      ],
+      [
+        "-maxdepth 2",
+        "Limit traversal to depth two; deeper contents are not shown."
+      ],
+      [
+        "-print",
+        "Print each matched path."
+      ]
+    ],
+    "risk": "low",
+    "notes": "Read-only preview; it does not inventory deeply nested content. Avoid exposing sensitive filenames in shared logs."
+  },
+  {
+    "category": "Packages & Ansible",
+    "command": "sudo apt update",
+    "summary": "Refresh repository package indexes; does not itself upgrade installed packages.",
+    "parts": [
+      [
+        "sudo",
+        "Elevate privileges."
+      ],
+      [
+        "apt",
+        "Package management frontend."
+      ],
+      [
+        "update",
+        "Refresh the package metadata cache."
+      ]
+    ],
+    "risk": "medium",
+    "notes": "On managed hosts, follow the organization's patch-control process."
+  },
+  {
+    "category": "Packages & Ansible",
+    "command": "ansible --version",
+    "summary": "Print installed Ansible version and its runtime details.",
+    "parts": [
+      [
+        "ansible",
+        "Ansible CLI executable."
+      ],
+      [
+        "--version",
+        "Display version and exit."
+      ]
+    ],
+    "risk": "low",
+    "notes": "If not found, check installation and PATH."
+  }
+];
 const TECHS = [
   {
     id:'linux', name:'Linux Administration', emoji:'🐧', color:'#f97316', hours:60, level:'Beginner→Advanced',
@@ -2168,6 +2380,44 @@ function escapeHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+
+// ─── LINUX COMMAND NOTEBOOK ───
+function renderLinuxCommandNotebook() {
+  const riskStyle = {
+    low: 'color:#16a34a;background:rgba(22,163,74,.09)',
+    medium: 'color:#b45309;background:rgba(245,158,11,.1)',
+    high: 'color:#dc2626;background:rgba(220,38,38,.1)'
+  };
+  let html = `<div style="margin-bottom:18px;padding:18px;border:1px solid var(--border);background:var(--bg-elevated);border-radius:var(--r-lg);">
+    <h3 style="font-size:18px;font-weight:800;color:var(--txt-primary);">📓 Linux Command Notebook</h3>
+    <p style="color:var(--txt-secondary);font-size:13px;margin-top:5px;">Explained Linux commands, every flag and argument, safe verification steps and production-impact warnings. Use this living notebook as your command reference.</p>
+    <p style="color:var(--txt-muted);font-size:12px;margin-top:8px;">Source notebook: <a style="color:var(--accent);" href="https://github.com/Austin-Texas/DevOps-Study-Plan/blob/main/knowledge/linux/command-notebook.md" target="_blank" rel="noopener">knowledge/linux/command-notebook.md</a></p>
+    <input id="linux-command-search" type="search" placeholder="Search commands, flags, purposes..." aria-label="Search Linux commands" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-section);color:var(--txt-primary);font-size:14px;margin-top:14px;">
+  </div>`;
+  html += `<div id="linux-command-results">`;
+  for (const [i, entry] of LINUX_COMMAND_NOTEBOOK.entries()) {
+    const haystack = [entry.command, entry.category, entry.summary, entry.notes, ...entry.parts.flat()].join(' ').toLowerCase();
+    html += `<article class="linux-command-entry" data-search="${escapeHtml(haystack)}" style="padding:18px;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-elevated);">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:space-between;">
+        <span style="color:var(--txt-muted);font-size:12px;font-weight:700;">${escapeHtml(entry.category)}</span>
+        <span style="font-size:11px;font-weight:800;border-radius:999px;padding:4px 9px;${riskStyle[entry.risk]}">${entry.risk.toUpperCase()} RISK</span>
+      </div>
+      <div class="code-block-wrap" style="margin-top:10px;">
+        <div class="code-block-header"><span class="code-block-lang">Shell · ${i+1}</span><button class="copy-btn">Copy</button></div>
+        <pre>${escapeHtml(entry.command)}</pre>
+      </div>
+      <p style="color:var(--txt-secondary);font-size:13px;margin-top:10px;">${escapeHtml(entry.summary)}</p>
+      <div style="overflow-x:auto;margin-top:12px;"><table class="kb-table"><thead><tr><th>Token / flag</th><th>Meaning</th></tr></thead><tbody>
+        ${entry.parts.map(part => `<tr><td><code>${escapeHtml(part[0])}</code></td><td>${escapeHtml(part[1])}</td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="kb-note" style="margin-top:12px;font-size:13px;">${entry.risk === 'high' ? '⚠️ ' : '💡 '}${escapeHtml(entry.notes)}</div>
+    </article>`;
+  }
+  html += `</div><p id="linux-command-empty" style="display:none;color:var(--txt-muted);font-size:14px;padding:12px;">No matching commands found.</p>`;
+  html += `<details style="margin-top:22px;"><summary style="cursor:pointer;font-weight:700;color:var(--txt-primary);">Show the original Linux command reference (advanced)</summary><div class="code-block-wrap" style="margin-top:12px;"><div class="code-block-header"><span class="code-block-lang">Shell · original examples</span><button class="copy-btn">Copy</button></div><pre>${escapeHtml(TECHS.find(t => t.id === 'linux').commands)}</pre></div></details>`;
+  return html;
+}
+
 // ─── TECH VIEW ───
 function renderTechView(tech) {
   const pct = getTechPct(tech.id);
@@ -2229,13 +2479,17 @@ function renderTechView(tech) {
       html += `</div></div>`;
     });
   } else if (activeTechTab === 'commands') {
-    html += `<div class="code-block-wrap">
+    if (tech.id === 'linux') {
+      html += renderLinuxCommandNotebook();
+    } else {
+      html += `<div class="code-block-wrap">
       <div class="code-block-header">
         <span class="code-block-lang">Shell</span>
         <button class="copy-btn">Copy</button>
       </div>
       <pre>${escapeHtml(tech.commands)}</pre>
     </div>`;
+    }
   } else if (activeTechTab === 'resources') {
     tech.resources.forEach(r => {
       html += `<a class="resource-card" href="${r.url}" target="_blank" rel="noopener">
@@ -2456,6 +2710,20 @@ function attachTechEventListeners(tech) {
       render();
     });
   });
+  if (tech && tech.id === 'linux' && activeTechTab === 'commands') {
+    const search = document.getElementById('linux-command-search');
+    if (search) search.addEventListener('input', function() {
+      const query = this.value.trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('.linux-command-entry').forEach(entry => {
+        const match = entry.dataset.search.includes(query);
+        entry.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      const empty = document.getElementById('linux-command-empty');
+      if (empty) empty.style.display = visible ? 'none' : '';
+    });
+  }
   setupCopyButtons();
 }
 
