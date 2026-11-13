@@ -2667,8 +2667,7 @@ function renderTechView(tech) {
   const doneCount = allTopics.filter(t => checkedTopics[t.id]).length;
 
   let html = `
-    ${tech.id === 'linux' && activeTechTab === 'commands' ? '<div class="linux-hero-notebook-layout">' : ''}
-    <div style="background:var(--bg-elevated);border-radius:var(--r-xl);padding:24px;margin-bottom:20px;box-shadow:var(--shadow-card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;">
+    ${!(tech.id === "linux" && activeTechTab === "commands") ? `<div style="background:var(--bg-elevated);border-radius:var(--r-xl);padding:24px;margin-bottom:20px;box-shadow:var(--shadow-card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;">
       <div style="width:64px;height:64px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:var(--shadow-md);flex-shrink:0;background:${tech.color}20;">${tech.emoji}</div>
       <div style="flex:1;min-width:200px;">
         <h2 style="font-size:24px;font-weight:800;color:var(--txt-primary);letter-spacing:-0.03em;">${tech.name}</h2>
@@ -2688,7 +2687,8 @@ function renderTechView(tech) {
         </div>
       </div>
     </div>
-    ${tech.id === 'linux' && activeTechTab === 'commands' ? renderLinuxCommandNotebook() + '</div>' : ''}
+    </div>` : ''}
+    ${tech.id === 'linux' && activeTechTab === 'commands' ? renderLinuxCommandNotebook() : ''}
     <div class="tabs-bar">
       <button class="tab-btn tech-tab-btn ${activeTechTab==='topics'?'active':''}" data-tab="topics">Topics</button>
       <button class="tab-btn tech-tab-btn ${activeTechTab==='commands'?'active':''}" data-tab="commands">Commands</button>
