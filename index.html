@@ -675,6 +675,9 @@ pre {
 #header-tech-tabs .tab-btn{padding:9px 12px}
 @media(max-width:1100px){.top-header-inner{flex-wrap:wrap;gap:12px}.header-right-controls{justify-content:flex-start}}
 @media(max-width:650px){.header-right-controls{width:100%}#header-tech-tabs .tabs-bar{flex-wrap:wrap}}
+
+/* Hide statistics without removing DOM elements required by JavaScript */
+#stats-bar { display: none !important; }
 </style>
 </head>
 <body data-id="0">
@@ -721,6 +724,14 @@ pre {
       <div class="header-right-controls"><div id="header-tech-tabs"></div><div data-id="25" class="text-xs" style="color:var(--txt-muted);white-space:nowrap">Welcome back, Brian 👋</div></div>
     </div>
   </header>
+
+  <!-- STATS BAR -->
+  <div data-id="26" class="stats-bar" id="stats-bar">
+    <div data-id="27" class="stat-pill"><span data-id="28" class="stat-label">Topics</span> <span data-id="29" class="stat-val" id="stat-topics">0 / 0</span></div>
+    <div data-id="30" class="stat-pill"><span data-id="31" class="stat-label">Hours</span> <span data-id="32" class="stat-val" id="stat-hours">0 / 0</span></div>
+    <div data-id="33" class="stat-pill"><span data-id="34" class="stat-label">Overall</span> <span data-id="35" class="stat-val" id="stat-pct">0%</span></div>
+    <div data-id="36" class="stat-pill"><span data-id="37" class="stat-label">Mastered</span> <span data-id="38" class="stat-val" id="stat-mastered">0</span></div>
+  </div>
 
   <!-- CONTENT -->
   <main data-id="39" id="content-area" class="flex-1 p-5 md:p-7 overflow-y-auto"></main>
