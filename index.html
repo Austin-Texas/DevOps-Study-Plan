@@ -2576,6 +2576,25 @@ function renderLinuxCommandNotebook() {
     [data-theme="dark"] .linux-command-modal{background:#1a2334!important;color:#f1f5f9!important;border-color:#475569!important}
     [data-theme="light"] #linux-command-results .linux-command-entry{background:rgba(255,255,255,.92)!important;color:#1f2937!important}
     [data-theme="light"] .linux-command-modal{background:#fff!important;color:#1f2937!important;border:1px solid #dbe2ed!important}
+    /* White readable explanation popup in both themes; preserve viewport centering */
+    html[data-theme="light"] .linux-command-modal,
+    html[data-theme="dark"] .linux-command-modal,
+    .linux-command-modal {
+      background:#ffffff!important;
+      background-image:none!important;
+      color:#202938!important;
+      border:1px solid #e2e8f0!important;
+      box-shadow:0 24px 70px rgba(15,23,42,.22)!important;
+    }
+    .linux-command-modal h1,.linux-command-modal h2,.linux-command-modal h3,
+    .linux-command-modal p,.linux-command-modal strong,.linux-command-modal label,
+    .linux-command-modal td,.linux-command-modal th,
+    .linux-command-modal .linux-command-readonly {color:#202938!important}
+    .linux-command-modal .kb-table th{background:#f1f3f6!important;color:#64748b!important}
+    .linux-command-modal .kb-table td{background:#fff!important}
+    .linux-command-modal .kb-note{background:#e8f2ff!important;color:#243447!important}
+    .linux-command-modal .kb-note *{color:#243447!important}
+    .linux-command-modal input,.linux-command-modal textarea{background:#fff!important;color:#202938!important}
     .linux-command-modal{position:fixed!important;left:50vw!important;top:50vh!important;transform:translate(-50%,-50%)!important;z-index:10001!important}
     .linux-command-overlay{position:fixed!important;inset:0!important;z-index:10000!important}
     .linux-command-entry[open]{transform:none!important}
