@@ -59,3 +59,16 @@
 
 ## 7. Scope and accuracy
 This document records the intended/approved behavior from the conversation, **not a claim that every item is fully implemented or live-verified**. The final repair was committed as `648b5a6`; deployment and UI regression checks must still be independently verified.
+
+
+## 8. Screenshot-approved Ansible implementation (November 13 follow-up)
+The user's screenshot clarifies the approved design beyond the initial written guide:
+- Use one rounded, white Command Notebook container with a bold title and short description.
+- Inside it, use **two independent, equally sized desktop columns**. Left: command entry and Add button, small storage hint, filter, then compact accordion category list. Right: muted-gray category/location status card, expandable **+ Add more notes**, then expandable **Original [Technology] command reference (preserved) · Editable**.
+- Each category header has an arrow, name and right-aligned command count. Expanded categories reveal compact white command cards with inline edit/delete actions. No large blank areas or oversized cards.
+- The status panel remains aligned with the input region; use green for successful saves and amber/orange for duplicates, including the saved category/path.
+- Notes and reference expansion must not push down the left column. Maintain independent column layout and internal scrolling for long references.
+- Retain centered white editing dialogs, explicit save confirmation, and update the visible command card after edits. Save persists in the browser.
+- The screenshot is the reference for the overall proportions, card density, typography, and background. Do not change the approved light/dark theme colors or sidebar.
+- The Ansible Commands implementation was introduced in commit `221ed4e`. It includes its own browser-local command additions, modifications, deletions, notes, and editable reference. The Linux notebook remains separate and unchanged.
+- **Important:** Other technology pages received a shared compact reference style earlier, but do not yet have the full Ansible/Linux notebook feature set. Extend only upon explicit request, and verify deployment and interactions.
