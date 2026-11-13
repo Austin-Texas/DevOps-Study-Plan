@@ -2635,14 +2635,14 @@ function renderLinuxCommandNotebook() {
           <label style="font-size:12px;font-weight:700">Command<input name="command" required value="${escapeHtml(entry.command)}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)"></label>
           <label style="font-size:12px;font-weight:700">What does it do?<textarea name="summary" rows="3" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)">${escapeHtml(entry.summary||'')}</textarea></label>
           <label style="font-size:12px;font-weight:700">Flags and meanings (one per line: flag | explanation)<textarea name="parts" rows="5" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)">${escapeHtml((entry.parts||[]).map(p=>p.join(' | ')).join('\\n'))}</textarea></label>
-          <label style="font-size:12px;font-weight:700">Notes and warnings<textarea name="notes" rows="3" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)">${escapeHtml(entry.notes||'')}</textarea></label>
+          
           <label style="font-size:12px;font-weight:700">Example<input name="example" value="${escapeHtml(entry.example||entry.command)}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-section);color:var(--txt-primary)"></label>
           <div style="display:flex;gap:8px"><button type="submit" class="tab-btn active">Save changes</button><button type="button" class="linux-command-cancel tab-btn">Cancel</button></div>
         </form>
         <div class="linux-command-readonly">
         <p style="font-size:13px;margin:12px 0"><strong>What does it do?</strong><br>${escapeHtml(entry.summary||'Explanation pending. This command was saved locally; no AI service is connected.')}</p>
         ${entry.parts && entry.parts.length ? `<div style="overflow-x:auto"><p style="font-size:13px;font-weight:700;margin:12px 0 6px">What each part means</p><table class="kb-table"><thead><tr><th>Token / flag</th><th>Meaning</th></tr></thead><tbody>${entry.parts.map(p=>`<tr><td><code>${escapeHtml(p[0])}</code></td><td>${escapeHtml(p[1])}</td></tr>`).join('')}</tbody></table></div>` : '<p style="font-size:12px;color:var(--txt-muted)">Flag-by-flag analysis awaits AI backend integration.</p>'}
-        <div class="kb-note" style="margin-top:10px;font-size:13px;line-height:1.65">${escapeHtml(entry.notes||'Do not execute unfamiliar commands, especially with sudo, rm, or destructive options, until verified.')}</div>
+        
         <div class="code-block-wrap" style="margin-top:10px"><div class="code-block-header"><span class="code-block-lang">Command example</span><button class="copy-btn" type="button">Copy</button></div><pre>${escapeHtml(entry.example||entry.command)}</pre></div>
         </div>
       </div>
