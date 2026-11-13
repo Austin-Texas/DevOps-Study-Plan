@@ -1,0 +1,61 @@
+# DevOps Platform — Reusable UI & Development Prompt
+**Session:** November 13, 2026  
+**Project:** Senior DevOps Engineering Platform  
+**Repository:** `Austin-Texas/DevOps-Study-Plan`  
+**Live site:** https://austin-texas.github.io/DevOps-Study-Plan/
+
+> This is the approved design direction and implementation checklist from our iterative Commands-page work. Apply the same conventions to other pages **only when requested**. Preserve all existing functionality and data.
+
+## 1. Approved visual direction
+- Modern, clean, iOS-like light/dark UI; rounded white cards, subtle borders and shadows, consistent typography and spacing.
+- Preserve the existing sidebar and global header, navigation (Topics, Commands, Resources, Projects), responsive behavior, and page content.
+- Prefer compact, efficient layouts over large blank sections or unnecessarily tall cards.
+- Desktop Commands layout: two columns, left for command entry/filter and expandable category cards, right for command location/status, notes, and original reference. On narrow screens stack columns.
+- Opening accordions, editing notes, or expanding the original reference must **not move the adjacent column's content down**. Use independent column flow and an internally scrollable, bounded-height reference viewer where appropriate.
+- Command categories use compact accordion rows; arrow points right/down when collapsed and down/up when expanded, consistently. Show the count; display compact command cards inside the expanded category.
+- Command detail popup remains open after saving, displays a clear success indicator, exits edit mode and shows the updated read-only details; only the user closes it.
+- Changes to a command must immediately update the corresponding command card and any category counts/placement.
+- The original Linux command reference remains editable, with a single Copy button, Edit action, and preserved original examples. No duplicate buttons.
+- The stats bar (Topics / Hours / Overall / Mastered) should be **visually hidden across pages**, not removed from the DOM if application code still depends on those IDs.
+
+## 2. Command Notebook behavior
+- Input to add a command; filter to find saved commands; grouped, expandable command categories.
+- Auto-classify using command syntax and executable/subcommand, not incidental usernames, home paths, or arbitrary arguments.
+- Examples: `sudo -iu hakkari` and `sudo -iu james` are Linux user/identity commands; `sudo apt update` is Linux package management; `show ip route` is Cisco routing; `terraform plan` is Terraform; `ansible --version` is Ansible.
+- Recognize Linux, Cisco, Terraform/OpenTofu, Ansible, Docker, Kubernetes, Windows/PowerShell, AWS, Git, and other relevant tooling. Create a relevant category when needed; avoid putting recognizable commands into Other/Unclassified.
+- Check duplicates with normalized syntax and relevant argument placeholders. A command already present should produce a **colored, distinct 'Already saved' message** identifying its exact category/path, not a false 'newly saved' message.
+- A newly added command shows a green success message and its category/path. Keep status near the input/category preview.
+- Each command card supports open/detail, edit and delete. Detail view shows explanation, correctly separated flags/tokens and meanings, and copyable examples. Never display literal escaped `\\n` in flag explanations.
+- Save edits persistently using the application's existing storage mechanism and refresh all rendered views immediately.
+- Do not create a separate Notes and Warnings field on every command. Keep contextual safety explanations only where needed for dangerous examples.
+- Preserve the original command-reference examples and allow their editing without losing other command data.
+
+## 3. Additional notes panel
+- Right column has a collapsible **+ Add more notes** section, under the colored save/location message.
+- Users can add unlimited separate notes, edit/delete each, and see save confirmation. Keep the add-note form accessible after saving.
+- Opening notes does not reflow or shift the left-hand command cards; maintain independent columns.
+- Do not replace or merge existing notes when adding a new one.
+
+## 4. Critical regression found and fixed
+- A prior change removed the `#stats-bar` markup to remove the visible statistics strip. Application JavaScript still referenced its child IDs (`stat-topics`, `stat-hours`, `stat-pct`, `stat-mastered`), causing blank page content.
+- Fix committed as `648b5a6`: restore required statistics DOM and hide it with CSS (`#stats-bar { display: none !important; }`).
+- **Rule:** Never remove DOM nodes that are referenced by JavaScript without updating all references. Prefer non-destructive CSS hiding for purely visual removal. Check browser console and test every tab.
+- A GitHub commit is not proof of live deployment. Confirm GitHub Pages finishes publishing and inspect the deployed site before saying the change is live.
+
+## 5. Required workflow for every future page change
+1. Read this guide, `README.md`, and the current implementation in `index.html`.
+2. Inspect the relevant functions, CSS selectors, DOM IDs, event handlers, and persistent data before editing.
+3. Identify exact requested UI change; leave unrelated pages and features untouched.
+4. Back up or preserve existing content; make a small, scoped patch rather than rewriting large sections.
+5. Check syntax, initialization, navigation, tabs, command input, editing, notes, accordion behavior, local persistence, and light/dark themes.
+6. Check responsive layout and confirm expanding one column does not shift the other.
+7. Verify the exact requested visual change, ideally on the deployed GitHub Pages site.
+8. Commit with a descriptive message and report the commit SHA, deployed URL, and verification status. Never claim a deployment was checked unless it actually was.
+9. Do not overwrite browser-local user data or reset progress. If data migration is necessary, preserve old keys and provide backward compatibility.
+10. If the user asks to apply this style to another page, **reuse the patterns and behaviors**, not a blind copy of Commands-only content.
+
+## 6. Reusable prompt for future chats
+> Open GitHub repository `Austin-Texas/DevOps-Study-Plan` and read `docs/DEVOPS-UI-DESIGN-AND-CHANGE-PROMPT-2026-11-13.md` plus `README.md`. Apply the documented approved design and interaction patterns to **[NAME OF PAGE]**, keeping its existing data and functionality. Use the compact iOS-like responsive layout, independent two-column flow when appropriate, collapsible category cards, meaningful save/duplicate feedback, persistent edits, and non-destructive changes. Do not reintroduce the stats strip or remove required DOM IDs. Test all tabs, existing features, and the published page before reporting completion. Tell me exactly what changed and provide the commit SHA.
+
+## 7. Scope and accuracy
+This document records the intended/approved behavior from the conversation, **not a claim that every item is fully implemented or live-verified**. The final repair was committed as `648b5a6`; deployment and UI regression checks must still be independently verified.
