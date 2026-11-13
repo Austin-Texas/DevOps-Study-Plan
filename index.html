@@ -2646,9 +2646,17 @@ function renderLinuxCommandNotebook() {
       <button type="submit" class="tab-btn active" style="padding:10px 18px">+ Add</button>
     </form>
     <p id="linux-command-status" aria-live="polite" style="font-size:12px;color:var(--txt-muted);margin-top:8px">New commands save in this browser. Common commands get built-in explanations; other commands need a connected AI backend.</p>
-    <details class="linux-extra-notes" id="linux-extra-notes"><summary>＋ Add more notes</summary><form id="linux-extra-notes-form"><textarea id="linux-extra-notes-editor" placeholder="Write your Linux notes here. You can edit them any time."></textarea><div style="display:flex;gap:8px;margin-top:8px"><button type="submit" class="tab-btn active">Save notes</button><button type="button" id="linux-extra-notes-cancel" class="tab-btn">Cancel</button></div><p id="linux-extra-notes-status" role="status" style="font-size:12px;margin-top:8px;color:var(--txt-secondary)">Notes are stored in this browser.</p></form></details>
+    <div id="linux-notes-placeholder" hidden></div>
     <input id="linux-command-search" type="search" placeholder="Filter saved commands…" aria-label="Filter commands" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary);margin-top:12px">
-</div><div class="linux-destination-panel"><strong>Command category</strong><div id="linux-destination-name">Type a command to see where it will be saved</div><p id="linux-destination-help">Your command will appear under its matching expandable category below.</p></div></div>
+</div><div class="linux-destination-panel"><strong>Command category</strong><div id="linux-destination-name">Type a command to see where it will be saved</div><p id="linux-destination-help">Your command will appear under its matching expandable category below.</p>
+    <details class="linux-extra-notes" id="linux-extra-notes"><summary>＋ Add more notes</summary>
+      <div id="linux-notes-list" style="display:grid;gap:8px;margin-top:12px"></div>
+      <form id="linux-extra-notes-form">
+        <textarea id="linux-extra-notes-editor" placeholder="Write a new note…"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button type="submit" class="tab-btn active">+ Add note</button><button type="button" id="linux-extra-notes-cancel" class="tab-btn">Cancel</button></div>
+        <p id="linux-extra-notes-status" role="status" style="font-size:12px;margin-top:8px;color:var(--txt-secondary)">Add as many separate notes as you need. Saved in this browser.</p>
+      </form>
+    </details></div></div>
   <div class="linux-notebook-panels"><div id="linux-command-results">`;
   const groupedEntries = entries.map((entry,i) => ({entry,i,group:linuxNotebookCategory(entry)}));
   const categories = [...new Set(groupedEntries.map(item => item.group))].sort((a,b) => a.localeCompare(b));
@@ -3147,17 +3155,50 @@ function attachTechEventListeners(tech) {
       showRefEditor(false);
     });
     const notesEditor = document.getElementById('linux-extra-notes-editor');
-    if (notesEditor) {
-      notesEditor.value = localStorage.getItem('linux-extra-notes-v1') || '';
+    const notesList = document.getElementById('linux-notes-list');
+    if (notesEditor && notesList) {
+      const key = 'linux-extra-notes-list-v1';
+      let notes = [];
+      try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) {}
+      if (!Array.isArray(notes)) notes = [];
+      const legacy = localStorage.getItem('linux-extra-notes-v1');
+      if (legacy && !notes.some(n => n.text === legacy)) {
+        notes.unshift({id:'legacy',text:legacy});
+        try { localStorage.setItem(key,JSON.stringify(notes)); } catch (_) {}
+      }
+      const status = document.getElementById('linux-extra-notes-status');
+      const persist = () => { try { localStorage.setItem(key,JSON.stringify(notes)); return true; } catch (_) { status.textContent='Unable to save notes in this browser.'; return false; } };
+      const drawNotes = () => {
+        notesList.replaceChildren();
+        notes.forEach(note => {
+          const card = document.createElement('div');
+          card.style.cssText='border:1px solid var(--border);border-radius:9px;padding:10px;background:var(--bg-section)';
+          const body = document.createElement('div');
+          body.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;margin-bottom:8px';
+          body.textContent=note.text;
+          const actions=document.createElement('div');actions.style.cssText='display:flex;gap:8px;justify-content:flex-end';
+          const edit=document.createElement('button');edit.type='button';edit.className='tab-btn';edit.textContent='✎ Edit';
+          edit.onclick=()=>{notesEditor.value=note.text;notesEditor.dataset.editId=String(note.id);notesEditor.focus();status.textContent='Editing selected note — save to update it.';};
+          const del=document.createElement('button');del.type='button';del.className='tab-btn';del.textContent='🗑 Delete';
+          del.onclick=()=>{if(!confirm('Delete this note?'))return;notes=notes.filter(n=>n.id!==note.id);if(persist()){drawNotes();status.textContent='✓ Note deleted';}};
+          actions.append(edit,del);card.append(body,actions);notesList.append(card);
+        });
+      };
+      drawNotes();
       document.getElementById('linux-extra-notes-form')?.addEventListener('submit', event => {
         event.preventDefault();
-        try { localStorage.setItem('linux-extra-notes-v1',notesEditor.value); }
-        catch (_) { document.getElementById('linux-extra-notes-status').textContent = 'Unable to save notes in this browser.'; return; }
-        document.getElementById('linux-extra-notes-status').textContent = '✓ Notes saved successfully';
+        const value=notesEditor.value.trim();
+        if(!value)return;
+        const id=notesEditor.dataset.editId;
+        if(id){const note=notes.find(n=>String(n.id)===id);if(note)note.text=value;}
+        else notes.push({id:String(Date.now())+'-'+Math.random().toString(36).slice(2),text:value});
+        if(!persist())return;
+        notesEditor.value='';delete notesEditor.dataset.editId;
+        drawNotes();status.textContent='✓ Note saved successfully — add another whenever you like.';
       });
       document.getElementById('linux-extra-notes-cancel')?.addEventListener('click', () => {
-        notesEditor.value = localStorage.getItem('linux-extra-notes-v1') || '';
-        document.getElementById('linux-extra-notes').open = false;
+        notesEditor.value='';delete notesEditor.dataset.editId;
+        document.getElementById('linux-extra-notes').open=false;
       });
     }
     const addForm = document.getElementById('linux-command-add-form');
