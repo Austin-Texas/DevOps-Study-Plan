@@ -2552,6 +2552,8 @@ function renderLinuxCommandNotebook() {
     .linux-command-modal .kb-table td,.linux-command-modal .kb-table th {padding:8px}
     @media(max-width:520px){#linux-command-results{grid-template-columns:1fr}.linux-command-modal{padding:12px}}
 
+    .linux-command-modal {left:50vw!important;top:50vh!important;transform:translate(-50%,-50%)!important;position:fixed!important;z-index:10001!important}
+    .linux-command-overlay {position:fixed!important;inset:0!important;z-index:10000!important}
     /* Premium translucent glass styling scoped to Linux notebook */
     #linux-command-results {gap:12px;padding:12px;border-radius:20px;background:linear-gradient(135deg,rgba(59,130,246,.055),rgba(139,92,246,.045));border:1px solid rgba(140,150,175,.13)}
     #linux-command-results .linux-command-entry {background:linear-gradient(145deg,rgba(255,255,255,.66),rgba(238,243,255,.38))!important;border:1px solid rgba(148,163,184,.28)!important;border-radius:15px!important;box-shadow:0 5px 18px rgba(15,23,42,.045),inset 0 1px rgba(255,255,255,.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
@@ -2914,14 +2916,18 @@ function attachTechEventListeners(tech) {
   if (tech && tech.id === 'linux' && activeTechTab === 'commands') {
     const search = document.getElementById('linux-command-search');
     document.querySelectorAll('.linux-command-entry').forEach(card => {
+      const overlay = card.querySelector('.linux-command-overlay');
+      const modal = card.querySelector('.linux-command-modal');
       card.addEventListener('toggle', () => {
+        if (card.open) { document.body.append(overlay, modal); overlay.style.display = 'block'; modal.style.display = 'block'; }
+        else { overlay.style.display = 'none'; modal.style.display = 'none'; card.append(overlay, modal); }
         if (card.open) document.querySelectorAll('.linux-command-entry').forEach(other => { if (other !== card) other.open = false; });
       });
       const close = () => { card.open = false; };
-      card.querySelector('.linux-command-close')?.addEventListener('click', close);
-      card.querySelector('.linux-command-overlay')?.addEventListener('click', close);
-      card.querySelector('.linux-command-delete')?.addEventListener('click', () => {
-        const index = Number(card.querySelector('.linux-command-edit').dataset.commandIndex);
+      modal.querySelector('.linux-command-close')?.addEventListener('click', close);
+      overlay?.addEventListener('click', close);
+      modal.querySelector('.linux-command-delete')?.addEventListener('click', () => {
+        const index = Number(modal.querySelector('.linux-command-edit').dataset.commandIndex);
         const entry = getLinuxNotebookEntries()[index];
         if (!entry || !confirm('Delete "' + entry.command + '" from your notebook?')) return;
         let deleted = [];
@@ -2930,6 +2936,8 @@ function attachTechEventListeners(tech) {
         deleted.push(entry._originalCommand || entry.command);
         try { localStorage.setItem('linux-notebook-deleted-v1', JSON.stringify([...new Set(deleted)])); }
         catch (_) { alert('Unable to delete. Browser storage may be blocked.'); return; }
+        close();
+        close();
         render();
       });
 
@@ -2937,16 +2945,16 @@ function attachTechEventListeners(tech) {
         event.preventDefault();
         event.stopPropagation();
         card.open = true;
-        card.querySelector('.linux-command-edit')?.click();
+        modal.querySelector('.linux-command-edit')?.click();
       });
       card.querySelector('.linux-card-delete')?.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
-        card.querySelector('.linux-command-delete')?.click();
+        modal.querySelector('.linux-command-delete')?.click();
       });
-      const editButton = card.querySelector('.linux-command-edit');
-      const form = card.querySelector('.linux-command-edit-form');
-      const readonly = card.querySelector('.linux-command-readonly');
+      const editButton = modal.querySelector('.linux-command-edit');
+      const form = modal.querySelector('.linux-command-edit-form');
+      const readonly = modal.querySelector('.linux-command-readonly');
       const setEditing = (editing) => {
         form.hidden = !editing;
         form.style.display = editing ? 'flex' : 'none';
@@ -2954,7 +2962,7 @@ function attachTechEventListeners(tech) {
         editButton.hidden = editing;
       };
       editButton?.addEventListener('click', () => setEditing(true));
-      card.querySelector('.linux-command-cancel')?.addEventListener('click', () => setEditing(false));
+      modal.querySelector('.linux-command-cancel')?.addEventListener('click', () => setEditing(false));
       form?.addEventListener('submit', event => {
         event.preventDefault();
         const fields = new FormData(form);
