@@ -2548,6 +2548,15 @@ function linuxNotebookCategory(entry) {
   const command = (entry.command || '').trim();
   // Classify by executable rather than the saved entry's old "My commands" label.
   // This also automatically reorganizes previously saved browser commands.
+  const lower = command.toLowerCase();
+  // Device-specific command syntax takes precedence over generic executable names.
+  if (/^(?:show|sh)\s+(?:ip\s+(?:route|bgp|ospf|interface|arp)|interfaces?\b|vlan\b|version\b|running-config\b|startup-config\b|standby\b|spanning-tree\b|mac\s+address-table\b|cdp\b|lldp\b|etherchannel\b|platform\b|license\b|inventory\b|logging\b|clock\b|access-lists?\b|route-map\b|vrf\b|switch\b)/i.test(command) || /^(?:conf(?:igure)?\s+t(?:erminal)?|interface\s+(?:gigabit|fastethernet|ten|ethernet|vlan|loopback)|router\s+(?:bgp|ospf|eigrp)|switchport\b|no\s+shutdown\b|copy\s+running-config\b|write\s+memory\b)/i.test(command)) {
+    if (/^(?:show|sh)\s+(?:ip\s+(?:route|bgp|ospf)|route-map|vrf)|^router\s+(?:bgp|ospf|eigrp)/i.test(command)) return 'Cisco · Routing';
+    if (/^(?:show|sh)\s+(?:vlan|spanning-tree|mac\s+address-table|etherchannel|switch)|^switchport\b/i.test(command)) return 'Cisco · Switching';
+    return 'Cisco · IOS / IOS XE';
+  }
+  if (/^(?:get|set|new|remove|restart|start|stop|test|enable|disable|invoke|select|where|format|out|import|export|connect|disconnect|enter|exit|clear|measure|compare|write|read)-[a-z][\w-]*/i.test(command)) return 'Windows · PowerShell';
+  if (/^(?:ipconfig|netsh|netstat\s+-ano|tasklist|taskkill|sfc|dism|reg\s+(?:query|add|delete)|gpupdate|gpresult|wmic|sc\s+(?:query|start|stop)|powershell(?:\.exe)?|cmd(?:\.exe)?)\b/i.test(command)) return 'Windows · CMD';
   const tokens = command.split(/\s+/);
   let pos = 0;
   while (['sudo','env','command','nohup','time'].includes(tokens[pos])) {
@@ -2575,8 +2584,10 @@ function linuxNotebookCategory(entry) {
     'Containers & Docker':'docker docker-compose podman buildah',
     'Kubernetes':'kubectl kubeadm helm k9s',
     'Git & version control':'git gh',
-    'Terraform & IaC':'terraform tofu terragrunt',
-    'Cloud & AWS':'aws az gcloud',
+    'Terraform':'terraform tofu terragrunt',
+    'AWS CLI':'aws',
+    'Azure CLI':'az',
+    'Google Cloud CLI':'gcloud',
     'Text processing':'grep egrep fgrep awk sed cut sort uniq head tail wc tr tee xargs',
     'Editors':'vim vi nano emacs',
     'System information':'uname hostname hostnamectl uptime free lscpu lsusb lspci timedatectl date',
@@ -2587,8 +2598,8 @@ function linuxNotebookCategory(entry) {
   for (const [category, names] of Object.entries(categories)) {
     if (names.split(' ').includes(executable)) return category;
   }
-  // Unknown executables get their own expandable category, instead of "My commands".
-  return executable ? 'Other · ' + executable : 'Other commands';
+  // All unrecognized commands share one category, avoiding a new category per typo.
+  return 'Other / Unclassified';
 }
 function renderLinuxCommandNotebook() {
   const entries = getLinuxNotebookEntries();
