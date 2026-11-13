@@ -2572,7 +2572,15 @@ function renderLinuxCommandNotebook() {
     .linux-command-modal {background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(242,246,255,.88))!important;border:1px solid rgba(255,255,255,.78)!important;box-shadow:0 30px 90px rgba(12,23,52,.24),inset 0 1px rgba(255,255,255,.9)!important;backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px)}
     .linux-command-modal .kb-note {border-radius:12px}
     .linux-command-modal .code-block-wrap {border-radius:12px;overflow:hidden}
-    @media(prefers-color-scheme:dark){#linux-command-results .linux-command-entry{background:linear-gradient(145deg,rgba(44,57,80,.78),rgba(31,41,61,.64))!important;border-color:rgba(148,163,184,.25)!important} .linux-command-modal{background:linear-gradient(145deg,rgba(34,44,65,.96),rgba(22,31,48,.94))!important;border-color:rgba(148,163,184,.25)!important}}
+    [data-theme="dark"] #linux-command-results .linux-command-entry{background:linear-gradient(145deg,rgba(44,57,80,.9),rgba(31,41,61,.85))!important;border-color:rgba(148,163,184,.25)!important}
+    [data-theme="dark"] .linux-command-modal{background:linear-gradient(145deg,rgba(34,44,65,.98),rgba(22,31,48,.97))!important;border-color:rgba(148,163,184,.3)!important;color:var(--txt-primary)}
+    [data-theme="light"] .linux-command-modal{background:rgba(255,255,255,.97)!important;color:#1f2937}
+    [data-theme="light"] #linux-command-results .linux-command-entry{background:rgba(255,255,255,.82)!important;color:#1f2937}
+    #linux-command-results .linux-command-entry:hover{transform:none!important}
+    #linux-command-results .linux-command-entry{transform:none!important;filter:none!important}
+    .linux-command-modal{position:fixed!important;left:50vw!important;top:50vh!important;transform:translate(-50%,-50%)!important;z-index:1101!important}
+    .linux-command-overlay{z-index:1100!important}
+
     @media(prefers-reduced-motion:reduce){#linux-command-results .linux-command-entry{transition:none}#linux-command-results .linux-command-entry:hover{transform:none}}
 
   </style><div style="padding:18px;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-elevated)">
