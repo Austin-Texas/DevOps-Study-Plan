@@ -3154,6 +3154,27 @@ function attachTechEventListeners(tech) {
       refDisplay.textContent = TECHS.find(t=>t.id==='linux').commands;
       showRefEditor(false);
     });
+    // Keep the command categories anchored below the command input, independently
+    // of the height of the expandable notes in the right-hand column.
+    const notebookColumns = document.querySelector('.linux-input-columns');
+    const notebookPanels = document.querySelector('.linux-notebook-panels');
+    if (notebookColumns && notebookPanels) {
+      const leftColumn = notebookColumns.firstElementChild;
+      const rightColumn = notebookColumns.children[1];
+      const commandResults = document.getElementById('linux-command-results');
+      const emptyMessage = document.getElementById('linux-command-empty');
+      const originalReference = document.getElementById('linux-original-reference');
+      if (leftColumn && commandResults) {
+        commandResults.style.marginTop = '16px';
+        leftColumn.appendChild(commandResults);
+        if (emptyMessage) leftColumn.appendChild(emptyMessage);
+      }
+      if (rightColumn && originalReference) {
+        originalReference.style.marginTop = '16px';
+        rightColumn.appendChild(originalReference);
+      }
+      notebookPanels.remove();
+    }
     const notesEditor = document.getElementById('linux-extra-notes-editor');
     const notesList = document.getElementById('linux-notes-list');
     if (notesEditor && notesList) {
