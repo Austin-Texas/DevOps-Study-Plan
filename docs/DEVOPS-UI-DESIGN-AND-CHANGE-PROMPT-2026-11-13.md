@@ -117,3 +117,34 @@ The user's screenshot clarifies the approved design beyond the initial written g
 - Hide the progress bar and topic-percentage strip inside the Ansible Automation page header, while keeping its title, icon, level, and hours metadata.
 - Do not remove underlying progress calculations or affect the progress display of other technology pages.
 - Preserve the existing global stats-bar hiding rule and all Commands notebook functionality.
+
+
+## Universal page implementation contract — REQUIRED for every future page
+
+**Purpose:** This guide is the reusable specification for applying the approved Linux Command Notebook experience to ANY technology page (Ansible, Docker, Kubernetes, Terraform, AWS, GitOps, Python, Windows, networking, or future pages). Do not treat Linux or Ansible as one-off exceptions. When asked to "apply the November 13 design" to a page, read this ENTIRE document and the target page's current implementation first, then implement the complete feature set below—not merely matching colors or copying a panel.
+
+### What the finished page must look like
+- Preserve the existing global header, sidebar, tabs, page identity, content, theme, and navigation.
+- Use the approved compact, rounded, light-theme-friendly cards with consistent spacing, borders, and readable contrast; retain dark-mode compatibility.
+- Desktop: two independent side-by-side columns. Left: command input, Add button, filter, expandable categories with command counts and compact cards. Right: live classification/status, unlimited notes, and editable original technology reference. Stack on small screens.
+- Accordions show a direction-changing arrow and must not push or reposition the opposite column. Keep long reference content internally scrollable.
+- Center command-details popups over the viewport, with a WHITE/light modal background in light mode and readable text. The backdrop may dim the page but must not recolor the modal.
+- Hide the global Topics/Hours/Overall/Mastered strip without deleting DOM elements used by JavaScript. On pages where the technology header progress strip is explicitly unwanted (as on Ansible), hide it without removing the technology header or changing progress calculations.
+
+### Mandatory functionality on EVERY applicable technology Commands page
+1. Add and filter commands; auto-categorize by actual executable/subcommand, ignoring usernames and incidental paths; show where each command will be saved.
+2. Detect normalized duplicates: show distinct amber/orange "Already saved" status with exact location and do not create duplicates. For new commands show green saved confirmation and location.
+3. Category accordion: counts, correct expand/collapse arrow, compact cards that stay in place when the right-side notes/reference expands.
+4. Every card: working Edit pencil, Delete trash, and Open/details action, with correct click separation and accessible labels.
+5. Details modal: explanation, properly parsed token/flag table, copyable example, Edit/Delete/Close actions. Edit fields include command, explanation, token meanings, and example.
+6. Save must persist, show green success, exit edit mode, keep the modal OPEN until explicitly closed, and immediately refresh the underlying card and category counts/location. Cancel discards only unsaved edits.
+7. Right column: expandable "+ Add more notes" with unlimited separately editable/deletable notes; a bounded, scrollable "Original [Technology] command reference (preserved)" with one Edit and one Copy action, functional Save/Cancel, and no duplicate controls.
+8. Preserve existing commands, reference text, notes, user progress, storage keys, and other page functionality. Never remove or replace unrelated content while implementing parity.
+
+### Implementation procedure and acceptance gate
+- Read this whole guide, README, and relevant source files. Compare the target page against the Linux reference feature by feature; record missing functionality.
+- Make changes to shared reusable components where safe, rather than introducing inconsistent one-off versions. Keep technology-specific commands and categories correct.
+- Test the target page after changes: render, navigation, Add, duplicate, classification, filter, expand/collapse, Edit, Delete, details popup, modal Save/Cancel, Copy, notes CRUD, original reference editing, persistence after reload, mobile responsiveness, light/dark colors, and browser console.
+- Also test Linux and at least one other page for regressions; never claim "applied to all pages" without actually verifying all targeted pages.
+- Confirm the actual commit/deployment and report precisely which pages were modified and which tests passed or remain unverified. A documentation change alone is NOT a website update.
+- For future page requests, use this section as the checklist and apply ALL relevant features, not only the one highlighted in the latest screenshot.
