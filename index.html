@@ -678,6 +678,24 @@ pre {
 
 /* Hide statistics without removing DOM elements required by JavaScript */
 #stats-bar { display: none !important; }
+
+/* Shared November 13 design system — all technology pages */
+.tech-unified-panel{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r-xl);padding:clamp(14px,2vw,22px);box-shadow:var(--shadow-card);min-width:0}
+.tech-unified-heading{font-size:18px;font-weight:800;color:var(--txt-primary);margin-bottom:8px}
+.tech-command-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:10px;align-items:start}
+.tech-command-category{border:1px solid var(--border);border-radius:14px;background:var(--bg-elevated);margin:10px 0;overflow:hidden}
+.tech-command-category summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:700;color:var(--txt-primary);display:flex;align-items:center;gap:10px}
+.tech-command-category summary::-webkit-details-marker{display:none}
+.tech-command-category summary .tech-arrow::before{content:"▸";color:var(--txt-muted)}
+.tech-command-category[open] summary .tech-arrow::before{content:"▾"}
+.tech-command-category summary .tech-count{margin-left:auto;color:var(--txt-muted);font-size:12px;font-weight:500}
+.tech-command-category .tech-command-grid{padding:0 14px 14px}
+.tech-command-card{min-width:0;border:1px solid var(--border);border-radius:13px;background:var(--bg-card);padding:12px 14px;color:var(--txt-primary);font-size:12px;line-height:1.6;overflow-wrap:anywhere;white-space:pre-wrap;font-family:var(--font-mono,monospace)}
+.tech-unified-panel .code-block-wrap{margin-top:12px;max-height:420px;overflow:auto}
+.tech-unified-panel .code-block-wrap pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.tech-unified-panel .resource-card,.tech-unified-panel .project-card{max-width:100%}
+.tech-unified-panel .phase-card{margin-bottom:12px}
+@media(max-width:768px){.tech-command-grid{grid-template-columns:1fr}.tech-unified-panel{padding:14px}}
 </style>
 </head>
 <body data-id="0">
@@ -2831,6 +2849,7 @@ function renderTechView(tech) {
   `;
 
   if (activeTechTab === 'topics') {
+    html += '<div class="tech-unified-panel"><div class="tech-unified-heading">Learning topics</div>';
     tech.phases.forEach((phase, pi) => {
       const phaseTopics = phase.topics;
       const phaseDone = phaseTopics.filter(t => checkedTopics[t.id]).length;
@@ -2854,19 +2873,31 @@ function renderTechView(tech) {
       });
       html += `</div></div>`;
     });
+    html += '</div>';
   } else if (activeTechTab === 'commands') {
     if (tech.id === 'linux') {
       // Notebook is displayed beside the Linux Administration hero above.
     } else {
-      html += `<div class="code-block-wrap">
-      <div class="code-block-header">
-        <span class="code-block-lang">Shell</span>
-        <button class="copy-btn">Copy</button>
-      </div>
-      <pre>${escapeHtml(tech.commands)}</pre>
-    </div>`;
+      const lines = String(tech.commands || '').split('\\n').map(line => line.trim()).filter(Boolean);
+      const groups = [];
+      let group = {title: tech.name + ' commands', commands: []};
+      for (const line of lines) {
+        if (/^#{1,5}\\s*[^#]/.test(line) || /^={3,}.*={3,}$/.test(line)) {
+          if (group.commands.length) groups.push(group);
+          group = {title: line.replace(/^#+\\s*|\\s*#+$/g,'').replace(/^=+|=+$/g,'').trim(), commands: []};
+        } else if (!line.startsWith('#') && !line.startsWith('//')) {
+          group.commands.push(line);
+        }
+      }
+      if (group.commands.length) groups.push(group);
+      html += '<section class="tech-unified-panel"><div class="tech-unified-heading">⌨️ ' + escapeHtml(tech.name) + ' Command Reference</div><p style="color:var(--txt-muted);font-size:13px;margin-bottom:12px">Expand a category to browse commands. Original reference is preserved below.</p>';
+      for (const g of groups) {
+        html += '<details class="tech-command-category"><summary><span class="tech-arrow"></span><span>' + escapeHtml(g.title) + '</span><span class="tech-count">' + g.commands.length + ' commands</span></summary><div class="tech-command-grid">' + g.commands.map(c => '<div class="tech-command-card">' + escapeHtml(c) + '</div>').join('') + '</div></details>';
+      }
+      html += '<details class="tech-command-category"><summary><span class="tech-arrow"></span>Original ' + escapeHtml(tech.name) + ' command reference <span class="tech-count">Preserved</span></summary><div style="padding:0 14px 14px"><div class="code-block-wrap"><div class="code-block-header"><span class="code-block-lang">Reference</span><button class="copy-btn">Copy</button></div><pre>' + escapeHtml(tech.commands) + '</pre></div></div></details></section>';
     }
   } else if (activeTechTab === 'resources') {
+    html += '<div class="tech-unified-panel"><div class="tech-unified-heading">Learning resources</div>';
     tech.resources.forEach(r => {
       html += `<a class="resource-card" href="${r.url}" target="_blank" rel="noopener">
         <div class="resource-icon">🔗</div>
@@ -2877,7 +2908,9 @@ function renderTechView(tech) {
         <span class="resource-chevron">›</span>
       </a>`;
     });
+    html += '</div>';
   } else if (activeTechTab === 'projects') {
+    html += '<div class="tech-unified-panel"><div class="tech-unified-heading">Hands-on projects</div>';
     tech.projects.forEach((p,i) => {
       html += `<div class="project-card">
         <div class="project-num">${i+1}</div>
@@ -2885,6 +2918,7 @@ function renderTechView(tech) {
         <div class="p-desc">${p.desc}</div>
       </div>`;
     });
+    html += '</div>';
   }
   return html;
 }
