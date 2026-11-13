@@ -2549,9 +2549,6 @@ function linuxNotebookCategory(entry) {
   // Classify by executable rather than the saved entry's old "My commands" label.
   // This also automatically reorganizes previously saved browser commands.
   const lower = command.toLowerCase();
-  // sudo -i, sudo -iu USER, sudo -u USER and sudo - USER are Linux
-  // account/session operations, not unclassified executables.
-  if (/^sudo\s+(?:(?:-i(?:u\s*\S+)?|-u\s*\S+|-iu\s*\S+|--login|--user(?:=|\s+)\S+)(?:\s|$)|-\s+\S+)/i.test(command)) return 'Users & identity';
   // Device-specific command syntax takes precedence over generic executable names.
   if (/^(?:show|sh)\s+(?:ip\s+(?:route|bgp|ospf|interface|arp)|interfaces?\b|vlan\b|version\b|running-config\b|startup-config\b|standby\b|spanning-tree\b|mac\s+address-table\b|cdp\b|lldp\b|etherchannel\b|platform\b|license\b|inventory\b|logging\b|clock\b|access-lists?\b|route-map\b|vrf\b|switch\b)/i.test(command) || /^(?:conf(?:igure)?\s+t(?:erminal)?|interface\s+(?:gigabit|fastethernet|ten|ethernet|vlan|loopback)|router\s+(?:bgp|ospf|eigrp)|switchport\b|no\s+shutdown\b|copy\s+running-config\b|write\s+memory\b)/i.test(command)) {
     if (/^(?:show|sh)\s+(?:ip\s+(?:route|bgp|ospf)|route-map|vrf)|^router\s+(?:bgp|ospf|eigrp)/i.test(command)) return 'Cisco · Routing';
@@ -2560,16 +2557,37 @@ function linuxNotebookCategory(entry) {
   }
   if (/^(?:get|set|new|remove|restart|start|stop|test|enable|disable|invoke|select|where|format|out|import|export|connect|disconnect|enter|exit|clear|measure|compare|write|read)-[a-z][\w-]*/i.test(command)) return 'Windows · PowerShell';
   if (/^(?:ipconfig|netsh|netstat\s+-ano|tasklist|taskkill|sfc|dism|reg\s+(?:query|add|delete)|gpupdate|gpresult|wmic|sc\s+(?:query|start|stop)|powershell(?:\.exe)?|cmd(?:\.exe)?)\b/i.test(command)) return 'Windows · CMD';
+  // Identify the executable; user names, file paths, and arguments are not categories.
   const tokens = command.split(/\s+/);
   let pos = 0;
-  while (['sudo','env','command','nohup','time'].includes(tokens[pos])) {
-    pos++;
-    if (tokens[pos-1] === 'sudo') {
-      while (['-u','-g','-h','-p'].includes(tokens[pos])) pos += 2;
-      while (['-i','-H','-E','-n','-s','-k'].includes(tokens[pos])) pos++;
+  let loginSwitch = false;
+  for (let guard = 0; guard < 12 && pos < tokens.length; guard++) {
+    const token = (tokens[pos] || '').toLowerCase();
+    if (token === 'sudo') {
+      pos++;
+      while (pos < tokens.length) {
+        const opt = tokens[pos];
+        if (/^-(?:i|iu|ui|H|E|n|s|k|v)+$/.test(opt)) { if (/[i]/.test(opt)) loginSwitch = true; pos++; continue; }
+        if (/^-(?:u|g|h|p)$/.test(opt)) { pos += 2; continue; }
+        if (/^-(?:u|g)\S+/.test(opt) || /^--(?:user|group)=/.test(opt)) { pos++; continue; }
+        if (/^--(?:login|set-home|preserve-env)$/.test(opt)) { if (opt === '--login') loginSwitch = true; pos++; continue; }
+        if (opt === '--user' || opt === '--group') { pos += 2; continue; }
+        break;
+      }
+      if (pos >= tokens.length) return 'Users & identity';
+      continue;
     }
+    if (token === 'env' || token === 'command' || token === 'nohup' || token === 'time') {
+      pos++;
+      if (token === 'env') while (pos < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[pos])) pos++;
+      continue;
+    }
+    break;
   }
+  // A bare sudo login/user-switch command is user management, even without a username.
+  if (loginSwitch && pos >= tokens.length) return 'Users & identity';
   const executable = (tokens[pos] || '').split('/').pop().toLowerCase();
+  if (!executable || executable.startsWith('-')) return 'Users & identity';
   const categories = {
     'Listing & inspection':'ls find stat tree du df file locate updatedb',
     'Paths & navigation':'cd pwd realpath readlink dirname basename pushd popd dirs',
