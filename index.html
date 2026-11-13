@@ -2955,7 +2955,7 @@ function renderTechView(tech) {
           <span style="background:var(--bg-section);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:500;color:var(--txt-secondary);">${tech.hours}hrs total</span>
           <span style="background:var(--bg-section);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:500;color:var(--txt-secondary);">${hrsDone}hrs done</span>
         </div>
-        <div style="margin-top:14px;width:100%;">
+        ${tech.id === "ansible" ? "" : `        <div style="margin-top:14px;width:100%;">
           <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--txt-muted);font-weight:500;margin-bottom:6px;">
             <span>${doneCount} of ${allTopics.length} topics</span>
             <span style="color:var(--accent);font-weight:700;">${pct}%</span>
@@ -2963,7 +2963,7 @@ function renderTechView(tech) {
           <div style="height:6px;background:var(--bg-section);border-radius:var(--r-full);overflow:hidden;">
             <div style="height:100%;border-radius:var(--r-full);background:linear-gradient(90deg,var(--accent),#5AC8FA);transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);width:${pct}%;"></div>
           </div>
-        </div>
+        </div>`}
       </div>
     </div>
     </div>` : ''}
