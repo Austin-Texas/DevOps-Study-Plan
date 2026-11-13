@@ -2558,6 +2558,7 @@ function linuxNotebookCategory(entry) {
 function renderLinuxCommandNotebook() {
   const entries = getLinuxNotebookEntries();
   let html = `<style>
+    .linux-input-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}.linux-input-columns>div{min-width:0}.linux-destination-panel{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--bg-section);box-sizing:border-box}.linux-destination-panel strong{font-size:12px;color:var(--txt-muted)}#linux-destination-name{font-size:17px;font-weight:750;margin-top:10px}#linux-destination-help{font-size:12px;color:var(--txt-secondary);margin-top:8px}@media(max-width:850px){.linux-input-columns{grid-template-columns:1fr}}
     /* Two balanced notebook panels side-by-side, stacking only on smaller screens */
     .linux-notebook-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
     .linux-notebook-panels > *{min-width:0}
@@ -2638,12 +2639,13 @@ function renderLinuxCommandNotebook() {
   </style><div style="padding:18px;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-elevated)">
     <h3 style="font-size:18px;font-weight:800">📓 Linux Command Notebook</h3>
     <p style="font-size:13px;color:var(--txt-secondary);margin:8px 0 14px">Enter a command to save it. Select a command card to open its explanation in a small popup. Existing reference commands are preserved.</p>
-    <form id="linux-command-add-form" style="display:flex;gap:8px;flex-wrap:wrap">
+    <div class="linux-input-columns"><div>    <form id="linux-command-add-form" style="display:flex;gap:8px;flex-wrap:wrap">
       <input id="linux-command-add" aria-label="New Linux command" required autocomplete="off" placeholder="Type a Linux command and press Enter…" style="flex:1;min-width:220px;padding:12px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary)">
       <button type="submit" class="tab-btn active" style="padding:10px 18px">+ Add</button>
     </form>
     <p id="linux-command-status" aria-live="polite" style="font-size:12px;color:var(--txt-muted);margin-top:8px">New commands save in this browser. Common commands get built-in explanations; other commands need a connected AI backend.</p>
     <input id="linux-command-search" type="search" placeholder="Filter saved commands…" aria-label="Filter commands" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary);margin-top:12px">
+</div><div class="linux-destination-panel"><strong>Command category</strong><div id="linux-destination-name">Type a command to see where it will be saved</div><p id="linux-destination-help">Your command will appear under its matching expandable category below.</p></div></div>
   <div class="linux-notebook-panels"><div id="linux-command-results">`;
   const groupedEntries = entries.map((entry,i) => ({entry,i,group:linuxNotebookCategory(entry)}));
   const categories = [...new Set(groupedEntries.map(item => item.group))].sort((a,b) => a.localeCompare(b));
@@ -3142,6 +3144,11 @@ function attachTechEventListeners(tech) {
       showRefEditor(false);
     });
     const addForm = document.getElementById('linux-command-add-form');
+    const newField = document.getElementById('linux-command-add');
+    if (newField) newField.addEventListener('input', function() {
+      const command = this.value.trim();
+      document.getElementById('linux-destination-name').textContent = command ? linuxNotebookCategory({command}) : 'Type a command to see where it will be saved';
+    });
     if (addForm) addForm.addEventListener('submit', function(event) {
       event.preventDefault();
       const field = document.getElementById('linux-command-add');
@@ -3157,7 +3164,11 @@ function attachTechEventListeners(tech) {
       saved.push(explainCommonLinuxCommand(command) || {category:'My commands',command,summary:'Saved command — explanation pending AI backend integration.',parts:[],risk:'unreviewed',notes:'Not reviewed. Verify the command and flags before running it on a real machine.'});
       try { localStorage.setItem('linux-notebook-custom-v1', JSON.stringify(saved)); }
       catch (_) { document.getElementById('linux-command-status').textContent = 'Browser storage is unavailable; this command could not be saved.'; return; }
+      const category = linuxNotebookCategory({command});
       render();
+      document.getElementById('linux-destination-name').textContent = 'Saved under: ' + category;
+      document.getElementById('linux-destination-help').textContent = 'Open the ' + category + ' category below to find your command.';
+      document.getElementById('linux-command-status').textContent = '✓ Command saved successfully.';
     });
     if (search) search.addEventListener('input', function() {
       const query = this.value.trim().toLowerCase();
