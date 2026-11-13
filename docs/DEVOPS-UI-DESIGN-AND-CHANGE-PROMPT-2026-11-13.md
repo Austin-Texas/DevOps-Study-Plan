@@ -72,3 +72,43 @@ The user's screenshot clarifies the approved design beyond the initial written g
 - The screenshot is the reference for the overall proportions, card density, typography, and background. Do not change the approved light/dark theme colors or sidebar.
 - The Ansible Commands implementation was introduced in commit `221ed4e`. It includes its own browser-local command additions, modifications, deletions, notes, and editable reference. The Linux notebook remains separate and unchanged.
 - **Important:** Other technology pages received a shared compact reference style earlier, but do not yet have the full Ansible/Linux notebook feature set. Extend only upon explicit request, and verify deployment and interactions.
+
+
+## 9. Mandatory feature parity: Linux → Ansible and future technology notebooks
+
+**Requirement:** The Ansible Automation → Commands page must reproduce **all** of the Linux Administration → Commands notebook's interaction patterns, not just its visual style. Apply this checklist to future technology pages when requested. The icons must be visible and usable, not merely described in documentation.
+
+### Every command card
+- **Edit (pencil ✎ icon):** opens the existing command in an editable modal. Editable fields include the command text, plain-language explanation, flag/token-by-token meanings (each on a separate line), and example. Editing an existing card must not create a duplicate.
+- **Delete (trash 🗑 icon):** removes the intended command after confirmation. Immediately refresh the category and count; preserve unrelated commands.
+- **Open/details (expand/open icon ↗ or card click):** opens a readable command-details modal with summary, a structured token/flag meaning table, and a copyable command example. Do not confuse opening with editing; provide an explicit pencil icon inside the modal to enter edit mode.
+- **Copy:** one functional Copy action for each example, with temporary “Copied” feedback. Avoid duplicate Copy buttons.
+- Icons must have descriptive titles/accessibility labels, keyboard focus states, and sufficiently large click targets. Icon clicks must not inadvertently trigger card-open actions.
+- A newly saved or edited command must update the visible card **immediately**, including its text, category and count. Reclassify after a command-text edit.
+
+### Editing workflow
+- Modal initially opens in **read-only detail mode** with the Edit pencil icon, Delete icon and Close button.
+- Pencil enters edit mode with fields for Command, What does it do?, Flags and meanings (one per line: token/flag | explanation), and Example.
+- **Save changes** validates and persists edits, shows a clear green “Changes saved successfully” confirmation, and returns to read-only mode **without closing the modal**. The modal remains open until the user closes it.
+- Hide/disable Save and Cancel after a successful save by leaving edit mode; the updated read-only details and example must appear immediately.
+- Cancel discards unsaved changes and returns to the same read-only modal. Closing does not delete or undo previously saved changes.
+- Parse token/flag explanations into distinct table rows; never show literal `\\n` escape sequences or collapse all explanations into one cell.
+
+### Command entry and categories
+- Add input and filter, auto-classification by executable and subcommand, expandable categories, counts and compact cards. Existing commands stay visible and are preserved.
+- Recognize duplicates by normalized syntax; display **orange/amber “Already saved”** with exact category/path and do not add another card. Display **green “Saved successfully”** for a genuinely new command and show its location.
+- Show a live category preview as the user types where feasible. Command syntax, not incidental username/path, determines category.
+- Category accordion arrow changes direction when expanded/collapsed. Expanding a category must not shift the independent right column.
+
+### Right column, notes and reference
+- Status/category location panel, then **+ Add more notes**, then editable **Original [Technology] command reference (preserved)**.
+- Notes: unlimited separate entries, each with its own **Edit pencil and Delete trash icons**, confirmation after saving, and persistent storage. Adding a note must not replace earlier notes.
+- Reference: one Edit pencil action, one Copy button, an editable text area with Save/Cancel, and preserved original reference content. Reference viewer has bounded height and internal scrolling.
+- No global “Notes and warnings” field for each command.
+- Two equal desktop columns; stack on mobile. Expanding notes or reference must not move left-hand command cards.
+
+### Persistence, safety and regression checks
+- Use existing local persistence with stable IDs, preserving all prior user data and reference examples. Never reset Linux notebook data while implementing Ansible.
+- Test: add, duplicate, filter, category expansion, open, edit, save, cancel, delete, copy, note add/edit/delete, reference edit/copy, modal staying open after save, immediate card refresh, and reload persistence.
+- Verify Topics / Commands / Resources / Projects tabs, sidebar, light/dark mode, mobile layout and browser console. Keep required hidden statistics DOM nodes intact.
+- **Parity is an acceptance criterion, not a claim of completion.** If a page is missing a feature, implement and test it before reporting that the page fully matches Linux.
