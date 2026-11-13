@@ -3032,18 +3032,58 @@ function attachTechEventListeners(tech) {
         edits[original.command] = edited;
         try { localStorage.setItem('linux-notebook-edits-v1',JSON.stringify(edits)); }
         catch (_) { alert('Unable to save. Browser storage may be blocked or full.'); return; }
-        // Exit edit mode immediately after a successful save, then show the updated read-only view.
-        setEditing(false);
-        close();
-        overlay?.remove();
-        modal?.remove();
-        render();
-        const status = document.getElementById('linux-command-status');
-        if (status) {
-          status.textContent = '✓ Changes saved successfully. Select the command card to review the updated explanation.';
-          status.style.color = '#15803d';
-          status.setAttribute('role', 'status');
+        // Update the visible card and modal without closing or moving the popup.
+        const cardCode = card.querySelector('summary code');
+        if (cardCode) cardCode.textContent = edited.command;
+        const modalTitle = modal.querySelector('code');
+        if (modalTitle) modalTitle.textContent = edited.command;
+        const summaryParagraph = readonly.querySelector('p');
+        if (summaryParagraph) {
+          summaryParagraph.replaceChildren();
+          const heading = document.createElement('strong');
+          heading.textContent = 'What does it do?';
+          summaryParagraph.append(heading, document.createElement('br'), document.createTextNode(edited.summary || 'No explanation provided.'));
         }
+        const existingParts = readonly.querySelector('.linux-parts-section');
+        if (existingParts) existingParts.remove();
+        const oldParts = readonly.querySelector('.kb-table')?.parentElement;
+        if (oldParts) oldParts.remove();
+        const oldPlaceholder = [...readonly.querySelectorAll('p')].find(p => p.textContent.includes('Flag-by-flag analysis awaits'));
+        if (oldPlaceholder) oldPlaceholder.remove();
+        const partSection = document.createElement('div');
+        partSection.className = 'linux-parts-section';
+        if (edited.parts.length) {
+          const label = document.createElement('p');
+          label.textContent = 'What each part means';
+          label.style.cssText = 'font-size:13px;font-weight:700;margin:12px 0 6px';
+          const table = document.createElement('table');
+          table.className = 'kb-table';
+          const head = document.createElement('thead');
+          const headRow = document.createElement('tr');
+          ['Token / flag','Meaning'].forEach(t => { const th = document.createElement('th'); th.textContent=t; headRow.appendChild(th); });
+          head.appendChild(headRow);
+          const body = document.createElement('tbody');
+          edited.parts.forEach(p => { const tr=document.createElement('tr'); const token=document.createElement('td'); const code=document.createElement('code'); code.textContent=p[0]; token.appendChild(code); const meaning=document.createElement('td'); meaning.textContent=p[1]; tr.append(token,meaning); body.appendChild(tr); });
+          table.append(head,body);
+          partSection.append(label,table);
+        }
+        const exampleBox = readonly.querySelector('.code-block-wrap');
+        readonly.insertBefore(partSection, exampleBox);
+        const exampleCode = exampleBox?.querySelector('pre');
+        if (exampleCode) exampleCode.textContent = edited.example || edited.command;
+        card.dataset.search = [edited.command,edited.summary,...edited.parts.flat()].join(' ').toLowerCase();
+        setEditing(false);
+        let savedNotice = modal.querySelector('.linux-command-save-notice');
+        if (!savedNotice) {
+          savedNotice = document.createElement('div');
+          savedNotice.className = 'linux-command-save-notice';
+          savedNotice.setAttribute('role','status');
+          savedNotice.style.cssText = 'margin:10px 0;padding:9px 12px;border-radius:8px;background:#dcfce7;color:#166534;font-size:13px;font-weight:700';
+          readonly.prepend(savedNotice);
+        }
+        savedNotice.textContent = '✓ Changes saved successfully';
+        // The modal remains open until the user clicks X or the backdrop.
+
       });
 
     });
