@@ -2554,6 +2554,11 @@ function renderLinuxCommandNotebook() {
 
     .linux-command-modal {left:50vw!important;top:50vh!important;transform:translate(-50%,-50%)!important;position:fixed!important;z-index:10001!important}
     .linux-command-overlay {position:fixed!important;inset:0!important;z-index:10000!important}
+    .linux-hero-notebook-layout{display:grid;grid-template-columns:minmax(280px,0.9fr) minmax(0,1.5fr);gap:16px;align-items:start}
+    .linux-hero-notebook-layout > div:first-child{margin-bottom:0!important}
+    .linux-hero-notebook-layout #linux-command-results{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+    .linux-hero-notebook-layout #linux-command-add-form{flex-wrap:nowrap!important}
+    @media(max-width:1100px){.linux-hero-notebook-layout{grid-template-columns:1fr}}
     /* Premium translucent glass styling scoped to Linux notebook */
     #linux-command-results {gap:12px;padding:12px;border-radius:20px;background:linear-gradient(135deg,rgba(59,130,246,.055),rgba(139,92,246,.045));border:1px solid rgba(140,150,175,.13)}
     #linux-command-results .linux-command-entry {background:linear-gradient(145deg,rgba(255,255,255,.66),rgba(238,243,255,.38))!important;border:1px solid rgba(148,163,184,.28)!important;border-radius:15px!important;box-shadow:0 5px 18px rgba(15,23,42,.045),inset 0 1px rgba(255,255,255,.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
@@ -2567,7 +2572,15 @@ function renderLinuxCommandNotebook() {
     .linux-command-modal {background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(242,246,255,.88))!important;border:1px solid rgba(255,255,255,.78)!important;box-shadow:0 30px 90px rgba(12,23,52,.24),inset 0 1px rgba(255,255,255,.9)!important;backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px)}
     .linux-command-modal .kb-note {border-radius:12px}
     .linux-command-modal .code-block-wrap {border-radius:12px;overflow:hidden}
-    @media(prefers-color-scheme:dark){#linux-command-results .linux-command-entry{background:linear-gradient(145deg,rgba(44,57,80,.78),rgba(31,41,61,.64))!important;border-color:rgba(148,163,184,.25)!important} .linux-command-modal{background:linear-gradient(145deg,rgba(34,44,65,.96),rgba(22,31,48,.94))!important;border-color:rgba(148,163,184,.25)!important}}
+    [data-theme="dark"] #linux-command-results .linux-command-entry{background:rgba(34,44,65,.9)!important;color:#f1f5f9!important}
+    [data-theme="dark"] .linux-command-modal{background:#1a2334!important;color:#f1f5f9!important;border-color:#475569!important}
+    [data-theme="light"] #linux-command-results .linux-command-entry{background:rgba(255,255,255,.92)!important;color:#1f2937!important}
+    [data-theme="light"] .linux-command-modal{background:#fff!important;color:#1f2937!important;border:1px solid #dbe2ed!important}
+    .linux-command-modal{position:fixed!important;left:50vw!important;top:50vh!important;transform:translate(-50%,-50%)!important;z-index:10001!important}
+    .linux-command-overlay{position:fixed!important;inset:0!important;z-index:10000!important}
+    .linux-command-entry[open]{transform:none!important}
+    .linux-command-modal .linux-command-readonly,.linux-command-modal .linux-command-edit-form{color:var(--txt-primary)}
+
     @media(prefers-reduced-motion:reduce){#linux-command-results .linux-command-entry{transition:none}#linux-command-results .linux-command-entry:hover{transform:none}}
 
   </style><div style="padding:18px;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-elevated)">
@@ -2629,6 +2642,7 @@ function renderTechView(tech) {
   const doneCount = allTopics.filter(t => checkedTopics[t.id]).length;
 
   let html = `
+    ${tech.id === 'linux' && activeTechTab === 'commands' ? '<div class="linux-hero-notebook-layout">' : ''}
     <div style="background:var(--bg-elevated);border-radius:var(--r-xl);padding:24px;margin-bottom:20px;box-shadow:var(--shadow-card);border:1px solid var(--border);display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;">
       <div style="width:64px;height:64px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:var(--shadow-md);flex-shrink:0;background:${tech.color}20;">${tech.emoji}</div>
       <div style="flex:1;min-width:200px;">
@@ -2649,6 +2663,7 @@ function renderTechView(tech) {
         </div>
       </div>
     </div>
+    ${tech.id === 'linux' && activeTechTab === 'commands' ? renderLinuxCommandNotebook() + '</div>' : ''}
     <div class="tabs-bar">
       <button class="tab-btn tech-tab-btn ${activeTechTab==='topics'?'active':''}" data-tab="topics">Topics</button>
       <button class="tab-btn tech-tab-btn ${activeTechTab==='commands'?'active':''}" data-tab="commands">Commands</button>
@@ -2683,7 +2698,7 @@ function renderTechView(tech) {
     });
   } else if (activeTechTab === 'commands') {
     if (tech.id === 'linux') {
-      html += renderLinuxCommandNotebook();
+      // Notebook is displayed beside the Linux Administration hero above.
     } else {
       html += `<div class="code-block-wrap">
       <div class="code-block-header">
