@@ -2860,7 +2860,7 @@ function renderAnsibleNotebook(tech){
  <p style="font-size:12px;color:var(--txt-muted);margin:8px 0 12px">Commands and notes save in this browser.</p>
  <input id="ans-filter" class="ans-field" placeholder="Filter saved commands…">
  <div id="ans-categories" style="margin-top:14px;background:var(--bg-section);border:1px solid var(--border);border-radius:16px;padding:12px">
- ${Object.keys(groups).sort().map(g=>`<details class="ans-cat" data-ans-category="${esc(g)}"><summary><span>${esc(g)}</span><small>${groups[g].length} commands</small></summary><div class="ans-card-grid">${groups[g].map(e=>`<div class="ans-card" data-ans-search="${esc(e.command.toLowerCase())}"><code>${esc(e.command)}</code><button title="Open command details" aria-label="Open command details" data-ans-open="${esc(e.id)}">✎</button><button title="Delete" data-ans-delete="${esc(e.id)}">🗑</button></div>`).join('')}</div></details>`).join('')}
+ ${Object.keys(groups).sort().map(g=>`<details class="ans-cat" data-ans-category="${esc(g)}"><summary><span>${esc(g)}</span><small>${groups[g].length} commands</small></summary><div class="ans-card-grid">${groups[g].map(e=>`<div class="ans-card" data-ans-search="${esc(e.command.toLowerCase())}"><code>${esc(e.command)}</code><button title="Open command details" aria-label="Open command details" data-ans-open="${esc(e.id)}">↗</button><button title="Edit command" aria-label="Edit command" data-ans-edit="${esc(e.id)}">✎</button><button title="Delete command" aria-label="Delete command" data-ans-delete="${esc(e.id)}">🗑</button></div>`).join('')}</div></details>`).join('')}
  </div></section><section><div class="ans-status ${status?.type||''}" id="ans-status"><small>Command category</small><h3 style="margin:9px 0">${esc(status?.title||'Type a command to see where it will be saved')}</h3><p style="font-size:12px">${esc(status?.detail||'Your command will appear under its matching expandable category.')}</p></div>
  <details class="ans-cat"><summary>+ Add more notes</summary><div style="padding:12px">${notes.map((n,i)=>`<div class="ans-card" style="margin-bottom:8px"><span style="flex:1;white-space:pre-wrap;overflow-wrap:anywhere">${esc(n)}</span><button data-ans-note-edit="${i}">✎</button><button data-ans-note-delete="${i}">🗑</button></div>`).join('')}<form id="ans-note-form"><textarea id="ans-note-input" class="ans-field" placeholder="Write a new note…" required></textarea><button class="ans-btn">+ Add note</button></form></div></details>
  <details class="ans-cat"><summary>Original Ansible command reference (preserved) · ✎ Editable</summary><div style="padding:12px"><div class="ans-row"><button class="ans-btn" data-ans-reference-edit type="button">✎ Edit</button><button class="ans-btn" data-ans-reference-copy type="button">Copy</button></div><pre id="ans-original-display" style="max-height:380px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:var(--bg-section);border-radius:10px">${esc(ansGet('reference',tech.commands))}</pre><form id="ans-reference-form" style="display:none"><textarea id="ans-reference-text" class="ans-field">${esc(ansGet('reference',tech.commands))}</textarea><button class="ans-btn">Save reference</button><button class="ans-btn" type="button" data-ans-reference-cancel>Cancel</button></form></div></details>
@@ -2868,26 +2868,28 @@ function renderAnsibleNotebook(tech){
 }
 function attachAnsibleNotebook(tech){
  const root=document.getElementById('ans-notebook');if(!root)return;
- const repaint=()=>{root.outerHTML=renderAnsibleNotebook(tech);attachAnsibleNotebook(tech)};
+ const repaint=()=>{const opened=[...root.querySelectorAll('.ans-cat[data-ans-category]')].filter(x=>x.open).map(x=>x.dataset.ansCategory);root.outerHTML=renderAnsibleNotebook(tech);attachAnsibleNotebook(tech);document.querySelectorAll('#ans-notebook .ans-cat[data-ans-category]').forEach(x=>x.open=opened.includes(x.dataset.ansCategory))};
  root.querySelector('#ans-add').onsubmit=e=>{e.preventDefault();const cmd=root.querySelector('#ans-input').value.trim();if(!cmd)return;
  const entries=ansEntries(tech),normalized=x=>x.toLowerCase().replace(/\\s+/g,' ').trim();
  const existing=entries.find(x=>normalized(x.command)===normalized(cmd));const category=ansCategory(cmd);
  if(existing){window.ansNotebookStatus={type:'duplicate',title:'Already saved',detail:'Commands → Ansible → '+ansCategory(existing.command)+' → '+existing.command}}
  else{const added=ansGet('added',[]);added.push({id:'custom-'+Date.now(),command:cmd,summary:'',example:cmd});ansSet('added',added);window.ansNotebookStatus={type:'saved',title:'✓ Command saved successfully',detail:'Commands → Ansible → '+category}}repaint();
  };
+ root.querySelector('#ans-input').oninput=e=>{const cmd=e.target.value.trim();const box=root.querySelector('#ans-status');if(!cmd){box.className='ans-status';box.querySelector('h3').textContent='Type a command to see where it will be saved';box.querySelector('p').textContent='Your command will appear under its matching expandable category.';return}const normalized=x=>x.toLowerCase().replace(/\s+/g,' ').trim();const existing=ansEntries(tech).find(x=>normalized(x.command)===normalized(cmd));box.className='ans-status'+(existing?' duplicate':'');box.querySelector('h3').textContent=existing?'Already saved: '+ansCategory(existing.command):'Will save under: '+ansCategory(cmd);box.querySelector('p').textContent='Commands → Ansible → '+ansCategory(existing?.command||cmd)};
  root.querySelector('#ans-filter').oninput=e=>{const term=e.target.value.toLowerCase();root.querySelectorAll('.ans-cat[data-ans-category]').forEach(cat=>{let shown=0;cat.querySelectorAll('.ans-card').forEach(card=>{const match=card.dataset.ansSearch.includes(term);card.hidden=!match;if(match)shown++});cat.hidden=!shown;if(term)cat.open=true})};
  root.querySelector('#ans-note-form').onsubmit=e=>{e.preventDefault();const n=root.querySelector('#ans-note-input').value.trim();if(n){const a=ansGet('notes',[]);a.push(n);ansSet('notes',a);repaint()}};
  root.onclick=e=>{
  const b=e.target.closest('button');if(!b)return;
  if(b.hasAttribute('data-ans-delete')){if(!confirm('Delete this command?'))return;const id=b.dataset.ansDelete;if(id.startsWith('ref-')){const c=ansGet('changes',{});c[id]={...(c[id]||{}),deleted:true};ansSet('changes',c)}else ansSet('added',ansGet('added',[]).filter(x=>x.id!==id));repaint()}
  if(b.hasAttribute('data-ans-note-delete')){const a=ansGet('notes',[]);a.splice(Number(b.dataset.ansNoteDelete),1);ansSet('notes',a);repaint()}
- if(b.hasAttribute('data-ans-note-edit')){const a=ansGet('notes',[]),i=Number(b.dataset.ansNoteEdit);const n=prompt('Edit note',a[i]);if(n!==null){a[i]=n;ansSet('notes',a);repaint()}}
+ if(b.hasAttribute('data-ans-note-edit')){const a=ansGet('notes',[]),i=Number(b.dataset.ansNoteEdit);const n=prompt('Edit note',a[i]);if(n!==null&&n.trim()){a[i]=n.trim();ansSet('notes',a);repaint()}}
  if(b.hasAttribute('data-ans-reference-edit')){root.querySelector('#ans-reference-form').style.display='block';root.querySelector('#ans-original-display').style.display='none';b.style.display='none';root.querySelector('#ans-reference-text').focus()}
  if(b.hasAttribute('data-ans-reference-cancel')){root.querySelector('#ans-reference-text').value=ansGet('reference',tech.commands);root.querySelector('#ans-reference-form').style.display='none';root.querySelector('#ans-original-display').style.display='block';root.querySelector('[data-ans-reference-edit]').style.display='inline-flex'}
  if(b.hasAttribute('data-ans-reference-copy')){navigator.clipboard.writeText(root.querySelector('#ans-original-display').textContent);b.textContent='✓ Copied'}
 
- if(b.hasAttribute('data-ans-open')){
-  const id=b.dataset.ansOpen;
+ if(b.hasAttribute('data-ans-open')||b.hasAttribute('data-ans-edit')){
+  const id=b.dataset.ansOpen||b.dataset.ansEdit;
+  const startEditing=b.hasAttribute('data-ans-edit');
   const modal=root.querySelector('#ans-modal-root');
   const read=()=>ansEntries(tech).find(x=>x.id===id);
   const esc=x=>escapeHtml(String(x??''));
@@ -2928,11 +2930,10 @@ function attachAnsibleNotebook(tech){
    const updated=renderAnsibleNotebook(tech);root.outerHTML=updated;attachAnsibleNotebook(tech);
    const newRoot=document.getElementById('ans-notebook');
    newRoot.querySelectorAll('.ans-cat[data-ans-category]').forEach(x=>{x.open=expanded.includes(x.dataset.ansCategory)||x.dataset.ansCategory===ansCategory(data.command)});
-   const newModal=newRoot.querySelector('#ans-modal-root');newModal.innerHTML=modal.innerHTML;
-   // Reopen details using the newly attached command card, preserving the modal until explicitly closed.
-   const opener=newRoot.querySelector('[data-ans-open="'+id+'"]');if(opener){opener.click();const notice=newRoot.querySelector('#ans-modal-root .ans-modal h3');if(notice)notice.insertAdjacentHTML('afterend','<p style="background:#dcfce7;color:#166534;padding:12px;border-radius:10px;margin:12px 0">✓ Changes saved successfully</p>')}
+   // Rebind the modal handlers to the updated card; leave it open in read-only mode.
+   const opener=newRoot.querySelector('[data-ans-open="'+id+'"]');if(opener){opener.click();const heading=newRoot.querySelector('#ans-modal-root .ans-modal h3');if(heading)heading.insertAdjacentHTML('afterend','<p role="status" style="background:#dcfce7;color:#166534;padding:12px;border-radius:10px;margin:12px 0">✓ Changes saved successfully</p>')}
   };
-  show();
+  if(startEditing)edit();else show();
  }
  };
  root.querySelector('#ans-reference-form').onsubmit=e=>{e.preventDefault();const value=root.querySelector('#ans-reference-text').value;ansSet('reference',value);root.querySelector('#ans-original-display').textContent=value;root.querySelector('#ans-original-display').style.display='block';root.querySelector('#ans-reference-form').style.display='none';root.querySelector('[data-ans-reference-edit]').style.display='inline-flex';let notice=root.querySelector('#ans-reference-success');if(!notice){notice=document.createElement('p');notice.id='ans-reference-success';notice.setAttribute('role','status');notice.style.cssText='background:#dcfce7;color:#166534;padding:10px;border-radius:9px;margin:10px 0';root.querySelector('#ans-original-display').before(notice)}notice.textContent='✓ Reference changes saved successfully';};
