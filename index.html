@@ -2544,10 +2544,21 @@ function getLinuxNotebookEntries() {
     .filter(e => !deleted.includes(e._originalCommand) && !deleted.includes(e.command));
 
 }
+function linuxNotebookCategory(entry) {
+  const command = (entry.command || '').trim();
+  if (/^(?:sudo\s+)?(?:ls|find|stat|tree|du|df|file)\b/.test(command)) return 'Listing & inspection';
+  if (/^(?:sudo\s+)?(?:cd|pwd|realpath|readlink)\b/.test(command)) return 'Paths & navigation';
+  if (/^(?:sudo\s+)?(?:su|whoami|id|useradd|userdel|usermod|groups)\b/.test(command)) return 'Users & identity';
+  if (/^(?:sudo\s+)?(?:apt|apt-get|dpkg|snap)\b/.test(command)) return 'Package management';
+  if (/^(?:sudo\s+)?(?:ansible|ansible-playbook)\b/.test(command)) return 'Ansible';
+  if (/^(?:sudo\s+)?(?:rm|rmdir|unlink)\b/.test(command)) return 'Files & deletion';
+  if (/^(?:echo|printf)\b/.test(command)) return 'Shell & environment';
+  return entry.category || 'Other commands';
+}
 function renderLinuxCommandNotebook() {
   const entries = getLinuxNotebookEntries();
   let html = `<style>
-    #linux-command-results { display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;align-items:start }
+    #linux-command-results { display:flex;flex-direction:column;gap:10px;align-items:stretch }\n    #linux-command-results .linux-command-category{border:1px solid var(--border);border-radius:14px;background:var(--bg-elevated);padding:10px 12px}\n    #linux-command-results .linux-command-category > summary{cursor:pointer;font-weight:700;padding:7px 4px;display:flex;justify-content:space-between;gap:12px}\n    #linux-command-results .linux-category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding-top:12px}
     #linux-command-results .linux-command-entry {margin:0!important;min-width:0}
     #linux-command-results .linux-command-entry > summary {list-style:none;min-height:46px;padding:10px 12px!important}
     #linux-command-results .linux-command-entry > summary::-webkit-details-marker {display:none}
@@ -2626,7 +2637,12 @@ function renderLinuxCommandNotebook() {
     <p id="linux-command-status" aria-live="polite" style="font-size:12px;color:var(--txt-muted);margin-top:8px">New commands save in this browser. Common commands get built-in explanations; other commands need a connected AI backend.</p>
     <input id="linux-command-search" type="search" placeholder="Filter saved commands…" aria-label="Filter commands" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--bg-section);color:var(--txt-primary);margin-top:12px">
   <div id="linux-command-results">`;
-  entries.forEach((entry,i) => {
+  const groupedEntries = entries.map((entry,i) => ({entry,i,group:linuxNotebookCategory(entry)}));
+  const categories = [...new Set(groupedEntries.map(item => item.group))].sort((a,b) => a.localeCompare(b));
+  categories.forEach((category, categoryIndex) => {
+    const groupEntries = groupedEntries.filter(item => item.group === category);
+    html += `<details class="linux-command-category" ${categoryIndex === 0 ? 'open' : ''}><summary><span>▸ ${escapeHtml(category)}</span><span style="font-size:12px;color:var(--txt-muted)">${groupEntries.length} commands</span></summary><div class="linux-category-grid">`;
+    groupEntries.forEach(({entry,i}) => {
     const haystack = [entry.command,entry.category,entry.summary,entry.notes,...(entry.parts||[]).flat()].join(' ').toLowerCase();
     html += `<details class="linux-command-entry" data-search="${escapeHtml(haystack)}" style="border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated)">
       <summary style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;flex-wrap:wrap">
@@ -2661,6 +2677,8 @@ function renderLinuxCommandNotebook() {
         </div>
       </div>
     </details>`;
+    });
+    html += `</div></details>`;
   });
   html += `</div><p id="linux-command-empty" style="display:none;color:var(--txt-muted)">No matching commands found.</p>`;
   html += `<details id="linux-original-reference" style="margin-top:18px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--bg-elevated)"><summary style="cursor:pointer;font-weight:700">Original Linux command reference (preserved) · ✎ Editable</summary><div class="code-block-wrap" style="margin-top:10px"><div class="code-block-header"><span class="code-block-lang">Original examples</span><div style="display:flex;gap:7px"><button type="button" id="linux-reference-edit" class="linux-reference-edit-btn" style="background:#64748b;color:white;border:0;border-radius:999px;padding:5px 13px;font-size:12px;font-weight:700;cursor:pointer">✎ Edit</button><button class="copy-btn" type="button">Copy</button></div></div><pre id="linux-reference-display">${escapeHtml(localStorage.getItem('linux-reference-custom-v1') ?? TECHS.find(t=>t.id==='linux').commands)}</pre></div><form id="linux-reference-edit-form" hidden style="margin-top:12px"><label for="linux-reference-editor" style="font-size:13px;font-weight:700">Edit original Linux command reference</label><textarea id="linux-reference-editor" spellcheck="false" style="display:block;width:100%;min-height:300px;box-sizing:border-box;margin:8px 0;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-section);color:var(--txt-primary);font:13px/1.6 monospace"></textarea><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="submit" class="tab-btn active">Save changes</button><button type="button" id="linux-reference-cancel" class="tab-btn">Cancel</button><button type="button" id="linux-reference-reset" class="tab-btn">Restore original</button></div><p style="font-size:12px;color:var(--txt-muted);margin-top:8px">Changes are saved only in this browser. The original GitHub reference is kept for restoration.</p></form></details></div>`;
@@ -3140,6 +3158,11 @@ function attachTechEventListeners(tech) {
         const match = entry.dataset.search.includes(query);
         entry.style.display = match ? '' : 'none';
         if (match) visible++;
+      });
+      document.querySelectorAll('.linux-command-category').forEach(group => {
+        const hasVisible = [...group.querySelectorAll('.linux-command-entry')].some(card => card.style.display !== 'none');
+        group.style.display = hasVisible ? '' : 'none';
+        if (query && hasVisible) group.open = true;
       });
       const empty = document.getElementById('linux-command-empty');
       if (empty) empty.style.display = visible ? 'none' : '';
