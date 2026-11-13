@@ -3022,7 +3022,7 @@ function attachTechEventListeners(tech) {
         const original = getLinuxNotebookEntries()[index];
         const newCommand = String(fields.get('command') || '').trim();
         if (!newCommand) return;
-        const parts = String(fields.get('parts') || '').split('\\n').map(line => {
+        const parts = String(fields.get('parts') || '').split(/\\r?\\n|\\\\n/g).map(line => {
           const split = line.indexOf('|');
           return split < 0 ? [line.trim(), ''] : [line.slice(0,split).trim(),line.slice(split+1).trim()];
         }).filter(p => p[0]);
@@ -3032,7 +3032,18 @@ function attachTechEventListeners(tech) {
         edits[original.command] = edited;
         try { localStorage.setItem('linux-notebook-edits-v1',JSON.stringify(edits)); }
         catch (_) { alert('Unable to save. Browser storage may be blocked or full.'); return; }
+        // Exit edit mode immediately after a successful save, then show the updated read-only view.
+        setEditing(false);
+        close();
+        overlay?.remove();
+        modal?.remove();
         render();
+        const status = document.getElementById('linux-command-status');
+        if (status) {
+          status.textContent = '✓ Changes saved successfully. Select the command card to review the updated explanation.';
+          status.style.color = '#15803d';
+          status.setAttribute('role', 'status');
+        }
       });
 
     });
