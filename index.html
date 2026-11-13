@@ -2604,6 +2604,12 @@ function renderLinuxCommandNotebook() {
     #linux-original-reference #linux-reference-edit-form:not([hidden]){display:block}
     #linux-original-reference #linux-reference-edit-form[hidden]{display:none!important}
     /* Premium translucent glass styling scoped to Linux notebook */
+
+    /* Category chevron follows the native expanded/collapsed state. */
+    .linux-command-category > summary .linux-category-label{display:inline-flex;align-items:center;gap:8px}
+    .linux-command-category > summary .linux-category-chevron{display:inline-block;transition:transform .18s ease;transform:rotate(-90deg);font-size:16px;line-height:1}
+    .linux-command-category[open] > summary .linux-category-chevron{transform:rotate(0deg)}
+    @media(prefers-reduced-motion:reduce){.linux-command-category > summary .linux-category-chevron{transition:none}}
     #linux-command-results {gap:12px;padding:12px;border-radius:20px;background:linear-gradient(135deg,rgba(59,130,246,.055),rgba(139,92,246,.045));border:1px solid rgba(140,150,175,.13)}
     #linux-command-results .linux-command-entry {background:linear-gradient(145deg,rgba(255,255,255,.66),rgba(238,243,255,.38))!important;border:1px solid rgba(148,163,184,.28)!important;border-radius:15px!important;box-shadow:0 5px 18px rgba(15,23,42,.045),inset 0 1px rgba(255,255,255,.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
     #linux-command-results .linux-command-entry:hover {transform:translateY(-2px);border-color:rgba(59,130,246,.45)!important;box-shadow:0 12px 30px rgba(44,75,130,.12)}
@@ -2670,7 +2676,7 @@ function renderLinuxCommandNotebook() {
   const categories = [...new Set(groupedEntries.map(item => item.group))].sort((a,b) => a.localeCompare(b));
   categories.forEach((category, categoryIndex) => {
     const groupEntries = groupedEntries.filter(item => item.group === category);
-    html += `<details class="linux-command-category" ${categoryIndex === 0 ? 'open' : ''}><summary><span>▸ ${escapeHtml(category)}</span><span style="font-size:12px;color:var(--txt-muted)">${groupEntries.length} commands</span></summary><div class="linux-category-grid">`;
+    html += `<details class="linux-command-category" ${categoryIndex === 0 ? 'open' : ''}><summary><span class="linux-category-label"><span class="linux-category-chevron" aria-hidden="true">▾</span>${escapeHtml(category)}</span><span style="font-size:12px;color:var(--txt-muted)">${groupEntries.length} commands</span></summary><div class="linux-category-grid">`;
     groupEntries.forEach(({entry,i}) => {
     const haystack = [entry.command,entry.category,entry.summary,entry.notes,...(entry.parts||[]).flat()].join(' ').toLowerCase();
     html += `<details class="linux-command-entry" data-search="${escapeHtml(haystack)}" style="border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated)">
