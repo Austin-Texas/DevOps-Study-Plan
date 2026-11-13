@@ -2551,6 +2551,23 @@ function renderLinuxCommandNotebook() {
     .linux-command-modal .kb-table {font-size:12px}
     .linux-command-modal .kb-table td,.linux-command-modal .kb-table th {padding:8px}
     @media(max-width:520px){#linux-command-results{grid-template-columns:1fr}.linux-command-modal{padding:12px}}
+
+    /* Premium translucent glass styling scoped to Linux notebook */
+    #linux-command-results {gap:12px;padding:12px;border-radius:20px;background:linear-gradient(135deg,rgba(59,130,246,.055),rgba(139,92,246,.045));border:1px solid rgba(140,150,175,.13)}
+    #linux-command-results .linux-command-entry {background:linear-gradient(145deg,rgba(255,255,255,.66),rgba(238,243,255,.38))!important;border:1px solid rgba(148,163,184,.28)!important;border-radius:15px!important;box-shadow:0 5px 18px rgba(15,23,42,.045),inset 0 1px rgba(255,255,255,.7);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+    #linux-command-results .linux-command-entry:hover {transform:translateY(-2px);border-color:rgba(59,130,246,.45)!important;box-shadow:0 12px 30px rgba(44,75,130,.12)}
+    #linux-command-results .linux-command-entry > summary {min-height:49px!important;padding:10px 12px!important}
+    #linux-command-results .linux-command-entry > summary:hover {background:transparent}
+    #linux-command-results .linux-command-entry code {background:transparent!important;font-size:12px!important;letter-spacing:-.1px}
+    #linux-command-results .linux-card-actions button {width:26px;height:26px;align-items:center;justify-content:center;border-radius:8px!important;transition:background .2s ease}
+    #linux-command-results .linux-card-actions button:hover {background:rgba(100,116,139,.14)!important}
+    .linux-command-overlay {background:rgba(10,18,38,.34)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+    .linux-command-modal {background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(242,246,255,.88))!important;border:1px solid rgba(255,255,255,.78)!important;box-shadow:0 30px 90px rgba(12,23,52,.24),inset 0 1px rgba(255,255,255,.9)!important;backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px)}
+    .linux-command-modal .kb-note {border-radius:12px}
+    .linux-command-modal .code-block-wrap {border-radius:12px;overflow:hidden}
+    @media(prefers-color-scheme:dark){#linux-command-results .linux-command-entry{background:linear-gradient(145deg,rgba(44,57,80,.78),rgba(31,41,61,.64))!important;border-color:rgba(148,163,184,.25)!important} .linux-command-modal{background:linear-gradient(145deg,rgba(34,44,65,.96),rgba(22,31,48,.94))!important;border-color:rgba(148,163,184,.25)!important}}
+    @media(prefers-reduced-motion:reduce){#linux-command-results .linux-command-entry{transition:none}#linux-command-results .linux-command-entry:hover{transform:none}}
+
   </style><div style="padding:18px;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-elevated)">
     <h3 style="font-size:18px;font-weight:800">📓 Linux Command Notebook</h3>
     <p style="font-size:13px;color:var(--txt-secondary);margin:8px 0 14px">Enter a command to save it. Select a command card to open its explanation in a small popup. Existing reference commands are preserved.</p>
